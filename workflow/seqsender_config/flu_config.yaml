@@ -1,0 +1,21 @@
+Submission:
+  NCBI:
+    Username: ''
+    Password: ''  
+    Description:
+      Title: influenza_surveillance
+      Organization:
+        '@role': owner
+        '@type': institute
+        Name: Institute Name
+        Contact:
+          '@email': ''
+          Name:
+            First: ''
+            Last: ''
+  GISAID:
+    Client-Id: ''
+    Username: ''
+    Password: ''
+    Description:
+      Title: influenza_surveillance
