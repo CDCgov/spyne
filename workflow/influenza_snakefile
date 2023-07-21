@@ -40,6 +40,7 @@ rule subsample:
         " out={output}"
         " samplereadstarget=50000"
         " qin=33"
+        " tossbrokenreads"
         " 1> {log.out}"
         " 2> {log.err}"
         " || touch {output}"
