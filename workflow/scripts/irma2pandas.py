@@ -18,7 +18,7 @@ def returnStageColors(df):
     return reccolor
 
 
-def dash_reads_to_sankey(df):
+def dash_reads_to_sankey(df, virus):
     df = df[df["Stage"] != 0]
     reccolor = returnStageColors(df)
     labels = list(df["Record"])
@@ -54,10 +54,14 @@ def dash_reads_to_sankey(df):
             source.append(labels.index("1-initial"))
             target.append(labels.index(row["Record"]))
             value.append(row["Reads"])
+    if 'sc2' in virus:
+        arrangement = "freeform"
+    else:
+        arrangement = "snap"
     fig = go.Figure(
         data=[
             go.Sankey(
-                arrangement="snap",
+                arrangement=arrangement,
                 node=dict(
                     pad=15,
                     thickness=20,
@@ -84,7 +88,10 @@ def irmatable2df(irmaFiles):
     df = pd.DataFrame()
     for f in irmaFiles:
         sample = basename(dirname(dirname(f)))
-        df_prime = pd.read_csv(f, sep="\t", index_col=False)
+        if "insertions" not in f:
+            df_prime = pd.read_csv(f, sep="\t", index_col=False)
+        else:
+            df_prime = pd.read_csv(f, sep="\s+", index_col=False)
         df_prime.insert(loc=0, column="Sample", value=sample)
         df = df.append(df_prime)
     return df
@@ -121,9 +128,12 @@ def dash_irma_sample_type(reads_df):
 flu_segs = {'A':{'1':'PB2','2':'PB1','3':'PA','4':'HA','5':'NP','6':'NA','7':'M','8':'NS'}, 
     'B':{'1':'PB1','2':'PB2','3':'PA','4':'HA','5':'NP','6':'NA','7':'M','8':'NS'}}
 
-def dash_irma_sequence_df(irma_path, amended=True):
+def dash_irma_sequence_df(irma_path, amended=True, pad=True):
     if amended:
-        sequenceFiles = [i for i in glob(irma_path + "/*/amended_consensus/*fa") if 'pad' not in i]
+        if pad:
+            sequenceFiles = glob(irma_path + "/*/amended_consensus/*pad.fa")
+        else:
+            sequenceFiles = [i for i in glob(irma_path + "/*/amended_consensus/*fa") if 'pad' not in i]
     else:
         sequenceFiles = [i for i in glob(irma_path + "/*/*fasta") if 'pad' not in i]
     df = pd.DataFrame(columns=["Sample", "Sequence"])
@@ -201,6 +211,7 @@ def dash_irma_indels_df(irma_path, full=False):
     insertionFiles = glob(irma_path + "/*/tables/*insertions.txt")
     deletionFiles = glob(irma_path + "/*/tables/*deletions.txt")
     idf = irmatable2df(insertionFiles)
+    idf['Length'] = idf['Insert'].str.len()
     ddf = irmatable2df(deletionFiles)
     df = pd.concat([idf, ddf])
     if "HMM_Position" in df.columns:

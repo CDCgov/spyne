@@ -6,18 +6,34 @@ from glob import glob
 import subprocess
 import os
 
+
 root = "/".join(abspath(__file__).split("/")[:-2])
 if len(argv) < 2:
     exit(
-        "\n\tUSAGE: {} <samplesheet.csv> <runpath> <experiment_type>\n".format(__file__)
+        "\n\tUSAGE: {} <samplesheet.csv> <runpath> <experiment_type> <optional: primer_schema> <clean_option> \n".format(__file__)
     )
 
+#try:
+#    runpath = argv[2]
+#    experiment_type = argv[3]
+#except (IndexError, ValueError):
+#    runid = "testRunID"
+print(f"argv[1:]= {argv[1:]}")
 try:
-    runpath = argv[2]
-    experiment_type = argv[3]
-except (IndexError, ValueError):
-    runid = "testRunID"
-df = pd.read_csv(argv[1])
+    samplesheet, runpath, experiment_type, primer_schema, clean_option = argv[1:]
+    amplicon = True
+except:
+    samplesheet, runpath, experiment_type, clean_option = argv[1:]
+    amplicon = False
+#    print(argv[4])
+#    if "CLEANUP" not in argv[4]:
+#        primer_schema = argv[4]
+#        amplicon = True
+#    else:
+#        amplicon = False
+#except:
+#    amplicon = False
+df = pd.read_csv(samplesheet)#argv[1])
 dfd = df.to_dict("index")
 
 if 'ont' in experiment_type.lower():
@@ -33,12 +49,12 @@ if 'ont' in experiment_type.lower():
     failures = ""
     try:
         with open(
-            "{}/lib/{}.yaml".format(root, dfd[0]["Barcode Expansion Pack"]), "r"
+            "{}/lib/EXP-NBD196.yaml".format(root), "r"
         ) as y:
             barseqs = yaml.safe_load(y)
     except:
         with open(
-            "{}/lib/{}.yaml".format(root, dfd[0]["Barcode Expansion Pack"]), "r"
+            "{}/lib/EXP-NBD196.yaml".format(root), "r"
         ) as y:
             barseqs = yaml.safe_load(y)
     for d in dfd.values():
@@ -62,8 +78,25 @@ if 'ont' in experiment_type.lower():
 else:
     data = {'runid':runpath.split('/')[-1], 'samples':{}}
     for d in dfd.values():
-        data["samples"][d["Sample ID"]] = {
-                "sample_type": d["Sample Type"]
+        id = d['Sample ID']
+        print(f"runpath = {runpath}\nid = {id}")
+        R1_fastq = glob(f"{runpath}/**/{id}*R1*fastq.gz", recursive=True)[0]
+        R2_fastq = glob(f"{runpath}/**/{id}*R2*fastq.gz", recursive=True)[0]
+        if len(R1_fastq) < 1 or len(R2_fastq) < 1:
+            print(f"Fastq pair not found for sample {id}")
+            exit()
+        if amplicon:
+            data["samples"][d["Sample ID"]] = {
+                "sample_type": d["Sample Type"],
+                "R1_fastq": R1_fastq.replace(f'{runpath}/',''), 
+                "R2_fastq": R2_fastq.replace(f'{runpath}/',''), 
+                "Library" : primer_schema
+            }
+        else:
+            data["samples"][d["Sample ID"]] = {
+                "sample_type": d["Sample Type"],
+                "R1_fastq": R1_fastq.replace(f'{runpath}/',''), 
+                "R2_fastq": R2_fastq.replace(f'{runpath}/',''), 
             }
 with open(runpath.replace("fastq_pass", "") + "/config.yaml", "w") as out:
     yaml.dump(data, out, default_flow_style=False)
@@ -73,12 +106,15 @@ if "ont" in experiment_type.lower():
 
     if "flu" in experiment_type.lower():
         snakefile_path += "influenza_snakefile"
-    elif "sc2" in experiment_type.lower():
+    elif "spike" in experiment_type.lower():
         snakefile_path += "sc2_spike_snakefile"
 else:
-    snakefile_path += "illumina_influenza_snakefile"
+    if "flu" in experiment_type.lower():
+        snakefile_path += "illumina_influenza_snakefile"
+    elif "sc2" in experiment_type.lower():
+        snakefile_path += "illumina_sc2_snakefile"
 
-if "TESTDEV-QUICK" in argv:
+if "TESTDEV-QUICK" in clean_option:
     snake_cmd = (
         f"snakemake -s {snakefile_path} \
         --configfile config.yaml \
@@ -86,7 +122,7 @@ if "TESTDEV-QUICK" in argv:
         --printshellcmds \
         --rerun-incomplete"
     )
-elif "TESTDEV-PRINTDAG" in argv:
+elif "TESTDEV-PRINTDAG" in clean_option:
     snake_cmd = (
         f"snakemake -s {snakefile_path} \
         --configfile config.yaml \
@@ -94,7 +130,7 @@ elif "TESTDEV-PRINTDAG" in argv:
         --printshellcmds \
         --dag |awk '/digraph/,/\u007d/' |dot -Tpdf > filegraph.pdf"
     ) 
-elif "TESTDEV-DEBUGDAG" in argv:
+elif "TESTDEV-DEBUGDAG" in clean_option:
     snake_cmd = (
         f"snakemake -s {snakefile_path} \
         --configfile config.yaml \
@@ -117,7 +153,7 @@ print(f"\n\nSNAKEMAKE CMD:\n {snake_cmd}\n\n")
 subprocess.run(snake_cmd, shell=True)
 
 # Remove extraneous intermediate files and tar archive logs, F1 bam and plurality consensus
-if "CLEANUP-FOOTPRINT" in argv:
+if "CLEANUP-FOOTPRINT" in clean_option:
     fullsize = int(subprocess.run(f"du -d0", stdout=subprocess.PIPE, shell=True).stdout.decode().split('\t')[0])
     subprocess.run(f"{root}/workflow/scripts/spyne_cleanup.sh", shell=True)
     cleansize = int(subprocess.run(f"du -0", stdout=subprocess.PIPE, shell=True).stdout.decode().split('\t')[0])

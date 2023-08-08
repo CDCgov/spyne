@@ -7,7 +7,6 @@ do
 	esac
 done
 
-sed -i 's/-/_/g' $input || sed -i 's/-/_/g' $(basename $input)
 
 dais_out=$(echo $input|cut -d '.' -f 1)
 dais_out=${dais_out%"_input"} 
