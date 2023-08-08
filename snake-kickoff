@@ -43,3 +43,4 @@ fi
 until [ -f ${run_path}/spyne_logs.tar.gz ]; do
 	python3 $RESOURCE_ROOT/scripts/config_create.py "$@"
 done
+
