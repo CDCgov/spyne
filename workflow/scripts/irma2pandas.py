@@ -88,7 +88,10 @@ def irmatable2df(irmaFiles):
     df = pd.DataFrame()
     for f in irmaFiles:
         sample = basename(dirname(dirname(f)))
-        df_prime = pd.read_csv(f, sep="\t", index_col=False)
+        if "insertions" not in f:
+            df_prime = pd.read_csv(f, sep="\t", index_col=False)
+        else:
+            df_prime = pd.read_csv(f, sep="\s+", index_col=False)
         df_prime.insert(loc=0, column="Sample", value=sample)
         df = df.append(df_prime)
     return df
@@ -208,6 +211,7 @@ def dash_irma_indels_df(irma_path, full=False):
     insertionFiles = glob(irma_path + "/*/tables/*insertions.txt")
     deletionFiles = glob(irma_path + "/*/tables/*deletions.txt")
     idf = irmatable2df(insertionFiles)
+    idf['Length'] = idf['Insert'].str.len()
     ddf = irmatable2df(deletionFiles)
     df = pd.concat([idf, ddf])
     if "HMM_Position" in df.columns:
