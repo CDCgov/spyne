@@ -6,6 +6,9 @@ shell.executable("bash")
 workdir: "."
 configfile: "config.yaml"
 
+config["barcodes"] = {str(k): v for k, v in config["barcodes"].items()}
+config["barcodes"] = OrderedDict([(key, config["barcodes"][key]) for key in config["barcodes"] ])
+
 rule all:
     input:
         expand("IRMA/FLU_{barcode}.fin", barcode=config["barcodes"].keys())
