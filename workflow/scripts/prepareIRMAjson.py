@@ -482,6 +482,7 @@ def generate_dfs(irma_path):
             time.sleep(1)
         c += 1
     aa_seqs_df = dais2pandas.seq_df(f"{irma_path}/dais_results")
+    aa_seqs_df["Sample"] = aa_seqs_df["Sample"].astype(str)
     if virus == "flu":
         aa_seqs_df = flu_dais_modifier(vtype_df, aa_seqs_df, irma_summary_df)
     aa_seqs_df["Reference"] = aa_seqs_df.apply(
