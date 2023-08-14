@@ -245,8 +245,9 @@ def irma_summary(
     irma_path, samplesheet, reads_df, indels_df, alleles_df, coverage_df, ref_lens
 ):
     ss_df = pd.read_csv(samplesheet)
+    ss_df["Sample ID"] = ss_df["Sample ID"].astype(str)
     allsamples_df = (
-        ss_df[["Sample ID"]].rename(columns={"Sample ID": "Sample"}).astype(str)
+        ss_df[["Sample ID"]].rename(columns={"Sample ID": "Sample"})
     )
     neg_controls = list(ss_df[ss_df["Sample Type"] == "- Control"]["Sample ID"])
     qc_statement = negative_qc_statement(reads_df, neg_controls)
@@ -481,6 +482,7 @@ def generate_dfs(irma_path):
             time.sleep(1)
         c += 1
     aa_seqs_df = dais2pandas.seq_df(f"{irma_path}/dais_results")
+    aa_seqs_df["Sample"] = aa_seqs_df["Sample"].astype(str)
     if virus == "flu":
         aa_seqs_df = flu_dais_modifier(vtype_df, aa_seqs_df, irma_summary_df)
     aa_seqs_df["Reference"] = aa_seqs_df.apply(
@@ -488,9 +490,9 @@ def generate_dfs(irma_path):
         axis=1,
     )
     pass_fail_aa_df = (
-        pass_fail_df.reset_index()
+        pass_fail_df.astype(str).reset_index()
         .melt(id_vars="Sample")
-        .merge(aa_seqs_df, how="left", on=["Sample", "Reference"])
+        .merge(aa_seqs_df.astype(str), how="left", on=["Sample", "Reference"])
         .rename(columns={"value": "Reasons"})
     )
     # Print aa sequence fastas
