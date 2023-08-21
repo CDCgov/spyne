@@ -75,6 +75,16 @@ if 'ont' in experiment_type.lower():
 
     if len(failures) > 1:
         print("failed samples detected: Barcodes\n", failures.strip())
+elif "single" in experiment_type.lower():
+    data = {'runid':runpath.split('/')[-1], 'samples':{}}
+    for d in dfd.values():
+        id = d['Sample ID']
+        print(f"runpath = {runpath}\nid = {id}")
+        R1_fastq = glob(f"{runpath}/**/{id}*R1*fastq.gz", recursive=True)[0]
+        data["samples"][d["Sample ID"]] = {
+                "sample_type": d["Sample Type"],
+                "R1_fastq": R1_fastq.replace(f'{runpath}/','')
+        }
 else:
     data = {'runid':runpath.split('/')[-1], 'samples':{}}
     for d in dfd.values():
