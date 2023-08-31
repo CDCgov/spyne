@@ -36,7 +36,7 @@ rule subsample:
         err = "logs/{barcode}.reformat.stderr.log"
     group:
         "trim-map"
-    message: "Step 4b - subsampling cleaned up reads if excess > 5K exist"
+    message: "Step 4b - subsampling cleaned up reads if excess > 100K exist"
     shell:
         "reformat.sh"
         " in={input}"
@@ -173,7 +173,7 @@ rule catfiles:
         "DAIS_ribosome_input.fasta"
     message: "Step 6 - Collecting consensus genomes"
     shell:
-        "for file in $(ls IRMA/*/amended_consensus/*.fa | grep -v pad); do cat $file >> {output}; done" 
+        "for file in $(ls IRMA/*/amended_consensus/*.fa | grep pad); do cat $file >> {output}; done" 
 
 rule dais_ribosome:
     input: 

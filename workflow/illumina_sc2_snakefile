@@ -181,7 +181,7 @@ rule catfiles:
         "DAIS_ribosome_input.fasta"
     message: "Step 6 - Collecting consensus genomes"
     shell:
-        "cat IRMA/*/amended_consensus/*.fa > {output} || touch {output}"
+        "cat IRMA/*/amended_consensus/*pad.fa > {output} || touch {output}"
 
 rule dais_ribosome:
     input: 
