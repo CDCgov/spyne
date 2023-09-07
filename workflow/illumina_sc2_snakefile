@@ -11,6 +11,15 @@ configfile: "config.yaml"
 config["samples"] = {str(k): v for k, v in config["samples"].items()}
 config["samples"] = OrderedDict([(key, config["samples"][key]) for key in config["samples"] ])
 
+def memory_for_bbduk():
+    # Try to detect how much total memory is available on host (or what was 
+    # alloted to Docker) and assign 50% of that to bbduk. Assure that number is
+    # not negative and if all this fails, make it a tiny 30 megabytes.
+    try:
+        return abs(int(int(os.popen('free -t -m').readlines()[-1].split()[-1])*0.5))
+    except:
+        return 30
+
 rule all:
     input:
         expand("IRMA/SC2_{sample}.fin", sample=config["samples"].keys())
@@ -80,7 +89,8 @@ rule bbduk_r1:
         'ordered=t',
         'minlength=0',
         'k=17',
-        'restrictleft=30'])
+        'restrictleft=30']),
+        mem = memory_for_bbduk()
     log:
         out = "logs/{sample}.bbduk.trim_left.stdout.log",
         err = "logs/{sample}.bbduk.trim_left.stderr.log"
@@ -89,6 +99,8 @@ rule bbduk_r1:
         "logs/benchmarks/bbduk_r1_{sample}.log"
     shell:
         "bbduk.sh"
+        " -Xmx{params.mem}m"
+        " -Xms{params.mem}m"
         " in1={input.r1} in2={input.r2}"
         " out1={output.O1} out2={output.O2}"
         " {params.bbdukParams1} " 
@@ -114,7 +126,8 @@ rule bbduk_r2:
         'ordered=t',
         'minlength=0',
         'k=17',
-        'restrictright=30'])
+        'restrictright=30']),
+        mem = memory_for_bbduk()
     threads: 16
     log:
         out = "logs/{sample}.bbduk.trim_right.stdout.log",
@@ -123,6 +136,8 @@ rule bbduk_r2:
         "logs/benchmarks/bbduk_r2_{sample}.log"
     shell:
         "bbduk.sh"
+        " -Xmx{params.mem}m"
+        " -Xms{params.mem}m"
         " in1={input.r1} in2={input.r2}"
         " out1={output.o1} out2={output.o2}"
         " {params.bbdukParams1} " 
