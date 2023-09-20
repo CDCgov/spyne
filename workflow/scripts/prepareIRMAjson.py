@@ -143,8 +143,8 @@ def anyref(ref):
 
 def failedall(combined_df):
     try:
-        for i in combined.index:
-            if str(combined.loc[i][""]) != "nan":
+        for i in combined_df.index:
+            if str(combined_df.loc[i][""]) != "nan":
                 combined_df.loc[i] = "No assembly"
     except:
         pass
@@ -181,6 +181,17 @@ def pass_fail_qc_df(irma_summary_df, dais_vars_df, nt_seqs_df):
     ref_covered_df[
         "Reason_b"
     ] = f"Less than {qc_values[qc_plat_vir]['perc_ref_covered']}% of reference covered"
+    if "sc2" in virus and "spike" not in virus:
+        spike_ref_covered_df = irma_summary_df[
+            (
+                irma_summary_df["% Spike Covered"]
+                < qc_values[qc_plat_vir]["perc_ref_spike_covered"]
+            )
+        ][["Sample", "Reference"]]
+        spike_ref_covered_df["Reason_e"] = f"Less than {qc_values[qc_plat_vir]['perc_ref_spike_covered']}% of S gene reference covered"
+        spike_med_cov_df = irma_summary_df[
+        (irma_summary_df["Spike Median Coverage"] < qc_values[qc_plat_vir]["med_spike_cov"])][["Sample", "Reference"]]
+        spike_med_cov_df["Reason_f"] = f"Median coverage of S gene < {qc_values[qc_plat_vir]['med_spike_cov']}"
     med_cov_df = irma_summary_df[
         (irma_summary_df["Median Coverage"] < qc_values[qc_plat_vir]["med_cov"])
     ][["Sample", "Reference"]]
@@ -197,7 +208,16 @@ def pass_fail_qc_df(irma_summary_df, dais_vars_df, nt_seqs_df):
     combined = ref_covered_df.merge(med_cov_df, how="outer", on=["Sample", "Reference"])
     combined = combined.merge(minor_vars_df, how="outer", on=["Sample", "Reference"])
     combined = combined.merge(pre_stop_df, how="outer", on=["Sample", "Reference"])
-    combined["Reasons"] = (
+    if "sc2" in virus and "spike" not in virus:
+        combined = combined.merge(spike_ref_covered_df, how="outer", on=["Sample", "Reference"])
+        combined = combined.merge(spike_med_cov_df, how="outer", on=["Sample", "Reference"])
+        combined["Reasons"] = (
+        combined[["Reason_a", "Reason_b", "Reason_c", "Reason_d", "Reason_e", "Reason_f"]]
+        .fillna("")
+        .agg("; ".join, axis=1)
+    )
+    else:    
+        combined["Reasons"] = (
         combined[["Reason_a", "Reason_b", "Reason_c", "Reason_d"]]
         .fillna("")
         .agg("; ".join, axis=1)
@@ -238,7 +258,10 @@ def pass_fail_qc_df(irma_summary_df, dais_vars_df, nt_seqs_df):
 
 
 def perc_len(maplen, ref, ref_lens):
-    return maplen / ref_lens[ref] * 100
+    if ref == "spike":
+        return maplen / 3821 * 100
+    else:
+        return maplen / ref_lens[ref] * 100
 
 
 def irma_summary(
@@ -307,9 +330,29 @@ def irma_summary(
     cov_ref_lens = cov_ref_lens[
         ["Sample", "Reference_Name", "% Reference Covered"]
     ].rename(columns={"Reference_Name": "Reference"})
-    ########### !!! This need to be updated when we add full SC2 genome!
     if virus.lower() == "sc2-spike":
         coverage_df = coverage_df[coverage_df["HMM_Position"].between(21563, 25384)]
+    if "sc2" in virus and "spike" not in virus:
+        spike_coverage_df = coverage_df[coverage_df["HMM_Position"].between(21563, 25384)]
+        spike_cov_ref_lens = (
+        spike_coverage_df[~spike_coverage_df["Consensus"].isin(["-", "N", "a", "c", "t", "g"])]
+        .groupby(["Sample", "Reference_Name"])
+        .agg({"Sample": "count"})
+        .rename(columns={"Sample": "spikemaplen"})
+        .reset_index()
+        )
+        spike_coverage_df = spike_coverage_df.groupby(["Sample", "Reference_Name"]).agg({"Coverage Depth": "median"}).reset_index().rename(
+            columns={"Coverage Depth": "Spike Median Coverage", "Reference_Name": "Reference"}
+        )
+        spike_coverage_df["Spike Median Coverage"] = spike_coverage_df[["Spike Median Coverage"]].applymap(lambda x: f"{x:.0f}").astype(float)
+        spike_cov_ref_lens["% Spike Covered"] = spike_cov_ref_lens.apply(
+            lambda x: perc_len(x["spikemaplen"], "spike", ref_lens), axis=1
+        )
+        spike_cov_ref_lens["% Spike Covered"] = (
+            spike_cov_ref_lens["% Spike Covered"].map(lambda x: f"{x:.2f}").astype(float)
+            )
+        spike_cov_ref_lens = spike_cov_ref_lens[
+        ["Sample", "Reference_Name", "% Spike Covered"]].rename(columns={"Reference_Name": "Reference"})
     coverage_df = (
         coverage_df.groupby(["Sample", "Reference_Name"])
         .agg({"Coverage Depth": "median"})
@@ -328,6 +371,11 @@ def irma_summary(
         .merge(indels_df, "left")
         .merge(allsamples_df, "outer", on="Sample")
     )
+    if "sc2" in virus and "spike" not in virus:
+        summary_df = (
+            summary_df.merge(spike_coverage_df, "left")
+            .merge(spike_cov_ref_lens, "left")
+        )
     summary_df["Reference"] = summary_df["Reference"].fillna("")
     summary_df = summary_df.fillna(0)
     return summary_df
