@@ -126,7 +126,8 @@ coverage_links_html = """<h2>Individual Sample Coverage Figures</h2><p2>"""
 try:
     for cf in glob.glob(f"{data_root}/{run}/dash-json/coveragefig*linear.json"):
         coveragefig = pio.read_json(cf)
-        sample = cf.split("_")[-2]
+        sample = cf.split('/')[-1].replace("coveragefig_","").replace("_linear.json","")
+        print(f"sample = {sample}")
         sankeyfig = pio.read_json(f"{data_root}/{run}/dash-json/readsfig_{sample}.json")
         # sankeyfig.write_html(f"MIRA_{sample}_sankey.html")
         with open(f"MIRA_{sample}_coverage.html", "a") as out:
