@@ -496,6 +496,7 @@ def generate_dfs(irma_path):
         | (
             (pass_fail_seqs_df["Reasons"].str.contains("Premature stop codon"))
             & (~pass_fail_seqs_df["Reasons"].str.contains(";", na=False))
+            & (~pass_fail_seqs_df["Reference"].str.contains(r"'[H|N]A'|'S'"))
         )
     ]
     passed_df.apply(
