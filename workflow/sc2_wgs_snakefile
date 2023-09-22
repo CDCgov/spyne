@@ -139,7 +139,7 @@ rule irma:
 #  here and then reevaluates the needed DAG for each sample.
 checkpoint checkirma:
     input:
-        ancient(rules.irma.output)
+        rules.irma.output
     output:
         'IRMA/{barcode}.irma.decision'
     log:

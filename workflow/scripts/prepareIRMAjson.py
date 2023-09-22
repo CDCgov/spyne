@@ -491,7 +491,9 @@ def generate_dfs(irma_path):
         .rename(columns={"value": "Reasons"})
     )
     # Print nt sequence fastas
-    passed_df = pass_fail_seqs_df.loc[
+    ## Exclude HA/NA/S premature stop sequences for Illumina
+    if "ont" not in virus:
+        passed_df = pass_fail_seqs_df.loc[
         (pass_fail_seqs_df["Reasons"] == "Pass")
         | (
             (pass_fail_seqs_df["Reasons"].str.contains("Premature stop codon"))
@@ -499,6 +501,14 @@ def generate_dfs(irma_path):
             & (~pass_fail_seqs_df["Reference"].str.contains(r"'[H|N]A'|'S'"))
         )
     ]
+    else:
+        passed_df = pass_fail_seqs_df.loc[
+        (pass_fail_seqs_df["Reasons"] == "Pass")
+        | (
+            (pass_fail_seqs_df["Reasons"].str.contains("Premature stop codon"))
+            & (~pass_fail_seqs_df["Reasons"].str.contains(";", na=False))
+        )
+        ]
     passed_df.apply(
         lambda x: seq_df2fastas(
             irma_path,

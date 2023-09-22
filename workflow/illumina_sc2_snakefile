@@ -162,7 +162,7 @@ rule irma:
 
 checkpoint checkirma:
     input:
-        ancient('IRMA/{sample}.irma.fin')
+        rules.irma.output
     output:
         'IRMA/{sample}.irma.decision'
     log:
