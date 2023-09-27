@@ -5,7 +5,7 @@ PARAM_FILE_VERSION="1.0"
 PARAM_FILE_DATE="2023-09-27"
 
 # CONSENSUS REFINEMENT & READ SELECTION
-MIN_LEN=60				# minimum read length for QUALITY reads
+MIN_LEN=50				# minimum read length for QUALITY reads
 
 # VARIANT CALLING HEURISTICS & STATS
 ALIGN_PROG="BLAT"       # rough alignment with BLAT

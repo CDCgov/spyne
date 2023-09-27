@@ -21,7 +21,9 @@ def memory_for_bbduk():
     except:
         return 30
 
-def find_chemistry(fastq):
+def find_chemistry(fastq, runid):
+    global irma_custom
+    global subsample
     try:
         with open(fastq) as infi:
             contents = infi.readlines()
@@ -32,7 +34,8 @@ def find_chemistry(fastq):
         irma_custom = ["",""]
         subsample = "100000"
     elif len(contents[1]) > 70:
-        irma_custom = ["cp {workflow.basedir}/irma_config/SC2-2x75.sh /data/{config[runid]}/IRMA/ &&","--external-config /data/{config[runid]}/IRMA/SC2-2x75.sh"]
+        config_path = workflow.basedir + "/irma_config/SC2-2x75.sh"
+        irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/SC2-2x75.sh"]
         subsample = "200000"
     return irma_custom, subsample
 
@@ -56,7 +59,7 @@ rule subsample:
     group:
         "trim-map"
     params:
-        target = lambda wildcards: find_chemistry(config["samples"][wildcards.sample]["R1_fastq"])[1]
+        target = lambda wildcards: find_chemistry(config["samples"][wildcards.sample]["R1_fastq"], config["runid"])[1]
     message: "Step 1 - subsampling cleaned up reads if excess > {params.target} exist"
     shell:
         "reformat.sh"
@@ -172,7 +175,7 @@ rule irma:
         out = "logs/{sample}.irma.stdout.log",
         err = "logs/{sample}.irma.stderr.log"
     params:
-        command = lambda wildcards: find_chemistry(config["samples"][wildcards.sample]["R1_fastq"])[0]    
+        command = lambda wildcards: find_chemistry(config["samples"][wildcards.sample]["R1_fastq"], config["runid"])[0]    
     benchmark:
         "logs/benchmarks/irma_{sample}.log"
     threads: 14
