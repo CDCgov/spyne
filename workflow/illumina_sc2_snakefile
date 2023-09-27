@@ -2,6 +2,7 @@ from os.path import basename, realpath, dirname, abspath
 import sys
 import glob
 import os
+import gzip
 
 shell.executable("bash")
 
@@ -19,6 +20,21 @@ def memory_for_bbduk():
         return abs(int(int(os.popen('free -t -m').readlines()[-1].split()[-1])*0.5))
     except:
         return 30
+
+def find_chemistry(fastq):
+    try:
+        with open(fastq) as infi:
+            contents = infi.readlines()
+    except:
+        with gzip.open(fastq) as infi:
+            contents = infi.readlines()
+    if len(contents[1]) > 145:
+        irma_custom = ["",""]
+        subsample = "100000"
+    elif len(contents[1]) > 70:
+        irma_custom = ["cp {workflow.basedir}/irma_config/SC2-2x75.sh /data/{config[runid]}/IRMA/ &&","--external-config /data/{config[runid]}/IRMA/SC2-2x75.sh"]
+        subsample = "200000"
+    return irma_custom, subsample
 
 rule all:
     input:
@@ -39,14 +55,16 @@ rule subsample:
         err = "logs/{sample}.reformat.stderr.log"
     group:
         "trim-map"
-    message: "Step 1 - subsampling cleaned up reads if excess > 100K exist"
+    params:
+        target = lambda wildcards: find_chemistry(config["samples"][wildcards.sample]["R1_fastq"])[1]
+    message: "Step 1 - subsampling cleaned up reads if excess > {params.target} exist"
     shell:
         "reformat.sh"
         " in1={input.R1_fastq}"
         " in2={input.R2_fastq}"
         " out1={output.O1}"
         " out2={output.O2}"
-        " samplereadstarget=100000"
+        " samplereadstarget={params.target}"
         " tossbrokenreads"
         " 1> {log.out}"
         " 2> {log.err}"
@@ -153,12 +171,14 @@ rule irma:
     log:
         out = "logs/{sample}.irma.stdout.log",
         err = "logs/{sample}.irma.stderr.log"
+    params:
+        command = lambda wildcards: find_chemistry(config["samples"][wildcards.sample]["R1_fastq"])[0]    
     benchmark:
         "logs/benchmarks/irma_{sample}.log"
     threads: 14
     message: "Step 5 - assembling genome with IRMA"
     shell:
-        "docker exec irma IRMA CoV /data/{config[runid]}/IRMA/{wildcards.sample}_r1_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_r2_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample} 2> {log.err} |tee -a {log.out}"
+        "{params.command[0]} docker exec irma IRMA CoV /data/{config[runid]}/IRMA/{wildcards.sample}_r1_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_r2_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out}"
 
 checkpoint checkirma:
     input:
