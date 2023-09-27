@@ -1,6 +1,7 @@
 import os
 import sys
 import glob
+import gzip
 
 shell.executable("bash")
 
@@ -10,6 +11,20 @@ configfile: "config.yaml"
 config["samples"] = {str(k): v for k, v in config["samples"].items()}
 config["samples"] = OrderedDict([(key, config["samples"][key]) for key in config["samples"] ])
 
+def find_chemistry(fastq):
+    try:
+        with open(fastq) as infi:
+            contents = infi.readlines()
+    except:
+        with gzip.open(fastq) as infi:
+            contents = infi.readlines()
+    if len(contents[1]) > 145:
+        irma_custom = ["",""]
+        subsample = "100000"
+    elif len(contents[1]) > 70:
+        irma_custom = ["cp {workflow.basedir}/irma_config/FLU-2x75.sh /data/{config[runid]}/IRMA/ &&","--external-config /data/{config[runid]}/IRMA/FLU-2x75.sh"]
+        subsample = "200000"
+    return irma_custom, subsample
 
 rule all:
     input:
@@ -30,14 +45,16 @@ rule subsample:
         err = "logs/{sample}.reformat.stderr.log"
     group:
         "trim-map"
-    message: "Step 1 - subsampling cleaned up reads if excess > 100K exist"
+    params:
+        target = lambda wildcards: find_chemistry(config["samples"][wildcards.sample]["R1_fastq"])[1]
+    message: "Step 1 - subsampling cleaned up reads if excess > {params.target} exist"
     shell:
         "reformat.sh"
         " in1={input.R1_fastq}"
         " in2={input.R2_fastq}"
         " out1={output.O1}"
         " out2={output.O2}"
-        " samplereadstarget=100000"
+        " samplereadstarget={params.target}"
         " tossbrokenreads"
         " 1> {log.out}"
         " 2> {log.err}"
@@ -50,6 +67,8 @@ rule irma:
     log:
         out = "logs/{sample}.irma.stdout.log",
         err = "logs/{sample}.irma.stderr.log"
+    params:
+        command = lambda wildcards: find_chemistry(f"IRMA/{wildcards.sample}_subsampled_R1.fastq")[0]
     benchmark:
         "logs/benchmarks/irma_{sample}.log"
     group:
@@ -57,13 +76,12 @@ rule irma:
     threads: 14
     message: "Step 5 - assembling genome with IRMA"
     shell:
-        "docker exec irma IRMA FLU /data/{config[runid]}/IRMA/{wildcards.sample}_subsampled_R1.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_subsampled_R2.fastq  /data/{config[runid]}/IRMA/{wildcards.sample} 2> {log.err} |tee -a {log.out}"
-
+        "{params.command[0]} docker exec irma IRMA FLU /data/{config[runid]}/IRMA/{wildcards.sample}_subsampled_R1.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_subsampled_R2.fastq  /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out}"
 # Pipeline waits here for all samples to produce the checkpoint input needed
 #  here and then reevaluates the needed DAG for each sample.
 checkpoint checkirma:
     input:
-        ancient('IRMA/{sample}.irma.fin')
+        rules.irma.output
     output:
         'IRMA/{sample}.irma.decision'
     log:
@@ -87,7 +105,7 @@ def passed_irma(wildcards):
 
 rule pass_negatives:
     input:
-        ancient(rules.checkirma.output)
+        rules.checkirma.output
     output:
         "IRMA_negative/{sample}"
     shell:
