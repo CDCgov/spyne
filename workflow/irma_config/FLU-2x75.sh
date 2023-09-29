@@ -8,4 +8,4 @@ PARAM_FILE_DATE="2023-09-27"
 MIN_LEN=70				# minimum read length for QUALITY reads
 
 # VARIANT CALLING HEURISTICS & STATS
-ALIGN_PROG="BLAT"       # rough alignment with BLAT
+ALIGN_PROG="SAM"       # rough alignment with SAM
