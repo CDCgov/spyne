@@ -9,15 +9,6 @@ configfile: "config.yaml"
 config["barcodes"] = {str(k): v for k, v in config["barcodes"].items()}
 config["barcodes"] = OrderedDict([(key, config["barcodes"][key]) for key in config["barcodes"] ])
 
-def memory_for_bbduk():
-    # Try to detect how much total memory is available on host (or what was 
-    # alloted to Docker) and assign 50% of that to bbduk. Assure that number is
-    # not negative and if all this fails, make it a tiny 30 megabytes.
-    try:
-        return abs(int(int(os.popen('free -t -m').readlines()[-1].split()[-1])*0.5))
-    except:
-        return 30
-
 rule all:
     input:
         expand("IRMA/SC2.{barcode}.fin", barcode=config["barcodes"].keys())
@@ -45,12 +36,12 @@ rule subsample:
         err = "logs/{barcode}.reformat.stderr.log"
     group:
         "trim-map"
-    message: "Step 4b - subsampling cleaned up reads if excess > 5K exist"
+    message: "Step 4b - subsampling cleaned up reads if excess > 100K exist"
     shell:
         "reformat.sh"
         " in={input}"
         " out={output}"
-        " samplereadstarget=5000"
+        " samplereadstarget=100000"
         " qin=33"
         " tossbrokenreads"
         " 1> {log.out}"
@@ -66,16 +57,13 @@ rule barcode_trim_left:
         out = "logs/{barcode}.bbduk.trim_left.stdout.log",
         err = "logs/{barcode}.bbduk.trim_left.stderr.log"
     params:
-        barcode_sequence = lambda wildcards: config["barcodes"][wildcards.barcode]["barcode_sequence"],
-        mem = memory_for_bbduk()
+        barcode_sequence = lambda wildcards: config["barcodes"][wildcards.barcode]["barcode_sequence"]
     group:
         "trim-map"
     threads: 16
     message: "Step 2 - trimming left barcode"
     shell:
-        "bbduk.sh"
-        " -Xmx{params.mem}m"
-        " -Xms{params.mem}m"
+        "bbduk.sh" 
         " in={input}"
         " out={output}"
         " hdist=3"
@@ -97,16 +85,13 @@ rule barcode_trim_right:
         out = "logs/{barcode}.bbduk.trim_right.stdout.log",
         err = "logs/{barcode}.bbduk.trim_right.stderr.log"
     params:
-        barcode_sequence = lambda wildcards: config["barcodes"][wildcards.barcode]["barcode_sequence_rc"],
-        mem = memory_for_bbduk()
+        barcode_sequence = lambda wildcards: config["barcodes"][wildcards.barcode]["barcode_sequence_rc"]
     group:
         "trim-map"
     threads: 16
     message: "Step 3 - trimming right barcode"
     shell:
         "bbduk.sh"
-        " -Xmx{params.mem}m"
-        " -Xms{params.mem}m"
         " in={input}"
         " out={output}"
         " hdist=3"
@@ -148,13 +133,13 @@ rule irma:
     threads: 14
     message: "Step 5 - assembling genome with IRMA"
     shell:
-        "docker exec irma IRMA CoV-s-gene /data/{config[runid]}/{input} /data/{config[runid]}/IRMA/{wildcards.barcode} 2> {log.err} |tee -a {log.out} || touch {output} "
+        "docker exec irma IRMA CoV /data/{config[runid]}/{input} /data/{config[runid]}/IRMA/{wildcards.barcode} 2> {log.err} |tee -a {log.out} || touch {output} "
 
 # Pipeline waits here for all samples to produce the checkpoint input needed
 #  here and then reevaluates the needed DAG for each sample.
 checkpoint checkirma:
     input:
-        ancient(rules.irma.output)
+        rules.irma.output
     output:
         'IRMA/{barcode}.irma.decision'
     log:
@@ -188,7 +173,7 @@ rule catfiles:
         "DAIS_ribosome_input.fasta"
     message: "Step 6 - Collecting consensus genomes"
     shell:
-        "for file in $(ls IRMA/*/amended_consensus/*.fa | grep -v pad); do cat $file >> {output}; done" 
+        "for file in $(ls IRMA/*/amended_consensus/*.fa | grep pad); do cat $file >> {output}; done" 
 
 rule dais_ribosome:
     input: 
@@ -206,11 +191,11 @@ rule prepareIRMAjson:
         rules.dais_ribosome.output
     output:
         touch('IRMA/prepareIRMAjson.fin')
-    message: "Step 8 - Creating Plotly-Dash readable figures and tables for IRMA-SPY"
+    message: "Step 8 - Creating Plotly-Dash readable figures and tables for MIRA"
     log:
         "logs/prepareIRMAjson.log"
     shell:
-        "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv ont sc2-spike"
+        "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv ont sc2"
 
 rule finishup:
     input:
