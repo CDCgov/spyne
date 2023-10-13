@@ -5,7 +5,7 @@ PARAM_FILE_VERSION="1.1"
 PARAM_FILE_DATE="2023-09"
 
 # CONSENSUS REFINEMENT & READ SELECTION
-QUAL_THRESHOLD=20	# average or median threshold for QUALITY reads
+QUAL_THRESHOLD=0	# average or median threshold for QUALITY reads
 USE_MEDIAN=1
 MIN_LEN=125		# minimum read length for QUALITY reads
 INS_T=0.5		# threshold for insertion refinement
