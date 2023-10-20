@@ -230,7 +230,7 @@ if cli:
         log:
             "logs/staticHTML.log"
         shell:
-            "python3 {workflow.basedir}/scripts/static_report.py {workdir}"
+            "python3 {workflow.basedir}/scripts/static_report.py $(pwd)"
 
 rule finishup:
     input:
