@@ -7,7 +7,7 @@ usage() { echo "Usage: $0 -s {path to samplesheet.csv} -r <run_id> -e <experimen
 # Primer Schema options: articv3, articv4, articv4.1, articv5.3.2, qiagen, swift, swift_211206
 
 
-while getopts 's:r:e:p:c:' OPTION
+while getopts 's:r:e:p:c:n' OPTION
 do
 	case "$OPTION" in
 	s ) SAMPLESHEET="$OPTARG";;
@@ -15,6 +15,7 @@ do
 	e ) EXPERIMENT_TYPE="$OPTARG";; 
 	p ) PRIMER_SCHEMA="$OPTARG";; 
 	c ) CLEANUP="${OPTARG}";;
+	n ) NOCONTAINER=True;;
 	* ) usage;;
 	esac
 done
@@ -34,10 +35,18 @@ if [[ -z "${CLEANUP}" ]]; then
 fi
 
 # Run whatever Bash commands here
-SCRIPT=$(realpath -s "$0")
-RESOURCE_ROOT=$(dirname "$SCRIPT")
-BBTOOLS_ROOT=$(which bbmap)
-JAVA_ROOT=$(which java)
+# Set paths for non-container dev work
+if [[ $NOCONTAINER ]]; then
+	SCRIPT=$(realpath -s "$0")
+	echo "${SCRIPT}"
+	RESOURCE_ROOT=$(dirname "$SCRIPT")
+	echo "${RESOURCE_ROOT}"
+	BBTOOLS_ROOT=$(which bbmap)
+	JAVA_ROOT=$(which java); else #set paths in container
+	RESOURCE_ROOT=/spyne
+	BBTOOLS_ROOT=/opt/bbtools
+	JAVA_ROOT=/opt/java
+fi
 
 # Export bbtools to system path
 bbtools_path=$(ls ${BBTOOLS_ROOT})
