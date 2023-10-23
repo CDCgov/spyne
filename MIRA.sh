@@ -4,6 +4,8 @@
 usage() { echo "Usage: $0 -s {path to samplesheet.csv} -r <run_id> -e <experiment_type> <OPTIONAL: -p amplicon_library> <optional: -c CLEANUP-FOOTPRINT> " 1>&2; exit 1;}
 
 # Experiment type options: Flu-ONT, SC2-Spike-Only-ONT, Flu_Illumina, SC2-Whole-Genome-ONT, SC2-Whole-Genome-Illumina
+# Primer Schema options: articv3, articv4, articv4.1, articv5.3.2, qiagen, swift, swift_211206
+
 
 while getopts 's:r:e:p:c:' OPTION
 do
