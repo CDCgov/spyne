@@ -63,7 +63,7 @@ docker --version
 #run_path=$(dirname $(readlink -f $RUNPATH/))
 
 # Archive previous run
-if [ -f ${RUNPATH}/spyne_logs.tar.gz ]; then
+if [ -f ${RUNPATH}/spyne_logs.tar.gz ] && [[ -v "${CLEANUP}" ]]; then
 	tar  --remove-files -czf ${RUNPATH}/previous_run_$(date -d @$(stat -c %Y ${RUNPATH}/spyne_logs.tar.gz) "+%Y%b%d-%H%M%S").tar.gz ${RUNPATH}/spyne_logs.tar.gz ${RUNPATH}/*fasta ${RUNPATH}/dash-json ${RUNPATH}/irma_allconsensus_bam.tar.gz ${RUNPATH}/config.yaml ${RUNPATH}/.snakemake
 fi
 
