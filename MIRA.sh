@@ -1,10 +1,35 @@
 #!/bin/bash 
 # Wrapper to perform genome assembly 
 
-# Usage:
-# ./MIRA.sh {path to samplesheet.csv} <run_id> <experiment_type> <OPTIONAL: amplicon_library> <optional: CLEANUP-FOOTPRINT>
+usage() { echo "Usage: $0 -s {path to samplesheet.csv} -r <run_id> -e <experiment_type> <OPTIONAL: -p amplicon_library> <optional: -c CLEANUP-FOOTPRINT> " 1>&2; exit 1;}
 
 # Experiment type options: Flu-ONT, SC2-Spike-Only-ONT, Flu_Illumina, SC2-Whole-Genome-ONT, SC2-Whole-Genome-Illumina
+
+while getopts 's:r:e:p:c:' OPTION
+do
+	case "$OPTION" in
+	s ) SAMPLESHEET="$OPTARG";;
+	r ) RUNPATH="$OPTARG";; 
+	e ) EXPERIMENT_TYPE="$OPTARG";; 
+	p ) PRIMER_SCHEMA="$OPTARG";; 
+	c ) CLEANUP="${OPTARG}";;
+	* ) usage;;
+	esac
+done
+
+if [[ -z "${SAMPLESHEET}" ]] || [ -z "${RUNPATH}" ] || [ -z "${EXPERIMENT_TYPE}" ]; then
+	usage
+fi
+
+if [[ -z "${PRIMER_SCHEMA}" ]]; then
+	OPTIONALARGS=""; else 
+	OPTIONALARGS="-p $PRIMER_SCHEMA"
+fi
+
+if [[ -z "${CLEANUP}" ]]; then
+	OPTIONALARGS="${OPTIONALARGS}"; else
+	OPTIONALARGS="${OPTIONALARGS} -c ${CLEANUP}"
+fi
 
 # Run whatever Bash commands here
 SCRIPT=$(realpath -s "$0")
@@ -35,16 +60,12 @@ done
 docker --version
 
 
-run_path=$(dirname $(readlink -f $1))
+#run_path=$(dirname $(readlink -f $RUNPATH/))
 
 # Archive previous run
-if [ -f ${run_path}/spyne_logs.tar.gz ]; then
-	tar  --remove-files -czf ${run_path}/previous_run_$(date -d @$(stat -c %Y ${run_path}/spyne_logs.tar.gz) "+%Y%b%d-%H%M%S").tar.gz ${run_path}/spyne_logs.tar.gz ${run_path}/*fasta ${run_path}/dash-json ${run_path}/irma_allconsensus_bam.tar.gz ${run_path}/config.yaml ${run_path}/.snakemake
+if [ -f ${RUNPATH}/spyne_logs.tar.gz ]; then
+	tar  --remove-files -czf ${RUNPATH}/previous_run_$(date -d @$(stat -c %Y ${RUNPATH}/spyne_logs.tar.gz) "+%Y%b%d-%H%M%S").tar.gz ${RUNPATH}/spyne_logs.tar.gz ${RUNPATH}/*fasta ${RUNPATH}/dash-json ${RUNPATH}/irma_allconsensus_bam.tar.gz ${RUNPATH}/config.yaml ${RUNPATH}/.snakemake
 fi
 
-# Create config.yaml from samplesheet
-#until [ -f ${run_path}/spyne_logs.tar.gz ]; do
-#	python3 $RESOURCE_ROOT/scripts/cli_config_create.py "$@"
-#done
 
-python3 $RESOURCE_ROOT/scripts/cli_config_create.py "$@"
+python3 "$RESOURCE_ROOT"/scripts/config_create.py -m -s "$SAMPLESHEET" -r "$RUNPATH" -e "$EXPERIMENT_TYPE" $OPTIONALARGS
