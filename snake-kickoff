@@ -39,8 +39,18 @@ if [ -f ${run_path}/spyne_logs.tar.gz ]; then
 	tar  --remove-files -czf ${run_path}/previous_run_$(date -d @$(stat -c %Y ${run_path}/spyne_logs.tar.gz) "+%Y%b%d-%H%M%S").tar.gz ${run_path}/spyne_logs.tar.gz ${run_path}/*fasta ${run_path}/dash-json ${run_path}/irma_allconsensus_bam.tar.gz ${run_path}/config.yaml ${run_path}/.snakemake
 fi
 
+if [[ -z "${4}" ]]; then
+	OPTIONALARGS=""; else 
+	OPTIONALARGS="-c ${4}"
+fi
+
+if [[ -z "${5}" ]]; then
+	OPTIONALARGS="${OPTIONALARGS}"; else
+	OPTIONALARGS="-c ${4} -p ${5}"
+fi
+
 # Create config.yaml from samplesheet
 until [ -f ${run_path}/spyne_logs.tar.gz ]; do
-	python3 $RESOURCE_ROOT/scripts/config_create.py "$@"
+	python3 $RESOURCE_ROOT/scripts/config_create.py -s "$1" -r "$2" -e "$3" "$OPTIONALARGS"
 done
 
