@@ -46,11 +46,11 @@ fi
 
 if [[ -z "${5}" ]]; then
 	OPTIONALARGS="${OPTIONALARGS}"; else
-	OPTIONALARGS="-c ${4} -p ${5}"
+	OPTIONALARGS="-c ${5} -p ${4}"
 fi
 
 # Create config.yaml from samplesheet
 until [ -f ${run_path}/spyne_logs.tar.gz ]; do
-	python3 $RESOURCE_ROOT/scripts/config_create.py -s "$1" -r "$2" -e "$3" "$OPTIONALARGS"
+	python3 $RESOURCE_ROOT/scripts/config_create.py -s "$1" -r "$2" -e "$3" $OPTIONALARGS
 done
 
