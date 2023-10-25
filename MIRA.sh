@@ -8,7 +8,7 @@ Usage in git cloned CLI: \n bash $0 -s {path to samplesheet.csv } -r <run_id > -
 # Primer Schema options: articv3, articv4, articv4.1, articv5.3.2, qiagen, swift, swift_211206
 
 
-while getopts 's:r:e:p:c:n' OPTION
+while getopts 's:r:e:p:c:na' OPTION
 do
 	case "$OPTION" in
 	s ) SAMPLESHEET="$OPTARG";;
@@ -17,6 +17,7 @@ do
 	p ) PRIMER_SCHEMA="$OPTARG";; 
 	c ) CLEANUP="${OPTARG}";;
 	n ) NOCONTAINER=True;;
+	a ) APPLICATION=True;;
 	* ) usage;;
 	esac
 done
@@ -76,9 +77,13 @@ docker --version
 #run_path=$(dirname $(readlink -f $RUNPATH/))
 
 # Archive previous run
-if [ -f ${RUNPATH}/spyne_logs.tar.gz ] && [[ -v "${CLEANUP}" ]]; then
+if [[ -f ${RUNPATH}/spyne_logs.tar.gz  && -n "${CLEANUP}" ]]; then
 	tar  --remove-files -czf ${RUNPATH}/previous_run_$(date -d @$(stat -c %Y ${RUNPATH}/spyne_logs.tar.gz) "+%Y%b%d-%H%M%S").tar.gz ${RUNPATH}/spyne_logs.tar.gz ${RUNPATH}/*fasta ${RUNPATH}/dash-json ${RUNPATH}/irma_allconsensus_bam.tar.gz ${RUNPATH}/config.yaml ${RUNPATH}/.snakemake
 fi
 
+if [[ $APPLICATION ]]; then
+	CLI=""; else
+	CLI="-m"
+fi
 
-python3 "$RESOURCE_ROOT"/scripts/config_create.py -m -s "$SAMPLESHEET" -r "$RUNPATH" -e "$EXPERIMENT_TYPE" $OPTIONALARGS
+python3 "$RESOURCE_ROOT"/scripts/config_create.py $CLI -s "$SAMPLESHEET" -r "$RUNPATH" -e "$EXPERIMENT_TYPE" $OPTIONALARGS
