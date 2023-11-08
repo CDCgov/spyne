@@ -5,3 +5,4 @@ pyyaml==6.0
 numpy==1.19.0
 plotly==5.11.0
 dash==2.6.2
+openpyxl==3.0.10
