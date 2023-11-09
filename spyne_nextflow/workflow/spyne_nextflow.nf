@@ -25,7 +25,10 @@ workflow {
         .splitCsv(header: true, sep: ',')
         .flatten()
 
-    input_ch.view()
+    //input_ch.view()
+
+    // Find chemistry
+    find_chemistry(input_ch.map{ it.fastq_1 })
 }
 
 // Workflow Event Handler
