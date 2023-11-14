@@ -9,7 +9,10 @@ params.e = null
 params.outdir = 'results'
 
 // Import modules
-include { nextflow_samplesheet_creat } from "${launchDir}/spyne_nextflow/modules/nextflow_samplesheet_creat.nf"
+include { create_nextflow_samplesheet } from "${launchDir}/spyne_nextflow/modules/create_nextflow_samplesheet.nf"
+include { find_chemistry } from "${launchDir}/spyne_nextflow/modules/find_chemistry.nf"
+include { subsample } from "${launchDir}/spyne_nextflow/modules/subsample.nf"
+include { irma } from "${launchDir}/spyne_nextflow/modules/irma.nf"
 
 // Orchestrate the process flow
 workflow {
@@ -18,17 +21,44 @@ workflow {
     experiment_type_ch = Channel.value ( params.e )
 
     // Convert the samplesheet to a nextflow format
-    nextflow_samplesheet_creat(samplesheet_ch,run_ID_ch,experiment_type_ch)
+    create_nextflow_samplesheet( samplesheet_ch,run_ID_ch,experiment_type_ch )
 
     // Generate input_channel
-    input_ch = nextflow_samplesheet_creat.out
-        .splitCsv(header: true, sep: ',')
-        .flatten()
-
-    //input_ch.view()
+    input_ch = create_nextflow_samplesheet.out
+        .splitCsv( header: true )
 
     // Find chemistry
-    find_chemistry(input_ch.map{ it.fastq_1 })
+    new_ch = input_ch.map { item ->
+        [item.sample_ID, item.fastq_1]
+    }
+    find_chemistry_ch = new_ch.combine(run_ID_ch)
+    find_chemistry( find_chemistry_ch )
+
+    // Create the irma chemistry channel
+    irma_chemistry_ch = find_chemistry.out
+        .splitCsv( header: true, sep: ',' )
+
+    // Subsample
+    new_ch2 = input_ch.map { item ->
+        [sample_ID:item.sample_ID, fastq_1:item.fastq_1, fastq_2:item.fastq_2]
+    }
+    new_ch3 = irma_chemistry_ch.map {item ->
+                [sample_ID: item.sample_ID, subsample:item.subsample]
+    } 
+    subsample_ch = new_ch2.combine(new_ch3)
+                .filter { it[0].sample_ID == it[1].sample_ID }
+                .map { [it[0].sample_ID, it[0].fastq_1, it[0].fastq_2, it[1].subsample] }
+    subsample( subsample_ch )
+
+    // Run irma
+    new_ch4 = irma_chemistry_ch.map {item ->
+                [sample_ID: item.sample_ID, irma_custom_0:item.irma_custom_0, irma_custom_1:item.irma_custom_1]
+    } 
+    subsample.out.subsampled_fastq.view()
+    irma_ch = subsample.out.subsampled_fastq.combine(new_ch4)
+                .filter { it[0].sample_ID == it[1].sample_ID }
+                .map { [it[0].sample_ID, it[0].fastq_1, it[0].fastq_2, it[1].subsample] }
+    
 }
 
 // Workflow Event Handler
