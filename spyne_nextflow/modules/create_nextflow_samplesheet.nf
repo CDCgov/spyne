@@ -2,14 +2,15 @@
 
 /*
 ========================================================================================
-   nextflow_samplesheet_creat module
+   create_nextflow_samplesheet module
 ========================================================================================
 */
 
 nextflow.enable.dsl=2
 
-process nextflow_samplesheet_creat {
+process create_nextflow_samplesheet {
     tag {"Generating the samplesheet for nextflow"}
+    
     publishDir "${params.outdir}", mode: 'copy'
 
     input:
@@ -18,10 +19,10 @@ process nextflow_samplesheet_creat {
     val experiment_type
 
     output:
-    path "nextflow_samplesheet.csv", emit: nextflow_samplesheet
+    path "nextflow_samplesheet.csv"
 
     script:
     """
-    python3 ${launchDir}/spyne_nextflow/bin/nextflow_samplesheet_creat.py -s "${params.s}" -r "${params.r}" -e "${params.e}"
+    python3 ${launchDir}/spyne_nextflow/bin/create_nextflow_samplesheet.py -s "${params.s}" -r "${params.r}" -e "${params.e}"
     """
 }
