@@ -9,7 +9,7 @@
 nextflow.enable.dsl=2
 
 process irma {
-    tag {"running irma for ${sample}"}
+    tag {"assembling genome with IRMA for ${sample}"}
     container "cdcgov/irma:v1.1.1"
 
     cpus 14
