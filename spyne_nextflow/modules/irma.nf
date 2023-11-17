@@ -21,7 +21,7 @@ process irma {
     tuple val(sample), path(subsampled_R1), path(subsampled_R2), val(irma_custom_0), val(irma_custom_1)
 
     output:
-    path "${sample}", emit:irma_dir
+    val (sample), emit:irma_dir
     path "${sample}.irma.stdout.log", emit: irma_log_out
     path "${sample}.irma.stderr.log", emit: irma_log_err   
 
