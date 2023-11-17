@@ -13,6 +13,8 @@ include { create_nextflow_samplesheet } from "${launchDir}/spyne_nextflow/module
 include { find_chemistry } from "${launchDir}/spyne_nextflow/modules/find_chemistry.nf"
 include { subsample } from "${launchDir}/spyne_nextflow/modules/subsample.nf"
 include { irma } from "${launchDir}/spyne_nextflow/modules/irma.nf"
+include { check_irma } from "${launchDir}/spyne_nextflow/modules/check_irma.nf"
+include { pass_negatives } from "${launchDir}/spyne_nextflow/modules/pass_negatives.nf"
 
 // Orchestrate the process flow
 workflow {
@@ -62,6 +64,17 @@ workflow {
                 .map { [it[0].sample_ID, it[0].subsampled_R1, it[0].subsampled_R2, it[1].irma_custom_0, it[1].irma_custom_1] }
     irma( irma_ch )
     
+    // Irma checkpoint
+    checkirma_ch = irma.out.irma_dir
+    check_irma( checkirma_ch )
+
+    // Filter samples to passed and failed
+    passedSamples = check_irma.out.filter { it[1].text.trim() == 'passed' }.map { it[0] }
+    failedSamples = check_irma.out.filter { it[1].text.trim() == 'failed' }.map { it[0] }
+
+    // Process failed samples
+    pass_negatives( failedSamples )
+
 }
 
 // Workflow Event Handler
