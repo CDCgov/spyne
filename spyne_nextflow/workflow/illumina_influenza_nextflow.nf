@@ -15,6 +15,7 @@ include { subsample } from "${launchDir}/spyne_nextflow/modules/subsample.nf"
 include { irma } from "${launchDir}/spyne_nextflow/modules/irma.nf"
 include { check_irma } from "${launchDir}/spyne_nextflow/modules/check_irma.nf"
 include { pass_negatives } from "${launchDir}/spyne_nextflow/modules/pass_negatives.nf"
+include { catfiles } from "${launchDir}/spyne_nextflow/modules/catfiles.nf"
 
 // Orchestrate the process flow
 workflow {
@@ -75,6 +76,10 @@ workflow {
     // Process failed samples
     pass_negatives( failedSamples )
 
+    // Proceed with passed samples
+    // cat all fasta files into one
+    catfile_ch = passedSamples.collect()
+    catfiles ( catfile_ch )
 }
 
 // Workflow Event Handler
