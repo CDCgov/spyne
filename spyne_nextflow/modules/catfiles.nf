@@ -9,7 +9,7 @@
 nextflow.enable.dsl=2
 
 process catfiles {
-    tag {"Collecting consensus genomes for ${sample}"}
+    tag {"Collecting consensus genomes"}
 
     publishDir "${params.outdir}/IRMA/dais_results", mode: 'copy'
 
