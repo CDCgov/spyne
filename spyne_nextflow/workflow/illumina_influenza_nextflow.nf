@@ -16,6 +16,7 @@ include { irma } from "${launchDir}/spyne_nextflow/modules/irma.nf"
 include { check_irma } from "${launchDir}/spyne_nextflow/modules/check_irma.nf"
 include { pass_negatives } from "${launchDir}/spyne_nextflow/modules/pass_negatives.nf"
 include { catfiles } from "${launchDir}/spyne_nextflow/modules/catfiles.nf"
+include { dais_ribosome } from "${launchDir}/spyne_nextflow/modules/dais_ribosome.nf"
 
 // Orchestrate the process flow
 workflow {
@@ -80,6 +81,9 @@ workflow {
     // cat all fasta files into one
     catfile_ch = passedSamples.collect()
     catfiles ( catfile_ch )
+
+    // Run dais_ribosome
+    dais_ribosome ( catfiles.out )
 }
 
 // Workflow Event Handler
