@@ -18,6 +18,7 @@ include { pass_negatives } from "${launchDir}/spyne_nextflow/modules/pass_negati
 include { catfiles } from "${launchDir}/spyne_nextflow/modules/catfiles.nf"
 include { dais_ribosome } from "${launchDir}/spyne_nextflow/modules/dais_ribosome.nf"
 include { prepareIRMAjson } from "${launchDir}/spyne_nextflow/modules/prepareIRMAjson.nf"
+include { staticHTML } from "${launchDir}/spyne_nextflow/modules/staticHTML.nf"
 
 // Orchestrate the process flow
 workflow {
@@ -88,6 +89,9 @@ workflow {
 
     // prepare IRMA json files
     prepareIRMAjson ( dais_ribosome.out.collect() )
+
+    // Create static HTML output
+    staticHTML ( prepareIRMAjson.out )
 }
 
 // Workflow Event Handler
