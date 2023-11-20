@@ -10,7 +10,6 @@ nextflow.enable.dsl=2
 
 process prepareIRMAjson {
     tag {"Creating Plotly-Dash readable figures and tables for IRMA-SPY"}
-    echo true
 
     input:
     val x
