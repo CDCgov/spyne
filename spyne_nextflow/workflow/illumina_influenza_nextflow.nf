@@ -19,6 +19,7 @@ include { catfiles } from "${launchDir}/spyne_nextflow/modules/catfiles.nf"
 include { dais_ribosome } from "${launchDir}/spyne_nextflow/modules/dais_ribosome.nf"
 include { prepareIRMAjson } from "${launchDir}/spyne_nextflow/modules/prepareIRMAjson.nf"
 include { staticHTML } from "${launchDir}/spyne_nextflow/modules/staticHTML.nf"
+include { sleep } from "${launchDir}/spyne_nextflow/modules/sleep.nf"
 
 // Orchestrate the process flow
 workflow {
@@ -67,10 +68,10 @@ workflow {
                 .filter { it[0].sample_ID == it[1].sample_ID }
                 .map { [it[0].sample_ID, it[0].subsampled_R1, it[0].subsampled_R2, it[1].irma_custom_0, it[1].irma_custom_1] }
     irma( irma_ch )
+    sleep( irma.out )
     
     // Irma checkpoint
-    checkirma_ch = irma.out.irma_dir
-    check_irma( checkirma_ch )
+    check_irma( sleep.out )
 
     // Filter samples to passed and failed
     passedSamples = check_irma.out.filter { it[1].text.trim() == 'passed' }.map { it[0] }
