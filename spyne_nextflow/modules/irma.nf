@@ -22,6 +22,7 @@ process irma {
 
     output:
     val (sample), emit:irma_dir
+    path "*"
     path "${sample}.irma.stdout.log", emit: irma_log_out
     path "${sample}.irma.stderr.log", emit: irma_log_err   
 
