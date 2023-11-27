@@ -19,6 +19,6 @@ process prepareIRMAjson {
 
     script:
     """
-    python3 ${launchDir}/spyne_nextflow/bin/prepareIRMAjson.py ${params.r}/IRMA ${params.s} illumina flu
+    python3 ${launchDir}/bin/prepareIRMAjson.py ${params.r}/IRMA ${params.s} illumina flu
     """
 }
