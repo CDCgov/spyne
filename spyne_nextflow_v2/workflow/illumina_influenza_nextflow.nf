@@ -8,16 +8,16 @@ params.r = null
 params.e = null
 
 // Import modules
-include { create_nextflow_samplesheet } from "${launchDir}/spyne_nextflow_v2/modules/create_nextflow_samplesheet.nf"
-include { find_chemistry } from "${launchDir}/spyne_nextflow_v2/modules/find_chemistry.nf"
-include { subsample } from "${launchDir}/spyne_nextflow_v2/modules/subsample.nf"
-include { irma } from "${launchDir}/spyne_nextflow_v2/modules/irma.nf"
-include { check_irma } from "${launchDir}/spyne_nextflow_v2/modules/check_irma.nf"
-include { pass_negatives } from "${launchDir}/spyne_nextflow_v2/modules/pass_negatives.nf"
-include { catfiles } from "${launchDir}/spyne_nextflow_v2/modules/catfiles.nf"
-include { dais_ribosome } from "${launchDir}/spyne_nextflow_v2/modules/dais_ribosome.nf"
-include { prepareIRMAjson } from "${launchDir}/spyne_nextflow_v2/modules/prepareIRMAjson.nf"
-include { staticHTML } from "${launchDir}/spyne_nextflow_v2/modules/staticHTML.nf"
+include { create_nextflow_samplesheet } from "${launchDir}/modules/create_nextflow_samplesheet.nf"
+include { find_chemistry } from "${launchDir}/modules/find_chemistry.nf"
+include { subsample } from "${launchDir}/modules/subsample.nf"
+include { irma } from "${launchDir}/modules/irma.nf"
+include { check_irma } from "${launchDir}/modules/check_irma.nf"
+include { pass_negatives } from "${launchDir}/modules/pass_negatives.nf"
+include { catfiles } from "${launchDir}/modules/catfiles.nf"
+include { dais_ribosome } from "${launchDir}/modules/dais_ribosome.nf"
+include { prepareIRMAjson } from "${launchDir}/modules/prepareIRMAjson.nf"
+include { staticHTML } from "${launchDir}/modules/staticHTML.nf"
 
 // Orchestrate the process flow
 workflow {
