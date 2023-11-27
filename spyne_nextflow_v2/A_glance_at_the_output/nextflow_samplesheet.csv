@@ -1,0 +1,5 @@
+sample_ID,fastq_1,fastq_2,sample_type
+sample_1,/home/try8/FLU_SC2_SEQUENCING_nextflow/tiny_test_run_flu_illumina/fastqs/sample_1_R1.fastq.gz,/home/try8/FLU_SC2_SEQUENCING_nextflow/tiny_test_run_flu_illumina/fastqs/sample_1_R2.fastq.gz,Test
+sample_2,/home/try8/FLU_SC2_SEQUENCING_nextflow/tiny_test_run_flu_illumina/fastqs/sample_2_R1.fastq.gz,/home/try8/FLU_SC2_SEQUENCING_nextflow/tiny_test_run_flu_illumina/fastqs/sample_2_R2.fastq.gz,Test
+sample_3,/home/try8/FLU_SC2_SEQUENCING_nextflow/tiny_test_run_flu_illumina/fastqs/sample_3_R1.fastq.gz,/home/try8/FLU_SC2_SEQUENCING_nextflow/tiny_test_run_flu_illumina/fastqs/sample_3_R2.fastq.gz,Test
+sample_4,/home/try8/FLU_SC2_SEQUENCING_nextflow/tiny_test_run_flu_illumina/fastqs/sample_4_R1.fastq.gz,/home/try8/FLU_SC2_SEQUENCING_nextflow/tiny_test_run_flu_illumina/fastqs/sample_4_R2.fastq.gz,Test

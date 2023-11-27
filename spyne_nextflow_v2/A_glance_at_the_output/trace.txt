@@ -1,0 +1,22 @@
+task_id	hash	native_id	name	status	exit	submit	duration	realtime	%cpu	peak_rss	peak_vmem	rchar	wchar
+1	79/a37ef9	12564	create_nextflow_samplesheet (Generating the samplesheet for nextflow)	COMPLETED	0	2023-11-27 13:25:01.965	278ms	258ms	99.2%	12.6 MB	29.4 MB	13.6 MB	1.7 KB
+2	d0/092261	12736	find_chemistry (finding chemistry parameters for)	COMPLETED	0	2023-11-27 13:25:02.290	95ms	70ms	103.8%	13 MB	18.6 MB	3.1 MB	258 B
+5	a8/a09199	12678	find_chemistry (finding chemistry parameters for)	COMPLETED	0	2023-11-27 13:25:02.272	152ms	129ms	102.1%	13.9 MB	19.1 MB	5.3 MB	259 B
+4	ed/b99af9	12704	find_chemistry (finding chemistry parameters for)	COMPLETED	0	2023-11-27 13:25:02.284	146ms	117ms	88.6%	13.9 MB	19.1 MB	5.2 MB	258 B
+3	dd/e2ab1e	12719	find_chemistry (finding chemistry parameters for)	COMPLETED	0	2023-11-27 13:25:02.287	179ms	152ms	93.0%	12.5 MB	18.1 MB	6.2 MB	258 B
+8	ae/c3d854	13215	subsample (subsampling)	COMPLETED	0	2023-11-27 13:25:02.440	398ms	373ms	393.9%	6.7 MB	9.6 MB	76.5 MB	85.7 MB
+9	0e/99d453	13423	subsample (subsampling)	COMPLETED	0	2023-11-27 13:25:02.475	425ms	403ms	413.1%	6.5 MB	9.6 MB	95.1 MB	107.2 MB
+6	5d/694be1	13065	subsample (subsampling)	COMPLETED	0	2023-11-27 13:25:02.397	518ms	496ms	217.1%	6.7 MB	9.6 MB	38.8 MB	42.9 MB
+7	f4/48dca2	13210	subsample (subsampling)	COMPLETED	0	2023-11-27 13:25:02.437	577ms	555ms	258.7%	6.7 MB	9.6 MB	75.9 MB	85.7 MB
+11	e6/ebebde	13820	irma (assembling genome with IRMA for sample_2)	COMPLETED	0	2023-11-27 13:25:02.908	37.4s	34s	388.3%	32.5 MB	41.9 MB	1.2 GB	436.2 MB
+14	e5/a9eff7	13937	check_irma (checking irma for sample_2)	COMPLETED	0	2023-11-27 13:25:40.338	397ms	39ms	23.6%	0	0	159.6 KB	294 B
+10	be/b746a9	13763	irma (assembling genome with IRMA for sample_3)	COMPLETED	0	2023-11-27 13:25:02.863	47.4s	46.3s	754.8%	86.4 MB	173.9 MB	1.9 GB	778 MB
+15	8f/a79d47	14022	check_irma (checking irma for sample_3)	COMPLETED	0	2023-11-27 13:25:50.266	27ms	3ms	133.3%	0	0	159.6 KB	309 B
+12	28/66ff1f	13853	irma (assembling genome with IRMA for sample_1)	COMPLETED	0	2023-11-27 13:25:02.922	47.4s	39.5s	569.0%	94 MB	198.9 MB	1.2 GB	443.3 MB
+16	a1/9a63cc	14110	check_irma (checking irma for sample_1)	COMPLETED	0	2023-11-27 13:25:50.353	33ms	2ms	150.0%	0	0	159.6 KB	309 B
+13	70/24ace9	13895	irma (assembling genome with IRMA for sample_4)	COMPLETED	0	2023-11-27 13:25:03.025	48.2s	46.1s	764.6%	89.9 MB	101.9 MB	1.9 GB	784.2 MB
+17	04/0c1b0d	14193	check_irma (checking irma for sample_4)	COMPLETED	0	2023-11-27 13:25:51.257	25ms	2ms	160.0%	0	0	159.6 KB	309 B
+18	c7/e019b0	14268	catfiles (Collecting consensus genomes)	COMPLETED	0	2023-11-27 13:25:51.287	24ms	3ms	126.3%	0	0	227.2 KB	48.7 KB
+19	93/53d905	14348	dais_ribosome (Translating sequences into open reading frames (ORFs) with DAIS-Ribosome)	COMPLETED	0	2023-11-27 13:25:51.332	3s	2.4s	957.6%	80.2 MB	368.3 MB	172 MB	9.2 MB
+20	ba/df4baf	14380	prepareIRMAjson (Creating Plotly-Dash readable figures and tables for IRMA-SPY)	COMPLETED	0	2023-11-27 13:25:54.342	926ms	908ms	98.7%	14.2 MB	19.4 MB	34.1 MB	3.3 MB
+21	80/3a1628	14491	staticHTML (Creating static HTML output)	COMPLETED	0	2023-11-27 13:25:55.277	639ms	620ms	98.9%	15.5 MB	20.5 MB	71.7 MB	46.7 MB
