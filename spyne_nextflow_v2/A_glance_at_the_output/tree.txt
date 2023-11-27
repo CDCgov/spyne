@@ -1,0 +1,868 @@
+tiny_test_run_flu_illumina
+    ├── IRMA
+    │   ├── dais_results
+    │   │   ├── DAIS_ribosome.del
+    │   │   ├── DAIS_ribosome.ins
+    │   │   ├── DAIS_ribosome.seq
+    │   │   └── DAIS_ribosome_input.fasta
+    │   ├── sample_1
+    │   │   ├── B_HA.bam
+    │   │   ├── B_HA.bam.bai
+    │   │   ├── B_HA.fasta
+    │   │   ├── B_HA.vcf
+    │   │   ├── B_MP.bam
+    │   │   ├── B_MP.bam.bai
+    │   │   ├── B_MP.fasta
+    │   │   ├── B_MP.vcf
+    │   │   ├── B_NA.bam
+    │   │   ├── B_NA.bam.bai
+    │   │   ├── B_NA.fasta
+    │   │   ├── B_NA.vcf
+    │   │   ├── B_NP.bam
+    │   │   ├── B_NP.bam.bai
+    │   │   ├── B_NP.fasta
+    │   │   ├── B_NP.vcf
+    │   │   ├── B_NS.bam
+    │   │   ├── B_NS.bam.bai
+    │   │   ├── B_NS.fasta
+    │   │   ├── B_NS.vcf
+    │   │   ├── B_PA.bam
+    │   │   ├── B_PA.bam.bai
+    │   │   ├── B_PA.fasta
+    │   │   ├── B_PA.vcf
+    │   │   ├── B_PB1.bam
+    │   │   ├── B_PB1.bam.bai
+    │   │   ├── B_PB1.fasta
+    │   │   ├── B_PB1.vcf
+    │   │   ├── B_PB2.bam
+    │   │   ├── B_PB2.bam.bai
+    │   │   ├── B_PB2.fasta
+    │   │   ├── B_PB2.vcf
+    │   │   ├── amended_consensus
+    │   │   │   ├── sample_1_1.fa
+    │   │   │   ├── sample_1_2.fa
+    │   │   │   ├── sample_1_3.fa
+    │   │   │   ├── sample_1_4.fa
+    │   │   │   ├── sample_1_5.fa
+    │   │   │   ├── sample_1_6.fa
+    │   │   │   ├── sample_1_7.fa
+    │   │   │   └── sample_1_8.fa
+    │   │   ├── figures
+    │   │   │   ├── B_HA-coverageDiagram.pdf
+    │   │   │   ├── B_HA-heuristics.pdf
+    │   │   │   ├── B_MP-coverageDiagram.pdf
+    │   │   │   ├── B_MP-heuristics.pdf
+    │   │   │   ├── B_NA-coverageDiagram.pdf
+    │   │   │   ├── B_NA-heuristics.pdf
+    │   │   │   ├── B_NP-coverageDiagram.pdf
+    │   │   │   ├── B_NP-heuristics.pdf
+    │   │   │   ├── B_NS-coverageDiagram.pdf
+    │   │   │   ├── B_NS-heuristics.pdf
+    │   │   │   ├── B_PA-coverageDiagram.pdf
+    │   │   │   ├── B_PA-heuristics.pdf
+    │   │   │   ├── B_PB1-coverageDiagram.pdf
+    │   │   │   ├── B_PB1-heuristics.pdf
+    │   │   │   ├── B_PB2-coverageDiagram.pdf
+    │   │   │   ├── B_PB2-heuristics.pdf
+    │   │   │   └── READ_PERCENTAGES.pdf
+    │   │   ├── intermediate
+    │   │   │   ├── 0-ITERATIVE-REFERENCES
+    │   │   │   │   ├── R0-B_HA.ref
+    │   │   │   │   ├── R0-B_MP.ref
+    │   │   │   │   ├── R0-B_NA.ref
+    │   │   │   │   ├── R0-B_NP.ref
+    │   │   │   │   ├── R0-B_NS.ref
+    │   │   │   │   ├── R0-B_PA.ref
+    │   │   │   │   ├── R0-B_PB1.ref
+    │   │   │   │   ├── R0-B_PB2.ref
+    │   │   │   │   ├── R1-B_HA.ref
+    │   │   │   │   ├── R1-B_MP.ref
+    │   │   │   │   ├── R1-B_NA.ref
+    │   │   │   │   ├── R1-B_NP.ref
+    │   │   │   │   ├── R1-B_NS.ref
+    │   │   │   │   ├── R1-B_PA.ref
+    │   │   │   │   ├── R1-B_PB1.ref
+    │   │   │   │   ├── R1-B_PB2.ref
+    │   │   │   │   ├── R2-B_HA.ref
+    │   │   │   │   ├── R2-B_NP.ref
+    │   │   │   │   ├── R2-B_NS.ref
+    │   │   │   │   └── R2-B_PA.ref
+    │   │   │   ├── 1-MATCH_BLAT
+    │   │   │   │   ├── R1.tar.gz
+    │   │   │   │   ├── R2.tar.gz
+    │   │   │   │   └── R3.tar.gz
+    │   │   │   ├── 2-SORT_BLAT
+    │   │   │   │   ├── R1.tar.gz
+    │   │   │   │   ├── R1.txt
+    │   │   │   │   ├── R2.tar.gz
+    │   │   │   │   ├── R2.txt
+    │   │   │   │   └── R3
+    │   │   │   │       └── SORT_result.txt
+    │   │   │   ├── 3-ALIGN_SAM
+    │   │   │   │   └── storedCounts.tar.gz
+    │   │   │   └── 4-ASSEMBLE_SSW
+    │   │   │       ├── F1-B_HA.bam
+    │   │   │       ├── F1-B_HA.ref
+    │   │   │       ├── F1-B_MP.bam
+    │   │   │       ├── F1-B_MP.ref
+    │   │   │       ├── F1-B_NA.bam
+    │   │   │       ├── F1-B_NA.ref
+    │   │   │       ├── F1-B_NP.bam
+    │   │   │       ├── F1-B_NP.ref
+    │   │   │       ├── F1-B_NS.bam
+    │   │   │       ├── F1-B_NS.ref
+    │   │   │       ├── F1-B_PA.bam
+    │   │   │       ├── F1-B_PA.ref
+    │   │   │       ├── F1-B_PB1.bam
+    │   │   │       ├── F1-B_PB1.ref
+    │   │   │       ├── F1-B_PB2.bam
+    │   │   │       ├── F1-B_PB2.ref
+    │   │   │       ├── F2-B_HA.bam
+    │   │   │       ├── F2-B_HA.ref
+    │   │   │       ├── F2-B_MP.bam
+    │   │   │       ├── F2-B_MP.ref
+    │   │   │       ├── F2-B_NA.bam
+    │   │   │       ├── F2-B_NA.ref
+    │   │   │       ├── F2-B_NP.bam
+    │   │   │       ├── F2-B_NP.ref
+    │   │   │       ├── F2-B_NS.bam
+    │   │   │       ├── F2-B_NS.ref
+    │   │   │       ├── F2-B_PA.bam
+    │   │   │       ├── F2-B_PA.ref
+    │   │   │       ├── F2-B_PB1.bam
+    │   │   │       ├── F2-B_PB1.ref
+    │   │   │       ├── F2-B_PB2.bam
+    │   │   │       ├── F2-B_PB2.ref
+    │   │   │       ├── F3-B_HA.bam
+    │   │   │       ├── F3-B_HA.ref
+    │   │   │       └── reads.tar.gz
+    │   │   ├── logs
+    │   │   │   ├── ASSEMBLY_log.txt
+    │   │   │   ├── FLU-sample_1.sh
+    │   │   │   ├── NR_COUNTS_log.txt
+    │   │   │   ├── QC_log.txt
+    │   │   │   ├── READ_log.txt
+    │   │   │   └── run_info.txt
+    │   │   ├── matrices
+    │   │   ├── secondary
+    │   │   │   ├── R1-A_NS.fa
+    │   │   │   ├── R1-A_PB1.fa
+    │   │   │   └── unmatched_read_patterns.tar.gz
+    │   │   └── tables
+    │   │       ├── B_HA-allAlleles.txt
+    │   │       ├── B_HA-coverage.txt
+    │   │       ├── B_HA-deletions.txt
+    │   │       ├── B_HA-insertions.txt
+    │   │       ├── B_HA-pairingStats.txt
+    │   │       ├── B_HA-variants.txt
+    │   │       ├── B_MP-allAlleles.txt
+    │   │       ├── B_MP-coverage.txt
+    │   │       ├── B_MP-deletions.txt
+    │   │       ├── B_MP-insertions.txt
+    │   │       ├── B_MP-pairingStats.txt
+    │   │       ├── B_MP-variants.txt
+    │   │       ├── B_NA-allAlleles.txt
+    │   │       ├── B_NA-coverage.txt
+    │   │       ├── B_NA-deletions.txt
+    │   │       ├── B_NA-insertions.txt
+    │   │       ├── B_NA-pairingStats.txt
+    │   │       ├── B_NA-variants.txt
+    │   │       ├── B_NP-allAlleles.txt
+    │   │       ├── B_NP-coverage.txt
+    │   │       ├── B_NP-deletions.txt
+    │   │       ├── B_NP-insertions.txt
+    │   │       ├── B_NP-pairingStats.txt
+    │   │       ├── B_NP-variants.txt
+    │   │       ├── B_NS-allAlleles.txt
+    │   │       ├── B_NS-coverage.txt
+    │   │       ├── B_NS-deletions.txt
+    │   │       ├── B_NS-insertions.txt
+    │   │       ├── B_NS-pairingStats.txt
+    │   │       ├── B_NS-variants.txt
+    │   │       ├── B_PA-allAlleles.txt
+    │   │       ├── B_PA-coverage.txt
+    │   │       ├── B_PA-deletions.txt
+    │   │       ├── B_PA-insertions.txt
+    │   │       ├── B_PA-pairingStats.txt
+    │   │       ├── B_PA-variants.txt
+    │   │       ├── B_PB1-allAlleles.txt
+    │   │       ├── B_PB1-coverage.txt
+    │   │       ├── B_PB1-deletions.txt
+    │   │       ├── B_PB1-insertions.txt
+    │   │       ├── B_PB1-pairingStats.txt
+    │   │       ├── B_PB1-variants.txt
+    │   │       ├── B_PB2-allAlleles.txt
+    │   │       ├── B_PB2-coverage.txt
+    │   │       ├── B_PB2-deletions.txt
+    │   │       ├── B_PB2-insertions.txt
+    │   │       ├── B_PB2-pairingStats.txt
+    │   │       ├── B_PB2-variants.txt
+    │   │       └── READ_COUNTS.txt
+    │   ├── sample_1.irma.decision
+    │   ├── sample_1.irma.stderr.log
+    │   ├── sample_1.irma.stdout.log
+    │   ├── sample_1_chemistry.csv
+    │   ├── sample_1_subsampled_R1.fastq
+    │   ├── sample_1_subsampled_R2.fastq
+    │   ├── sample_2
+    │   │   ├── B_HA.bam
+    │   │   ├── B_HA.bam.bai
+    │   │   ├── B_HA.fasta
+    │   │   ├── B_HA.vcf
+    │   │   ├── B_MP.bam
+    │   │   ├── B_MP.bam.bai
+    │   │   ├── B_MP.fasta
+    │   │   ├── B_MP.vcf
+    │   │   ├── B_NA.bam
+    │   │   ├── B_NA.bam.bai
+    │   │   ├── B_NA.fasta
+    │   │   ├── B_NA.vcf
+    │   │   ├── B_NP.bam
+    │   │   ├── B_NP.bam.bai
+    │   │   ├── B_NP.fasta
+    │   │   ├── B_NP.vcf
+    │   │   ├── B_NS.bam
+    │   │   ├── B_NS.bam.bai
+    │   │   ├── B_NS.fasta
+    │   │   ├── B_NS.vcf
+    │   │   ├── B_PA.bam
+    │   │   ├── B_PA.bam.bai
+    │   │   ├── B_PA.fasta
+    │   │   ├── B_PA.vcf
+    │   │   ├── B_PB2.bam
+    │   │   ├── B_PB2.bam.bai
+    │   │   ├── B_PB2.fasta
+    │   │   ├── B_PB2.vcf
+    │   │   ├── amended_consensus
+    │   │   │   ├── sample_2_2.fa
+    │   │   │   ├── sample_2_3.fa
+    │   │   │   ├── sample_2_4.fa
+    │   │   │   ├── sample_2_5.fa
+    │   │   │   ├── sample_2_6.fa
+    │   │   │   ├── sample_2_7.fa
+    │   │   │   └── sample_2_8.fa
+    │   │   ├── figures
+    │   │   │   ├── B_HA-coverageDiagram.pdf
+    │   │   │   ├── B_HA-heuristics.pdf
+    │   │   │   ├── B_MP-coverageDiagram.pdf
+    │   │   │   ├── B_MP-heuristics.pdf
+    │   │   │   ├── B_NA-coverageDiagram.pdf
+    │   │   │   ├── B_NA-heuristics.pdf
+    │   │   │   ├── B_NP-coverageDiagram.pdf
+    │   │   │   ├── B_NP-heuristics.pdf
+    │   │   │   ├── B_NS-coverageDiagram.pdf
+    │   │   │   ├── B_NS-heuristics.pdf
+    │   │   │   ├── B_PA-coverageDiagram.pdf
+    │   │   │   ├── B_PA-heuristics.pdf
+    │   │   │   ├── B_PB2-coverageDiagram.pdf
+    │   │   │   ├── B_PB2-heuristics.pdf
+    │   │   │   └── READ_PERCENTAGES.pdf
+    │   │   ├── intermediate
+    │   │   │   ├── 0-ITERATIVE-REFERENCES
+    │   │   │   │   ├── R0-B_HA.ref
+    │   │   │   │   ├── R0-B_MP.ref
+    │   │   │   │   ├── R0-B_NA.ref
+    │   │   │   │   ├── R0-B_NP.ref
+    │   │   │   │   ├── R0-B_NS.ref
+    │   │   │   │   ├── R0-B_PA.ref
+    │   │   │   │   ├── R0-B_PB2.ref
+    │   │   │   │   ├── R1-B_HA.ref
+    │   │   │   │   ├── R1-B_MP.ref
+    │   │   │   │   ├── R1-B_NA.ref
+    │   │   │   │   ├── R1-B_NP.ref
+    │   │   │   │   ├── R1-B_NS.ref
+    │   │   │   │   ├── R1-B_PA.ref
+    │   │   │   │   ├── R1-B_PB2.ref
+    │   │   │   │   ├── R2-B_HA.ref
+    │   │   │   │   ├── R2-B_NP.ref
+    │   │   │   │   └── R2-B_PA.ref
+    │   │   │   ├── 1-MATCH_BLAT
+    │   │   │   │   ├── R1.tar.gz
+    │   │   │   │   ├── R2.tar.gz
+    │   │   │   │   └── R3.tar.gz
+    │   │   │   ├── 2-SORT_BLAT
+    │   │   │   │   ├── R1.tar.gz
+    │   │   │   │   ├── R1.txt
+    │   │   │   │   ├── R2.tar.gz
+    │   │   │   │   ├── R2.txt
+    │   │   │   │   └── R3
+    │   │   │   │       └── SORT_result.txt
+    │   │   │   ├── 3-ALIGN_SAM
+    │   │   │   │   └── storedCounts.tar.gz
+    │   │   │   └── 4-ASSEMBLE_SSW
+    │   │   │       ├── F1-B_HA.bam
+    │   │   │       ├── F1-B_HA.ref
+    │   │   │       ├── F1-B_MP.bam
+    │   │   │       ├── F1-B_MP.ref
+    │   │   │       ├── F1-B_NA.bam
+    │   │   │       ├── F1-B_NA.ref
+    │   │   │       ├── F1-B_NP.bam
+    │   │   │       ├── F1-B_NP.ref
+    │   │   │       ├── F1-B_NS.bam
+    │   │   │       ├── F1-B_NS.ref
+    │   │   │       ├── F1-B_PA.bam
+    │   │   │       ├── F1-B_PA.ref
+    │   │   │       ├── F1-B_PB2.bam
+    │   │   │       ├── F1-B_PB2.ref
+    │   │   │       ├── F2-B_HA.bam
+    │   │   │       ├── F2-B_HA.ref
+    │   │   │       ├── F2-B_MP.bam
+    │   │   │       ├── F2-B_MP.ref
+    │   │   │       ├── F2-B_NA.bam
+    │   │   │       ├── F2-B_NA.ref
+    │   │   │       ├── F2-B_NP.bam
+    │   │   │       ├── F2-B_NP.ref
+    │   │   │       ├── F2-B_NS.bam
+    │   │   │       ├── F2-B_NS.ref
+    │   │   │       ├── F2-B_PA.bam
+    │   │   │       ├── F2-B_PA.ref
+    │   │   │       ├── F2-B_PB2.bam
+    │   │   │       ├── F2-B_PB2.ref
+    │   │   │       ├── F3-B_HA.bam
+    │   │   │       ├── F3-B_HA.ref
+    │   │   │       └── reads.tar.gz
+    │   │   ├── logs
+    │   │   │   ├── ASSEMBLY_log.txt
+    │   │   │   ├── FLU-sample_2.sh
+    │   │   │   ├── NR_COUNTS_log.txt
+    │   │   │   ├── QC_log.txt
+    │   │   │   ├── READ_log.txt
+    │   │   │   └── run_info.txt
+    │   │   ├── matrices
+    │   │   ├── secondary
+    │   │   │   ├── R1-A_NP.fa
+    │   │   │   ├── R1-A_NS.fa
+    │   │   │   ├── R1-A_PB1.fa
+    │   │   │   └── unmatched_read_patterns.tar.gz
+    │   │   └── tables
+    │   │       ├── B_HA-allAlleles.txt
+    │   │       ├── B_HA-coverage.txt
+    │   │       ├── B_HA-deletions.txt
+    │   │       ├── B_HA-insertions.txt
+    │   │       ├── B_HA-pairingStats.txt
+    │   │       ├── B_HA-variants.txt
+    │   │       ├── B_MP-allAlleles.txt
+    │   │       ├── B_MP-coverage.txt
+    │   │       ├── B_MP-deletions.txt
+    │   │       ├── B_MP-insertions.txt
+    │   │       ├── B_MP-pairingStats.txt
+    │   │       ├── B_MP-variants.txt
+    │   │       ├── B_NA-allAlleles.txt
+    │   │       ├── B_NA-coverage.txt
+    │   │       ├── B_NA-deletions.txt
+    │   │       ├── B_NA-insertions.txt
+    │   │       ├── B_NA-pairingStats.txt
+    │   │       ├── B_NA-variants.txt
+    │   │       ├── B_NP-allAlleles.txt
+    │   │       ├── B_NP-coverage.txt
+    │   │       ├── B_NP-deletions.txt
+    │   │       ├── B_NP-insertions.txt
+    │   │       ├── B_NP-pairingStats.txt
+    │   │       ├── B_NP-variants.txt
+    │   │       ├── B_NS-allAlleles.txt
+    │   │       ├── B_NS-coverage.txt
+    │   │       ├── B_NS-deletions.txt
+    │   │       ├── B_NS-insertions.txt
+    │   │       ├── B_NS-pairingStats.txt
+    │   │       ├── B_NS-variants.txt
+    │   │       ├── B_PA-allAlleles.txt
+    │   │       ├── B_PA-coverage.txt
+    │   │       ├── B_PA-deletions.txt
+    │   │       ├── B_PA-insertions.txt
+    │   │       ├── B_PA-pairingStats.txt
+    │   │       ├── B_PA-variants.txt
+    │   │       ├── B_PB2-allAlleles.txt
+    │   │       ├── B_PB2-coverage.txt
+    │   │       ├── B_PB2-deletions.txt
+    │   │       ├── B_PB2-insertions.txt
+    │   │       ├── B_PB2-pairingStats.txt
+    │   │       ├── B_PB2-variants.txt
+    │   │       └── READ_COUNTS.txt
+    │   ├── sample_2.irma.decision
+    │   ├── sample_2.irma.stderr.log
+    │   ├── sample_2.irma.stdout.log
+    │   ├── sample_2_chemistry.csv
+    │   ├── sample_2_subsampled_R1.fastq
+    │   ├── sample_2_subsampled_R2.fastq
+    │   ├── sample_3
+    │   │   ├── A_HA_H1.bam
+    │   │   ├── A_HA_H1.bam.bai
+    │   │   ├── A_HA_H1.fasta
+    │   │   ├── A_HA_H1.vcf
+    │   │   ├── A_MP.bam
+    │   │   ├── A_MP.bam.bai
+    │   │   ├── A_MP.fasta
+    │   │   ├── A_MP.vcf
+    │   │   ├── A_NA_N1.bam
+    │   │   ├── A_NA_N1.bam.bai
+    │   │   ├── A_NA_N1.fasta
+    │   │   ├── A_NA_N1.vcf
+    │   │   ├── A_NP.bam
+    │   │   ├── A_NP.bam.bai
+    │   │   ├── A_NP.fasta
+    │   │   ├── A_NP.vcf
+    │   │   ├── A_NS.bam
+    │   │   ├── A_NS.bam.bai
+    │   │   ├── A_NS.fasta
+    │   │   ├── A_NS.vcf
+    │   │   ├── A_PA.bam
+    │   │   ├── A_PA.bam.bai
+    │   │   ├── A_PA.fasta
+    │   │   ├── A_PA.vcf
+    │   │   ├── A_PB1.bam
+    │   │   ├── A_PB1.bam.bai
+    │   │   ├── A_PB1.fasta
+    │   │   ├── A_PB1.vcf
+    │   │   ├── A_PB2.bam
+    │   │   ├── A_PB2.bam.bai
+    │   │   ├── A_PB2.fasta
+    │   │   ├── A_PB2.vcf
+    │   │   ├── amended_consensus
+    │   │   │   ├── sample_3_1.fa
+    │   │   │   ├── sample_3_2.fa
+    │   │   │   ├── sample_3_3.fa
+    │   │   │   ├── sample_3_4.fa
+    │   │   │   ├── sample_3_5.fa
+    │   │   │   ├── sample_3_6.fa
+    │   │   │   ├── sample_3_7.fa
+    │   │   │   └── sample_3_8.fa
+    │   │   ├── figures
+    │   │   │   ├── A_HA_H1-coverageDiagram.pdf
+    │   │   │   ├── A_HA_H1-heuristics.pdf
+    │   │   │   ├── A_MP-coverageDiagram.pdf
+    │   │   │   ├── A_MP-heuristics.pdf
+    │   │   │   ├── A_NA_N1-coverageDiagram.pdf
+    │   │   │   ├── A_NA_N1-heuristics.pdf
+    │   │   │   ├── A_NP-coverageDiagram.pdf
+    │   │   │   ├── A_NP-heuristics.pdf
+    │   │   │   ├── A_NS-coverageDiagram.pdf
+    │   │   │   ├── A_NS-heuristics.pdf
+    │   │   │   ├── A_PA-coverageDiagram.pdf
+    │   │   │   ├── A_PA-heuristics.pdf
+    │   │   │   ├── A_PB1-coverageDiagram.pdf
+    │   │   │   ├── A_PB1-heuristics.pdf
+    │   │   │   ├── A_PB2-coverageDiagram.pdf
+    │   │   │   ├── A_PB2-heuristics.pdf
+    │   │   │   └── READ_PERCENTAGES.pdf
+    │   │   ├── intermediate
+    │   │   │   ├── 0-ITERATIVE-REFERENCES
+    │   │   │   │   ├── R0-A_HA_H1.ref
+    │   │   │   │   ├── R0-A_MP.ref
+    │   │   │   │   ├── R0-A_NA_N1.ref
+    │   │   │   │   ├── R0-A_NP.ref
+    │   │   │   │   ├── R0-A_NS.ref
+    │   │   │   │   ├── R0-A_PA.ref
+    │   │   │   │   ├── R0-A_PB1.ref
+    │   │   │   │   ├── R0-A_PB2.ref
+    │   │   │   │   ├── R1-A_HA_H1.ref
+    │   │   │   │   ├── R1-A_MP.ref
+    │   │   │   │   ├── R1-A_NA_N1.ref
+    │   │   │   │   ├── R1-A_NP.ref
+    │   │   │   │   ├── R1-A_NS.ref
+    │   │   │   │   ├── R1-A_PA.ref
+    │   │   │   │   ├── R1-A_PB1.ref
+    │   │   │   │   ├── R1-A_PB2.ref
+    │   │   │   │   ├── R2-A_HA_H1.ref
+    │   │   │   │   ├── R2-A_MP.ref
+    │   │   │   │   ├── R2-A_NA_N1.ref
+    │   │   │   │   ├── R2-A_NP.ref
+    │   │   │   │   ├── R2-A_NS.ref
+    │   │   │   │   ├── R2-A_PA.ref
+    │   │   │   │   ├── R2-A_PB1.ref
+    │   │   │   │   └── R2-A_PB2.ref
+    │   │   │   ├── 1-MATCH_BLAT
+    │   │   │   │   ├── R1.tar.gz
+    │   │   │   │   ├── R2.tar.gz
+    │   │   │   │   └── R3.tar.gz
+    │   │   │   ├── 2-SORT_BLAT
+    │   │   │   │   ├── R1.tar.gz
+    │   │   │   │   ├── R1.txt
+    │   │   │   │   ├── R2.tar.gz
+    │   │   │   │   ├── R2.txt
+    │   │   │   │   └── R3
+    │   │   │   │       └── SORT_result.txt
+    │   │   │   ├── 3-ALIGN_SAM
+    │   │   │   │   └── storedCounts.tar.gz
+    │   │   │   └── 4-ASSEMBLE_SSW
+    │   │   │       ├── F1-A_HA_H1.bam
+    │   │   │       ├── F1-A_HA_H1.ref
+    │   │   │       ├── F1-A_MP.bam
+    │   │   │       ├── F1-A_MP.ref
+    │   │   │       ├── F1-A_NA_N1.bam
+    │   │   │       ├── F1-A_NA_N1.ref
+    │   │   │       ├── F1-A_NP.bam
+    │   │   │       ├── F1-A_NP.ref
+    │   │   │       ├── F1-A_NS.bam
+    │   │   │       ├── F1-A_NS.ref
+    │   │   │       ├── F1-A_PA.bam
+    │   │   │       ├── F1-A_PA.ref
+    │   │   │       ├── F1-A_PB1.bam
+    │   │   │       ├── F1-A_PB1.ref
+    │   │   │       ├── F1-A_PB2.bam
+    │   │   │       ├── F1-A_PB2.ref
+    │   │   │       ├── F2-A_HA_H1.bam
+    │   │   │       ├── F2-A_HA_H1.ref
+    │   │   │       ├── F2-A_MP.bam
+    │   │   │       ├── F2-A_MP.ref
+    │   │   │       ├── F2-A_NA_N1.bam
+    │   │   │       ├── F2-A_NA_N1.ref
+    │   │   │       ├── F2-A_NP.bam
+    │   │   │       ├── F2-A_NP.ref
+    │   │   │       ├── F2-A_NS.bam
+    │   │   │       ├── F2-A_NS.ref
+    │   │   │       ├── F2-A_PA.bam
+    │   │   │       ├── F2-A_PA.ref
+    │   │   │       ├── F2-A_PB1.bam
+    │   │   │       ├── F2-A_PB1.ref
+    │   │   │       ├── F2-A_PB2.bam
+    │   │   │       ├── F2-A_PB2.ref
+    │   │   │       └── reads.tar.gz
+    │   │   ├── logs
+    │   │   │   ├── ASSEMBLY_log.txt
+    │   │   │   ├── FLU-sample_3.sh
+    │   │   │   ├── NR_COUNTS_log.txt
+    │   │   │   ├── QC_log.txt
+    │   │   │   ├── READ_log.txt
+    │   │   │   └── run_info.txt
+    │   │   ├── matrices
+    │   │   ├── secondary
+    │   │   │   ├── R1-A_HA_H3.fa
+    │   │   │   ├── R1-B_HA.fa
+    │   │   │   ├── R1-B_MP.fa
+    │   │   │   ├── R1-B_NA.fa
+    │   │   │   ├── R1-B_PB1.fa
+    │   │   │   └── unmatched_read_patterns.tar.gz
+    │   │   └── tables
+    │   │       ├── A_HA_H1-allAlleles.txt
+    │   │       ├── A_HA_H1-coverage.txt
+    │   │       ├── A_HA_H1-deletions.txt
+    │   │       ├── A_HA_H1-insertions.txt
+    │   │       ├── A_HA_H1-pairingStats.txt
+    │   │       ├── A_HA_H1-variants.txt
+    │   │       ├── A_MP-allAlleles.txt
+    │   │       ├── A_MP-coverage.txt
+    │   │       ├── A_MP-deletions.txt
+    │   │       ├── A_MP-insertions.txt
+    │   │       ├── A_MP-pairingStats.txt
+    │   │       ├── A_MP-variants.txt
+    │   │       ├── A_NA_N1-allAlleles.txt
+    │   │       ├── A_NA_N1-coverage.txt
+    │   │       ├── A_NA_N1-deletions.txt
+    │   │       ├── A_NA_N1-insertions.txt
+    │   │       ├── A_NA_N1-pairingStats.txt
+    │   │       ├── A_NA_N1-variants.txt
+    │   │       ├── A_NP-allAlleles.txt
+    │   │       ├── A_NP-coverage.txt
+    │   │       ├── A_NP-deletions.txt
+    │   │       ├── A_NP-insertions.txt
+    │   │       ├── A_NP-pairingStats.txt
+    │   │       ├── A_NP-variants.txt
+    │   │       ├── A_NS-allAlleles.txt
+    │   │       ├── A_NS-coverage.txt
+    │   │       ├── A_NS-deletions.txt
+    │   │       ├── A_NS-insertions.txt
+    │   │       ├── A_NS-pairingStats.txt
+    │   │       ├── A_NS-variants.txt
+    │   │       ├── A_PA-allAlleles.txt
+    │   │       ├── A_PA-coverage.txt
+    │   │       ├── A_PA-deletions.txt
+    │   │       ├── A_PA-insertions.txt
+    │   │       ├── A_PA-pairingStats.txt
+    │   │       ├── A_PA-variants.txt
+    │   │       ├── A_PB1-allAlleles.txt
+    │   │       ├── A_PB1-coverage.txt
+    │   │       ├── A_PB1-deletions.txt
+    │   │       ├── A_PB1-insertions.txt
+    │   │       ├── A_PB1-pairingStats.txt
+    │   │       ├── A_PB1-variants.txt
+    │   │       ├── A_PB2-allAlleles.txt
+    │   │       ├── A_PB2-coverage.txt
+    │   │       ├── A_PB2-deletions.txt
+    │   │       ├── A_PB2-insertions.txt
+    │   │       ├── A_PB2-pairingStats.txt
+    │   │       ├── A_PB2-variants.txt
+    │   │       └── READ_COUNTS.txt
+    │   ├── sample_3.irma.decision
+    │   ├── sample_3.irma.stderr.log
+    │   ├── sample_3.irma.stdout.log
+    │   ├── sample_3_chemistry.csv
+    │   ├── sample_3_subsampled_R1.fastq
+    │   ├── sample_3_subsampled_R2.fastq
+    │   ├── sample_4
+    │   │   ├── A_HA_H3.bam
+    │   │   ├── A_HA_H3.bam.bai
+    │   │   ├── A_HA_H3.fasta
+    │   │   ├── A_HA_H3.vcf
+    │   │   ├── A_MP.bam
+    │   │   ├── A_MP.bam.bai
+    │   │   ├── A_MP.fasta
+    │   │   ├── A_MP.vcf
+    │   │   ├── A_NA_N2.bam
+    │   │   ├── A_NA_N2.bam.bai
+    │   │   ├── A_NA_N2.fasta
+    │   │   ├── A_NA_N2.vcf
+    │   │   ├── A_NP.bam
+    │   │   ├── A_NP.bam.bai
+    │   │   ├── A_NP.fasta
+    │   │   ├── A_NP.vcf
+    │   │   ├── A_NS.bam
+    │   │   ├── A_NS.bam.bai
+    │   │   ├── A_NS.fasta
+    │   │   ├── A_NS.vcf
+    │   │   ├── A_PA.bam
+    │   │   ├── A_PA.bam.bai
+    │   │   ├── A_PA.fasta
+    │   │   ├── A_PA.vcf
+    │   │   ├── A_PB1.bam
+    │   │   ├── A_PB1.bam.bai
+    │   │   ├── A_PB1.fasta
+    │   │   ├── A_PB1.vcf
+    │   │   ├── A_PB2.bam
+    │   │   ├── A_PB2.bam.bai
+    │   │   ├── A_PB2.fasta
+    │   │   ├── A_PB2.vcf
+    │   │   ├── amended_consensus
+    │   │   │   ├── sample_4_1.fa
+    │   │   │   ├── sample_4_2.fa
+    │   │   │   ├── sample_4_3.fa
+    │   │   │   ├── sample_4_4.fa
+    │   │   │   ├── sample_4_5.fa
+    │   │   │   ├── sample_4_6.fa
+    │   │   │   ├── sample_4_7.fa
+    │   │   │   └── sample_4_8.fa
+    │   │   ├── figures
+    │   │   │   ├── A_HA_H3-coverageDiagram.pdf
+    │   │   │   ├── A_HA_H3-heuristics.pdf
+    │   │   │   ├── A_MP-coverageDiagram.pdf
+    │   │   │   ├── A_MP-heuristics.pdf
+    │   │   │   ├── A_NA_N2-coverageDiagram.pdf
+    │   │   │   ├── A_NA_N2-heuristics.pdf
+    │   │   │   ├── A_NP-coverageDiagram.pdf
+    │   │   │   ├── A_NP-heuristics.pdf
+    │   │   │   ├── A_NS-coverageDiagram.pdf
+    │   │   │   ├── A_NS-heuristics.pdf
+    │   │   │   ├── A_PA-coverageDiagram.pdf
+    │   │   │   ├── A_PA-heuristics.pdf
+    │   │   │   ├── A_PB1-coverageDiagram.pdf
+    │   │   │   ├── A_PB1-heuristics.pdf
+    │   │   │   ├── A_PB2-coverageDiagram.pdf
+    │   │   │   ├── A_PB2-heuristics.pdf
+    │   │   │   └── READ_PERCENTAGES.pdf
+    │   │   ├── intermediate
+    │   │   │   ├── 0-ITERATIVE-REFERENCES
+    │   │   │   │   ├── R0-A_HA_H3.ref
+    │   │   │   │   ├── R0-A_MP.ref
+    │   │   │   │   ├── R0-A_NA_N2.ref
+    │   │   │   │   ├── R0-A_NP.ref
+    │   │   │   │   ├── R0-A_NS.ref
+    │   │   │   │   ├── R0-A_PA.ref
+    │   │   │   │   ├── R0-A_PB1.ref
+    │   │   │   │   ├── R0-A_PB2.ref
+    │   │   │   │   ├── R1-A_HA_H3.ref
+    │   │   │   │   ├── R1-A_MP.ref
+    │   │   │   │   ├── R1-A_NA_N2.ref
+    │   │   │   │   ├── R1-A_NP.ref
+    │   │   │   │   ├── R1-A_NS.ref
+    │   │   │   │   ├── R1-A_PA.ref
+    │   │   │   │   ├── R1-A_PB1.ref
+    │   │   │   │   ├── R1-A_PB2.ref
+    │   │   │   │   ├── R2-A_HA_H3.ref
+    │   │   │   │   ├── R2-A_MP.ref
+    │   │   │   │   ├── R2-A_NP.ref
+    │   │   │   │   ├── R2-A_NS.ref
+    │   │   │   │   ├── R2-A_PA.ref
+    │   │   │   │   ├── R2-A_PB1.ref
+    │   │   │   │   └── R2-A_PB2.ref
+    │   │   │   ├── 1-MATCH_BLAT
+    │   │   │   │   ├── R1.tar.gz
+    │   │   │   │   ├── R2.tar.gz
+    │   │   │   │   └── R3.tar.gz
+    │   │   │   ├── 2-SORT_BLAT
+    │   │   │   │   ├── R1.tar.gz
+    │   │   │   │   ├── R1.txt
+    │   │   │   │   ├── R2.tar.gz
+    │   │   │   │   ├── R2.txt
+    │   │   │   │   └── R3
+    │   │   │   │       └── SORT_result.txt
+    │   │   │   ├── 3-ALIGN_SAM
+    │   │   │   │   └── storedCounts.tar.gz
+    │   │   │   └── 4-ASSEMBLE_SSW
+    │   │   │       ├── F1-A_HA_H3.bam
+    │   │   │       ├── F1-A_HA_H3.ref
+    │   │   │       ├── F1-A_MP.bam
+    │   │   │       ├── F1-A_MP.ref
+    │   │   │       ├── F1-A_NA_N2.bam
+    │   │   │       ├── F1-A_NA_N2.ref
+    │   │   │       ├── F1-A_NP.bam
+    │   │   │       ├── F1-A_NP.ref
+    │   │   │       ├── F1-A_NS.bam
+    │   │   │       ├── F1-A_NS.ref
+    │   │   │       ├── F1-A_PA.bam
+    │   │   │       ├── F1-A_PA.ref
+    │   │   │       ├── F1-A_PB1.bam
+    │   │   │       ├── F1-A_PB1.ref
+    │   │   │       ├── F1-A_PB2.bam
+    │   │   │       ├── F1-A_PB2.ref
+    │   │   │       ├── F2-A_HA_H3.bam
+    │   │   │       ├── F2-A_HA_H3.ref
+    │   │   │       ├── F2-A_MP.bam
+    │   │   │       ├── F2-A_MP.ref
+    │   │   │       ├── F2-A_NA_N2.bam
+    │   │   │       ├── F2-A_NA_N2.ref
+    │   │   │       ├── F2-A_NP.bam
+    │   │   │       ├── F2-A_NP.ref
+    │   │   │       ├── F2-A_NS.bam
+    │   │   │       ├── F2-A_NS.ref
+    │   │   │       ├── F2-A_PA.bam
+    │   │   │       ├── F2-A_PA.ref
+    │   │   │       ├── F2-A_PB1.bam
+    │   │   │       ├── F2-A_PB1.ref
+    │   │   │       ├── F2-A_PB2.bam
+    │   │   │       ├── F2-A_PB2.ref
+    │   │   │       └── reads.tar.gz
+    │   │   ├── logs
+    │   │   │   ├── ASSEMBLY_log.txt
+    │   │   │   ├── FLU-sample_4.sh
+    │   │   │   ├── NR_COUNTS_log.txt
+    │   │   │   ├── QC_log.txt
+    │   │   │   ├── READ_log.txt
+    │   │   │   └── run_info.txt
+    │   │   ├── matrices
+    │   │   ├── secondary
+    │   │   │   ├── R1-A_HA_H1.fa
+    │   │   │   ├── R1-B_MP.fa
+    │   │   │   ├── R1-B_NP.fa
+    │   │   │   ├── R1-B_NS.fa
+    │   │   │   ├── R1-B_PA.fa
+    │   │   │   └── unmatched_read_patterns.tar.gz
+    │   │   └── tables
+    │   │       ├── A_HA_H3-allAlleles.txt
+    │   │       ├── A_HA_H3-coverage.txt
+    │   │       ├── A_HA_H3-deletions.txt
+    │   │       ├── A_HA_H3-insertions.txt
+    │   │       ├── A_HA_H3-pairingStats.txt
+    │   │       ├── A_HA_H3-variants.txt
+    │   │       ├── A_MP-allAlleles.txt
+    │   │       ├── A_MP-coverage.txt
+    │   │       ├── A_MP-deletions.txt
+    │   │       ├── A_MP-insertions.txt
+    │   │       ├── A_MP-pairingStats.txt
+    │   │       ├── A_MP-variants.txt
+    │   │       ├── A_NA_N2-allAlleles.txt
+    │   │       ├── A_NA_N2-coverage.txt
+    │   │       ├── A_NA_N2-deletions.txt
+    │   │       ├── A_NA_N2-insertions.txt
+    │   │       ├── A_NA_N2-pairingStats.txt
+    │   │       ├── A_NA_N2-variants.txt
+    │   │       ├── A_NP-allAlleles.txt
+    │   │       ├── A_NP-coverage.txt
+    │   │       ├── A_NP-deletions.txt
+    │   │       ├── A_NP-insertions.txt
+    │   │       ├── A_NP-pairingStats.txt
+    │   │       ├── A_NP-variants.txt
+    │   │       ├── A_NS-allAlleles.txt
+    │   │       ├── A_NS-coverage.txt
+    │   │       ├── A_NS-deletions.txt
+    │   │       ├── A_NS-insertions.txt
+    │   │       ├── A_NS-pairingStats.txt
+    │   │       ├── A_NS-variants.txt
+    │   │       ├── A_PA-allAlleles.txt
+    │   │       ├── A_PA-coverage.txt
+    │   │       ├── A_PA-deletions.txt
+    │   │       ├── A_PA-insertions.txt
+    │   │       ├── A_PA-pairingStats.txt
+    │   │       ├── A_PA-variants.txt
+    │   │       ├── A_PB1-allAlleles.txt
+    │   │       ├── A_PB1-coverage.txt
+    │   │       ├── A_PB1-deletions.txt
+    │   │       ├── A_PB1-insertions.txt
+    │   │       ├── A_PB1-pairingStats.txt
+    │   │       ├── A_PB1-variants.txt
+    │   │       ├── A_PB2-allAlleles.txt
+    │   │       ├── A_PB2-coverage.txt
+    │   │       ├── A_PB2-deletions.txt
+    │   │       ├── A_PB2-insertions.txt
+    │   │       ├── A_PB2-pairingStats.txt
+    │   │       ├── A_PB2-variants.txt
+    │   │       └── READ_COUNTS.txt
+    │   ├── sample_4.irma.decision
+    │   ├── sample_4.irma.stderr.log
+    │   ├── sample_4.irma.stdout.log
+    │   ├── sample_4_chemistry.csv
+    │   ├── sample_4_subsampled_R1.fastq
+    │   └── sample_4_subsampled_R2.fastq
+    ├── MIRA-summary-tiny_test_run_flu_illumina.html
+    ├── MIRA_sample_1_coverage.html
+    ├── MIRA_sample_2_coverage.html
+    ├── MIRA_sample_3_coverage.html
+    ├── MIRA_sample_4_coverage.html
+    ├── MIRA_tiny_test_run_flu_illumina_aavars.xlsx
+    ├── MIRA_tiny_test_run_flu_illumina_amended_consensus.fasta
+    ├── MIRA_tiny_test_run_flu_illumina_amino_acid_consensus.fasta
+    ├── MIRA_tiny_test_run_flu_illumina_failed_amended_consensus.fasta
+    ├── MIRA_tiny_test_run_flu_illumina_failed_amino_acid_consensus.fasta
+    ├── MIRA_tiny_test_run_flu_illumina_minorindels.xlsx
+    ├── MIRA_tiny_test_run_flu_illumina_minorvariants.xlsx
+    ├── MIRA_tiny_test_run_flu_illumina_summary.xlsx
+    ├── amended_consensus.fasta
+    ├── amino_acid_consensus.fasta
+    ├── dag.html
+    ├── dash-json
+    │   ├── alleles.json
+    │   ├── barcode_distribution.json
+    │   ├── coverage.json
+    │   ├── coveragefig_sample_1_linear.json
+    │   ├── coveragefig_sample_2_linear.json
+    │   ├── coveragefig_sample_3_linear.json
+    │   ├── coveragefig_sample_4_linear.json
+    │   ├── dais_vars.json
+    │   ├── heatmap.json
+    │   ├── indels.json
+    │   ├── irma_summary.json
+    │   ├── nt_sequences.json
+    │   ├── pass_fail_heatmap.json
+    │   ├── pass_fail_qc.json
+    │   ├── qc_statement.json
+    │   ├── reads.json
+    │   ├── readsfig_sample_1.json
+    │   ├── readsfig_sample_2.json
+    │   ├── readsfig_sample_3.json
+    │   ├── readsfig_sample_4.json
+    │   ├── ref_data.json
+    │   └── vtype.json
+    ├── failed_amended_consensus.fasta
+    ├── failed_amino_acid_consensus.fasta
+    ├── fastqs
+    │   ├── sample_1_R1.fastq.gz
+    │   ├── sample_1_R2.fastq.gz
+    │   ├── sample_2_R1.fastq.gz
+    │   ├── sample_2_R2.fastq.gz
+    │   ├── sample_3_R1.fastq.gz
+    │   ├── sample_3_R2.fastq.gz
+    │   ├── sample_4_R1.fastq.gz
+    │   └── sample_4_R2.fastq.gz
+    ├── logs
+    │   ├── sample_1.irma.stderr.log
+    │   ├── sample_1.irma.stdout.log
+    │   ├── sample_1.reformat.stderr.log
+    │   ├── sample_1.reformat.stdout.log
+    │   ├── sample_2.irma.stderr.log
+    │   ├── sample_2.irma.stdout.log
+    │   ├── sample_2.reformat.stderr.log
+    │   ├── sample_2.reformat.stdout.log
+    │   ├── sample_3.irma.stderr.log
+    │   ├── sample_3.irma.stdout.log
+    │   ├── sample_3.reformat.stderr.log
+    │   ├── sample_3.reformat.stdout.log
+    │   ├── sample_4.irma.stderr.log
+    │   ├── sample_4.irma.stdout.log
+    │   ├── sample_4.reformat.stderr.log
+    │   └── sample_4.reformat.stdout.log
+    ├── nextflow_samplesheet.csv
+    ├── report.html
+    ├── samplesheet.csv
+    ├── timeline.html
+    ├── trace.txt
+    └── tree.txt
+
+62 directories, 804 files
