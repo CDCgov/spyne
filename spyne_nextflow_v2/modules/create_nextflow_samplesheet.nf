@@ -23,6 +23,6 @@ process create_nextflow_samplesheet {
 
     script:
     """
-    python3 ${launchDir}/spyne_nextflow_v2/bin/create_nextflow_samplesheet.py -s "${params.s}" -r "${params.r}" -e "${experiment_type}"
+    python3 ${launchDir}/bin/create_nextflow_samplesheet.py -s "${params.s}" -r "${params.r}" -e "${experiment_type}"
     """
 }
