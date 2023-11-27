@@ -20,6 +20,6 @@ process staticHTML {
 
     script:
     """
-    python3 ${launchDir}/spyne_nextflow/bin/static_report.py ${params.r}
+    python3 ${launchDir}/bin/static_report.py ${params.r}
     """
 }
