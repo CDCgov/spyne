@@ -21,6 +21,6 @@ process find_chemistry {
 
     script:
     """
-    python3 ${launchDir}/spyne_nextflow/bin/find_chemistry.py -s "${sample}" -q "${fastq}" -r "${runid}"
+    python3 ${launchDir}/bin/find_chemistry.py -s "${sample}" -q "${fastq}" -r "${runid}"
     """
 }
