@@ -2,7 +2,7 @@ version: "3.9"
 
 x-spyne-git-version: 
   &spyne-git-version 
-  https://github.com/rchau88/spyne.git#single_spyne_container
+ https://github.com/CDCgov/spyne.git#single_spyne_container
 
 x-data-volumes:
   &data-volume
