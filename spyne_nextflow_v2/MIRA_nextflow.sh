@@ -86,6 +86,11 @@ docker --version
 #	CLI="-m"
 #fi
 
+# Initialize Conda
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate mira-dev
+
+# Run nextflow
 ~/nextflow "$RESOURCE_ROOT"/workflow/illumina_influenza_nextflow.nf \
 	--s "$SAMPLESHEET" \
 	--r "$RUNPATH" \
