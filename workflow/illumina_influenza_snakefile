@@ -79,7 +79,7 @@ rule irma:
     threads: 14
     message: "Step 5 - assembling genome with IRMA"
     shell:
-        "{params.command[0]} docker exec irma IRMA FLU /data/{config[runid]}/IRMA/{wildcards.sample}_subsampled_R1.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_subsampled_R2.fastq  /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out}"
+        "{params.command[0]} IRMA FLU /data/{config[runid]}/IRMA/{wildcards.sample}_subsampled_R1.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_subsampled_R2.fastq  /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out}"
 # Pipeline waits here for all samples to produce the checkpoint input needed
 #  here and then reevaluates the needed DAG for each sample.
 checkpoint checkirma:

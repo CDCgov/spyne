@@ -3,31 +3,32 @@
 # Wrapper to perform genome assembly 
 
 # Run whatever Bash commands here
-RESOURCE_ROOT=/spyne
-BBTOOLS_ROOT=/opt/bbtools
-JAVA_ROOT=/opt/java
+PROJECT_DIR=${PROJECT_DIR:-/spyne}
+BBTOOLS_DIR=/opt/bbtools
+IRMA_DIR=/flu-amd
 
 # Export bbtools to system path
-bbtools_path=`ls ${BBTOOLS_ROOT}`
+bbtools_path=`ls ${BBTOOLS_DIR}`
 
 for eachdir in ${bbtools_path}
 do
-	export PATH=$PATH:${BBTOOLS_ROOT}/${eachdir}
+	export PATH=$PATH:${BBTOOLS_DIR}/${eachdir}
 done
 
-# Export java to system path
-java_path=`ls ${JAVA_ROOT}`
+# Export irma to system path
+export PATH=$PATH:${IRMA_DIR}
 
-for eachdir in ${java_path}
-do
-	export PATH=$PATH:${JAVA_ROOT}/${eachdir}/bin
-done
+# Check IRMA version
+IRMA --version
+
+# Check IRMA-CORE version
+${IRMA_DIR}/IRMA_RES/scripts/irma-core_Linux --version
 
 # Check the java version
 java --version
 
-# Check the docker version
-docker --version
+# Check JDK version
+javac -version
 
 # Kill any running snakemake processes
 #kill -9 $(ps -A | grep snakemake | awk '{print $1}')
@@ -41,6 +42,6 @@ fi
 
 # Create config.yaml from samplesheet
 until [ -f ${run_path}/spyne_logs.tar.gz ]; do
-	python3 $RESOURCE_ROOT/scripts/config_create.py "$@"
+	python3 $PROJECT_DIR/scripts/config_create.py "$@"
 done
 

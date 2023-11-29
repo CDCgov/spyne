@@ -1,11 +1,30 @@
-**/.git
-**/.gitignore
+
+# ignore file extensions
+*.DS_Store
 *.Rmd
 *.html
 *.md
 *.Rhistory
+*.gitignore
+*.Rbuildignore
+*.Rproj
+
+# ignore folders
+**/.git
+**/.github
+**/.Rproj.user
 *docs
-docker.compose.yml
-containers
-envs
-tests
+*vignettes
+*man
+*docker
+*images
+*inst
+*data
+
+# ignore specific files
+change_log.txt
+install_docker.sh
+docker-compose.yml
+docker-compose_*.yml
+_pkgdown.yml
+
