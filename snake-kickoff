@@ -6,7 +6,7 @@
 PROJECT_DIR=${PROJECT_DIR:-/spyne}
 BBTOOLS_DIR=/opt/bbtools
 IRMA_DIR=/flu-amd
-DAIS_DIR=/flu-amd
+DAIS_DIR=/dias-ribosome
 
 # Export bbtools to system path
 bbtools_path=`ls ${BBTOOLS_DIR}`
