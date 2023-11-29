@@ -86,9 +86,7 @@ docker --version
 #	CLI="-m"
 #fi
 
-# python3 "$RESOURCE_ROOT"/scripts/config_create.py $CLI -s "$SAMPLESHEET" -r "$RUNPATH" -e "$EXPERIMENT_TYPE" $OPTIONALARGS
-
-/home/try8/nextflow "$RESOURCE_ROOT"/workflow/illumina_influenza_nextflow.nf \
+~/nextflow "$RESOURCE_ROOT"/workflow/illumina_influenza_nextflow.nf \
 	--s "$SAMPLESHEET" \
 	--r "$RUNPATH" \
 	--e "$EXPERIMENT_TYPE" \
