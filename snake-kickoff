@@ -6,6 +6,7 @@
 PROJECT_DIR=${PROJECT_DIR:-/spyne}
 BBTOOLS_DIR=/opt/bbtools
 IRMA_DIR=/flu-amd
+DAIS_DIR=/flu-amd
 
 # Export bbtools to system path
 bbtools_path=`ls ${BBTOOLS_DIR}`
@@ -23,6 +24,12 @@ IRMA --version
 
 # Check IRMA-CORE version
 ${IRMA_DIR}/IRMA_RES/scripts/irma-core_Linux --version
+
+# Export dais-ribosome to system path
+export PATH=$PATH:${DAIS_DIR}
+
+# Check dais-ribosome version
+ribosome help
 
 # Check the java version
 java --version
