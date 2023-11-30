@@ -13,11 +13,8 @@ bbtools_path=`ls ${BBTOOLS_DIR}`
 
 for eachdir in ${bbtools_path}
 do
-	export PATH=$PATH:${BBTOOLS_DIR}/${eachdir}
+	export PATH="$PATH:${BBTOOLS_DIR}/${eachdir}"
 done
-
-# Export irma to system path
-export PATH=$PATH:${IRMA_DIR}
 
 # Check IRMA version
 IRMA --version
@@ -25,10 +22,7 @@ IRMA --version
 # Check IRMA-CORE version
 ${IRMA_DIR}/IRMA_RES/scripts/irma-core_Linux --version
 
-# Export dais-ribosome to system path
-export PATH=$PATH:${DAIS_DIR}
-
-# Check dais-ribosome version
+# Check dais version
 ribosome help
 
 # Check the java version
@@ -49,6 +43,6 @@ fi
 
 # Create config.yaml from samplesheet
 until [ -f ${run_path}/spyne_logs.tar.gz ]; do
-	python3 $PROJECT_DIR/scripts/config_create.py "$@"
+	python3 ${PROJECT_DIR}/scripts/config_create.py "$@"
 done
 

@@ -12,7 +12,7 @@ if len(argv) < 2:
     exit(
         "\n\tUSAGE: {} <samplesheet.csv> <runpath> <experiment_type> <optional: primer_schema> <clean_option> \n".format(__file__)
     )
-
+    
 #try:
 #    runpath = argv[2]
 #    experiment_type = argv[3]

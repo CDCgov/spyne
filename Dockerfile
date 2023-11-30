@@ -116,5 +116,11 @@ RUN apt-get autoremove -y \
   && apt-get clean -y \
   && rm -rf /var/lib/{apt,dpkg,cache,log}/
 
-# Export bash script to path
+# Export dais-ribosome script to path
+ENV PATH "$PATH:/dais-ribosome"
+
+# Export irma script to path
+ENV PATH "$PATH:/flu-amd"
+
+# Export snake-kickoff script to path
 ENV PATH "$PATH:${PROJECT_DIR}"
