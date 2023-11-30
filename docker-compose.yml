@@ -7,12 +7,12 @@ x-spyne-git-version:
 x-data-volumes:
   &data-volume
   type: bind
-  source: /home/snu3/Github/FLU_SC2_SEQUENCING_NEW
+  source: /home/snu3/Github/FLU_SC2_SEQUENCING
   target: /data
 
 services:
-  spyne-new: 
-    container_name: spyne-new
+  spyne: 
+    container_name: spyne
     image: spyne:latest
     build:
       context: *spyne-git-version
