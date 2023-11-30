@@ -1,8 +1,8 @@
 version: "3.9"
 
-x-spyne-git-version: 
-  &spyne-git-version 
- https://github.com/CDCgov/spyne.git#single_spyne_container
+x-spyne-version: 
+  &spyne-version
+  cdcgov/spyne-dev:latest
 
 x-data-volumes:
   &data-volume
@@ -13,12 +13,7 @@ x-data-volumes:
 services:
   spyne: 
     container_name: spyne
-    image: spyne:latest
-    build:
-      context: *spyne-git-version
-      args:
-        - irma_image=cdcgov/irma:v1.1.2
-        - dais_image=cdcgov/dais-ribosome:v1.3.2
+    image: *spyne-version
     restart: always
     volumes:
       - *data-volume
