@@ -86,10 +86,6 @@ docker --version
 #	CLI="-m"
 #fi
 
-# Initialize and activate Conda
-#module load miniconda3/20230728
-#conda activate mira-dev
-
 # Run nextflow
 module load nextflow/23.04.02
 nextflow run "$RESOURCE_ROOT"/workflow/illumina_influenza_nextflow.nf \
