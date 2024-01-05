@@ -11,7 +11,6 @@ nextflow.enable.dsl=2
 process create_nextflow_samplesheet {
     tag {"Generating the samplesheet for nextflow"}
 
-    
     publishDir "${params.r}", mode: 'copy'
 
     input:
