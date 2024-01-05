@@ -51,7 +51,5 @@ for d in dfd.values():
     else:
         data+=f"{id},{R1_fastq},{R2_fastq},{sample_type}\n"
 
-current_directory = os.getcwd()
-output_file_path = os.path.join(current_directory, 'nextflow_samplesheet.csv')
-with open(output_file_path, "w") as out:
+with open('nextflow_samplesheet.csv', "w") as out:
     out.write(data)
