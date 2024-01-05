@@ -96,5 +96,5 @@ docker --version
 	-with-trace "$RUNPATH"/trace.txt \
 	-with-timeline "$RUNPATH"/timeline.html \
 	-with-report "$RUNPATH"/report.html \
-    -with-dag "$RUNPATH"/dag.html \
+        -with-dag "$RUNPATH"/dag.html \
 	$CLI $OPTIONALARGS
