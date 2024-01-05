@@ -1,5 +1,4 @@
 import argparse
-import csv
 import gzip
 
 parser = argparse.ArgumentParser(description='Find chemistry information from fastq files.')
@@ -12,12 +11,6 @@ args = parser.parse_args()
 sample = args.sample
 fastq = args.fastq
 runid = args.runid
-
-csv_filename = f"{sample}_chemistry.csv"
-headers = ["sample_ID", "irma_custom_0", "irma_custom_1", "subsample"]
-with open(csv_filename, mode='w', newline='') as csv_file:
-    csv_writer = csv.writer(csv_file)
-    csv_writer.writerow(headers)
 
 try:
     with open(fastq) as infi:
@@ -34,6 +27,7 @@ elif len(contents[1]) > 70:
     irma_custom = [f"mkdir -p /home/try8/results/IRMA && cp {config_path} /home/try8/results/IRMA/ &&", f"--external-config /data/{runid}/IRMA/FLU-2x75.sh"]
     subsample = "200000"
 
-with open(f'{sample}_chemistry.csv', 'a', newline='') as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow([sample, irma_custom[0], irma_custom[1], subsample])
+filename = f"{sample}_chemistry.csv"
+headers = "sample_ID,irma_custom_0,irma_custom_1,subsample\n"
+with open(filename, 'w') as file:
+    file.write(headers + f"{sample},{irma_custom[0]},{irma_custom[1]},{subsample}\n")
