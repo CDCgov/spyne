@@ -59,10 +59,7 @@ workflow {
     new_ch4 = subsample.out.subsampled_fastq.map { tuple ->
                 [sample_ID: tuple[0], subsampled_R1: tuple[1], subsampled_R2: tuple[2]]
     }
-    new_ch5 = irma_chemistry_ch.map {item ->
-                [sample_ID: item.sample_ID, irma_custom_0:item.irma_custom_0, irma_custom_1:item.irma_custom_1]
-    } 
-    irma_ch = new_ch4.combine(new_ch5)
+    irma_ch = new_ch4.combine(irma_chemistry_ch)
                 .filter { it[0].sample_ID == it[1].sample_ID }
                 .map { [it[0].sample_ID, it[0].subsampled_R1, it[0].subsampled_R2, it[1].irma_custom_0, it[1].irma_custom_1] }
     irma( irma_ch )
