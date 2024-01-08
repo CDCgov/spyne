@@ -41,7 +41,7 @@ workflow {
 
     // Create the irma chemistry channel
     irma_chemistry_ch = find_chemistry.out
-        .splitCsv( header: true, sep: ',' )
+        .splitCsv( header: true)
 
     // Subsample
     new_ch2 = input_ch.map { item ->
