@@ -20,12 +20,8 @@ process catfiles {
     path ("DAIS_ribosome_input.fasta")
 
     script:
-    def foldersString = irma_out.join(' ')
+    def folderPaths = irma_out.collect { "$it/amended_consensus/*" }.join(" ")
     """
-    IFS=' ' read -r -a folderArray <<< "$foldersString"
-    > DAIS_ribosome_input.fasta
-    for folder in "\${folderArray[@]}"; do
-        cat \$folder/amended_consensus/* >> DAIS_ribosome_input.fasta
-    done
+    cat $folderPaths > DAIS_ribosome_input.fasta
     """
 }
