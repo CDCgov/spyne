@@ -20,7 +20,7 @@ do
 	c ) CLEANUP="$OPTARG";;
 	n ) NOCONTAINER=True;;
 	a ) APPLICATION=True;;
-  t ) TAR=True;;
+        t ) TAR=True;;
 	* ) usage;;
 	esac
 done
