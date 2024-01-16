@@ -11,8 +11,8 @@ All pipelines are executed using the command line specified in the run_command.m
 * changed: openjdk=11.0.13
 
 # HPC:
-* Pull and run docker images in singularity: add `-profile singularity` in the nextflwo command line
-* Run the pipeline in the login node: add `-profile singularity,local` in the nextflwo command line
+* Pull and run docker images in singularity: add `-profile singularity` in the nextflow command line
+* Run the pipeline in the login node: add `-profile singularity,local` in the nextflow command line
 * Run the pipeline in the computing nodes with sge executor: add `-profile singularity,rosalind` in the nextflwo command line
 * Submit all jobs to sge: run `qsub qsub_qsub_MIRA_nextflow.sh`
 * dais-ribosome container: 
