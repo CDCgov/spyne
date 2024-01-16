@@ -3,6 +3,7 @@
 * spyne_nextflow_v2: publish directory: runpath; added metrics files; run locally under mira-dev conda env
 * spyne_nextflow_v3_containeronly: run locally under containers only
 * spyne_nextflow_HPC_containersonly: run on HPC under containers only
+
 All pipelines are executed using the command line specified in the run_command.md file.
 
 # Changes made to environment.yml
