@@ -10,6 +10,18 @@ All pipelines are executed using the command line specified in the run_command.m
 * removed: java-jdk=7.0.91=1
 * changed: openjdk=11.0.13
 
+# HPC:
+* Pull and run docker images in singularity: add `-profile singularity` in the nextflwo command line
+* Run the pipeline in the login node: add `-profile singularity,local` in the nextflwo command line
+* Run the pipeline in the computing nodes with sge executor: add `-profile singularity,rosalind` in the nextflwo command line
+* Submit all jobs to sge: run `qsub qsub_qsub_MIRA_nextflow.sh`
+* dais-ribosome container: 
+writing permission denied - `/dais-ribosome/workdir` and `dais-ribosome/lib/sswsort/workdir`
+* bbtools: docker container `staphb/bbtools:39.01`
+* MIRA_nextflow.sh: `-t` only tar part of the results to facilitate the next run
+* Template config files that allow pipelines to be ran on rosalind located in `/scicomp/reference/nextflow/configs/`
+* Build nextflow pipeline with nf-core style format: `https://training.biotech.cdc.gov/build_nfcore_pipeline/`
+
 # Channels:
 * Input_ch.view()
 
@@ -57,16 +69,6 @@ All pipelines are executed using the command line specified in the run_command.m
   
 [/home/try8/spyne_nextflow_v3_containersonly/work/4a/adbdc139fc092371819d428adec7b8/sample_2, /home/try8/spyne_nextflow_v3_containersonly/work/e1/ef562f39eff36cefc272cc369a377d/sample_1, /home/try8/spyne_nextflow_v3_containersonly/work/1d/875883912e9e534698066f9b9bad25/sample_4, /home/try8/spyne_nextflow_v3_containersonly/work/4c/43b73ecd3713ac878c84aff2375b23/sample_3]
 
-# HPC:
-* Pull and run docker images in singularity: add `-profile singularity` in the nextflwo command line
-* Run the pipeline in the login node: add `-profile singularity,local` in the nextflwo command line
-* Run the pipeline in the computing nodes with sge executor: add `-profile singularity,rosalind` in the nextflwo command line
-* Submit all jobs to sge: run `qsub qsub_qsub_MIRA_nextflow.sh`
-* dais-ribosome container: 
-writing permission denied - `/dais-ribosome/workdir` and `dais-ribosome/lib/sswsort/workdir`
-* bbtools: docker container 'staphb/bbtools:39.01'
-* MIRA_nextflow.sh: -t only tar part of the results to facilitate the next run
-* Template config files that allow pipelines to be ran on rosalind located in `/scicomp/reference/nextflow/configs/`
-* Build nextflow pipeline with nf-core style format: `https://training.biotech.cdc.gov/build_nfcore_pipeline/`
+
 
 
