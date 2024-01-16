@@ -11,7 +11,7 @@ All pipelines are executed using the command line specified in the run_command.m
 * changed: openjdk=11.0.13
 
 # Channels:
->>Input_ch.view()
+* Input_ch.view()
 
 [sample_ID:sample_1, fastq_1:/home/try8/FLU_SC2_SEQUENCING/tiny_test_run_flu_illumina/fastqs/sample_1_R1.fastq.gz, fastq_2:/home/try8/FLU_SC2_SEQUENCING/tiny_test_run_flu_illumina/fastqs/sample_1_R2.fastq.gz, sample_type:Test]
 [sample_ID:sample_2, fastq_1:/home/try8/FLU_SC2_SEQUENCING/tiny_test_run_flu_illumina/fastqs/sample_2_R1.fastq.gz, fastq_2:/home/try8/FLU_SC2_SEQUENCING/tiny_test_run_flu_illumina/fastqs/sample_2_R2.fastq.gz, sample_type:Test]
