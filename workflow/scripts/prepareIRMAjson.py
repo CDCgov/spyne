@@ -272,7 +272,7 @@ def version_module():
                 descript_dict[line.split(':')[0]]=line.split(":")[1]
             except:
                 continue
-    modulestring = f"MIRA v{descript_dict['Version'].strip()} {module}"
+    modulestring = f"MIRA-v{descript_dict['Version'].strip()} {module}"
     return modulestring
 
 
@@ -390,7 +390,6 @@ def irma_summary(
         )
     summary_df["Reference"] = summary_df["Reference"].fillna("")
     summary_df = summary_df.fillna(0)
-    summary_df['MIRA module'] = version_module()
     return summary_df
 
 
@@ -615,6 +614,7 @@ def generate_dfs(irma_path):
     )
     irma_summary_df["Reasons"] = irma_summary_df["Reasons"].fillna("Fail")
     irma_summary_df = irma_summary_df.rename(columns={"Reasons": "Pass/Fail Reason"})
+    irma_summary_df = irma_summary_df['MIRA module'] = version_module()
     with open(f"{irma_path}/../dash-json/irma_summary.json", "w") as out:
         irma_summary_df.to_json(out, orient="split", double_precision=3)
         print(f"  -> irma_summary_df saved to {out.name}")
