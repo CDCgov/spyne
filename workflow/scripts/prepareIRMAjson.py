@@ -614,7 +614,7 @@ def generate_dfs(irma_path):
     )
     irma_summary_df["Reasons"] = irma_summary_df["Reasons"].fillna("Fail")
     irma_summary_df = irma_summary_df.rename(columns={"Reasons": "Pass/Fail Reason"})
-    irma_summary_df = irma_summary_df['MIRA module'] = version_module()
+    irma_summary_df['MIRA module'] = version_module()
     with open(f"{irma_path}/../dash-json/irma_summary.json", "w") as out:
         irma_summary_df.to_json(out, orient="split", double_precision=3)
         print(f"  -> irma_summary_df saved to {out.name}")
