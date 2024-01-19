@@ -263,6 +263,18 @@ def perc_len(maplen, ref, ref_lens):
     else:
         return maplen / ref_lens[ref] * 100
 
+def version_module():
+    module = qc_plat_vir
+    descript_dict = {}
+    with open("/spyne/DESCRIPTION", 'r') as infi:
+        for line in infi:
+            try:
+                descript_dict[line.split(':')[0]]=line.split(":")[1]
+            except:
+                continue
+    modulestring = f"MIRA v{descript_dict['Version'].strip()} {module}"
+    return modulestring
+
 
 def irma_summary(
     irma_path, samplesheet, reads_df, indels_df, alleles_df, coverage_df, ref_lens
@@ -378,6 +390,7 @@ def irma_summary(
         )
     summary_df["Reference"] = summary_df["Reference"].fillna("")
     summary_df = summary_df.fillna(0)
+    summary_df['MIRA module'] = version_module()
     return summary_df
 
 
