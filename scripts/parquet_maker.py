@@ -3,7 +3,8 @@
 import pandas as pd
 import argparse
 from pathlib import Path
-import pyarrow
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", "--file")
@@ -46,9 +47,20 @@ table['runid'] = run_id
 
 table['instrument'] = instrument
 
-#remove the header
-pd.DataFrame.to_csv(table, "temp.csv", header=False, index=False)
-table = pd.read_csv("temp.csv", header=None)
-print(table)
+#file I/O
+pd.DataFrame.to_csv(table, "temp.csv", sep='\t', index=False)
+chunksize = 100_000
+# modified from https://stackoverflow.com/questions/26124417/how-to-convert-a-csv-file-to-parquet
+csv_stream = pd.read_csv("temp.csv", sep='\t', chunksize=chunksize, low_memory=False)
+for i, chunk in enumerate(csv_stream):
+    print("Chunk", i)
+    if i == 0:
+        # Guess the schema of the CSV file from the first chunk
+        parquet_schema = pa.Table.from_pandas(df=chunk).schema
+        # Open a Parquet file for writing
+        parquet_writer = pq.ParquetWriter(outfi, parquet_schema, compression='snappy', version='1.0')
+    # Write CSV chunk to the parquet file
+    table = pa.Table.from_pandas(chunk, schema=parquet_schema)
+    parquet_writer.write_table(table)
 
-pd.DataFrame.to_parquet(table, outfi, index=False)
+parquet_writer.close()
