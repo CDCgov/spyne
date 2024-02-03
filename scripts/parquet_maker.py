@@ -48,7 +48,7 @@ table['runid'] = run_id
 table['instrument'] = instrument
 
 #file I/O
-pd.DataFrame.to_csv(table, "temp.csv", sep='\t', index=False)
+pd.DataFrame.to_csv(table, "temp.csv", sep='\t', index=False, header=False)
 chunksize = 100_000
 # modified from https://stackoverflow.com/questions/26124417/how-to-convert-a-csv-file-to-parquet
 csv_stream = pd.read_csv("temp.csv", sep='\t', chunksize=chunksize, low_memory=False)
