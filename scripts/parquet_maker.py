@@ -1,5 +1,8 @@
 #!/usr/bin/env python
+#K. A. Lacek
+# Jan 2024
 
+# Functional for samplesheet, irma summary, alleles, indels
 import pandas as pd
 import argparse
 from pathlib import Path
@@ -42,6 +45,26 @@ elif ".xls" in infi:
     table = pd.read_excel(infi, header=0)
 elif ".txt" in infi or ".tsv" in infi:
     table = pd.read_csv(infi, sep="/t", header=0)
+
+elif ".fasta" in infi:
+    seq_dict = {}
+    i = 0
+    with open(infi, 'r') as infi:
+        for line in infi:
+            if line[0] == '>':
+                i += 1
+                key = line.strip('>').split('|')[0]
+                segment = line.strip().split('|')[1]
+                try:
+                    qc_failure = line.strip().split('|')[2]
+                except:
+                    qc_failure = 'pass'
+                seq_dict[i] = [key, segment, qc_failure]
+            else:
+                value = line.strip()
+                seq_dict[i].append(value)
+    table = pd.DataFrame.from_dict(seq_dict, orient='index', columns=["sample_id", "reference", "qc_decision", "sequence"])
+
 
 table['runid'] = run_id
 
