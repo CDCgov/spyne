@@ -9,3 +9,5 @@ MIN_LEN=70				# minimum read length for QUALITY reads
 
 # VARIANT CALLING HEURISTICS & STATS
 ALIGN_PROG="SAM"       # rough alignment with SAM
+
+MIN_CONS_SUPPORT=50
