@@ -8,6 +8,8 @@ import argparse
 from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
+from os.path import dirname, basename, isfile
+from glob import glob
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", "--file")
@@ -20,12 +22,12 @@ inputarguments = parser.parse_args()
 if inputarguments.file:
     infi = inputarguments.file
 else:
-    exit(0)
+    infi = ''
 
 if inputarguments.outputname:
     outfi = inputarguments.outputname
 else:
-    exit(0)
+    outfi = ''
 
 if inputarguments.runid:
     run_id = inputarguments.runid
@@ -38,6 +40,103 @@ if inputarguments.instrument:
 else:
     instrument = "testInstrument"
 
+def irmatable2df(irmaFiles):
+    df = pd.DataFrame()
+    for f in irmaFiles:
+        sample = basename(dirname(dirname(f)))
+        if "insertions" not in f:
+            df_prime = pd.read_csv(f, sep="\t", index_col=False)
+        else:
+            df_prime = pd.read_csv(f, sep="\s+", index_col=False)
+        df_prime.insert(loc=0, column="Sample", value=sample)
+        df = pd.concat([df, df_prime])
+    return df
+
+def irma_reads_df(irma_path):
+    readFiles = glob(irma_path + "/*/tables/READ_COUNTS.txt")
+    df = pd.DataFrame()
+    df = irmatable2df(readFiles)
+    df["Stage"] = df["Record"].apply(lambda x: int(x.split("-")[0]))
+    return df
+
+def irma_coverage_df(irma_path):
+    coverageFiles = glob(irma_path + "/*/tables/*a2m.txt")
+    # a2msamples = [i.split('/')[-3] for i in coverageFiles]
+    # otherFiles = [i for i in glob(irma_path+'/*/tables/*coverage.txt')]
+    if len(coverageFiles) == 0:
+        coverageFiles = glob(irma_path + "/*/tables/*coverage.txt")
+    if len(coverageFiles) == 0:
+        return "No coverage files found under {}/*/tables/".format(irma_path)
+    df = irmatable2df(coverageFiles)
+
+    return df
+
+def irma_alleles_df(irma_path, full=False):
+    alleleFiles = glob(irma_path + "/*/tables/*variants.txt")
+    df = irmatable2df(alleleFiles)
+    if not full:
+        if "HMM_Position" in df.columns:
+            ref_heads = [
+                "Sample",
+                "Reference_Name",
+                "HMM_Position",
+                "Position",
+                "Total",
+                "Consensus_Allele",
+                "Minority_Allele",
+                "Consensus_Count",
+                "Minority_Count",
+                "Minority_Frequency",
+            ]
+        else:
+            ref_heads = [
+                "Sample",
+                "Reference_Name",
+                "Position",
+                "Total",
+                "Consensus_Allele",
+                "Minority_Allele",
+                "Consensus_Count",
+                "Minority_Count",
+                "Minority_Frequency",
+            ]
+        df = df[ref_heads]
+        df = df.rename(
+            columns={
+                "Reference_Name": "Reference",
+                "HMM_Position": "Reference Position",
+                "Position": "Sample Position",
+                "Total": "Coverage",
+                "Consensus_Allele": "Consensus Allele",
+                "Minority_Allele": "Minority Allele",
+                "Consensus_Count": "Consensus Count",
+                "Minority_Count": "Minority Count",
+                "Minority_Frequency": "Minority Frequency",
+            }
+        )
+        df["Minority Frequency"] = df[["Minority Frequency"]].applymap(
+            lambda x: float(f"{float(x):.{3}f}")
+        )
+    return df
+
+#file I/O
+def parquetify(table, outfi):
+    pd.DataFrame.to_csv(table, "temp.csv", sep='\t', index=False, header=True)
+    chunksize = 100_000
+    # modified from https://stackoverflow.com/questions/26124417/how-to-convert-a-csv-file-to-parquet
+    csv_stream = pd.read_csv("temp.csv", sep='\t', chunksize=chunksize, low_memory=False)
+    for i, chunk in enumerate(csv_stream):
+        print("Chunk", i)
+        if i == 0:
+        # Guess the schema of the CSV file from the first chunk
+            parquet_schema = pa.Table.from_pandas(df=chunk).schema
+        # Open a Parquet file for writing
+            parquet_writer = pq.ParquetWriter(outfi, parquet_schema, compression='snappy', version='1.0')
+    # Write CSV chunk to the parquet file
+        table = pa.Table.from_pandas(chunk, schema=parquet_schema)
+        parquet_writer.write_table(table)
+        
+    parquet_writer.close()
 
 if ".csv" in infi:
     table = pd.read_csv(infi, header=0)
@@ -65,25 +164,20 @@ elif ".fasta" in infi:
                 seq_dict[i].append(value)
     table = pd.DataFrame.from_dict(seq_dict, orient='index', columns=["sample_id", "reference", "qc_decision", "sequence"])
 
+elif infi == '':
+    readstable = irma_reads_df('./IRMA/')
+    covtable = irma_coverage_df('./IRMA')
+    allelestable = irma_alleles_df('./IRMA')
+    for t in ([readstable, f"{run_id}_reads.parq"], [covtable, f"{run_id}_coverage.parq"], [allelestable, f"{run_id}_alleles.parq"]):
+        t[0]['runid'] = run_id
+        t[0]['instrument'] = instrument
+        parquetify(t[0], t[1])
+    exit()
+
 
 table['runid'] = run_id
 
 table['instrument'] = instrument
 
-#file I/O
-pd.DataFrame.to_csv(table, "temp.csv", sep='\t', index=False, header=False)
-chunksize = 100_000
-# modified from https://stackoverflow.com/questions/26124417/how-to-convert-a-csv-file-to-parquet
-csv_stream = pd.read_csv("temp.csv", sep='\t', chunksize=chunksize, low_memory=False)
-for i, chunk in enumerate(csv_stream):
-    print("Chunk", i)
-    if i == 0:
-        # Guess the schema of the CSV file from the first chunk
-        parquet_schema = pa.Table.from_pandas(df=chunk).schema
-        # Open a Parquet file for writing
-        parquet_writer = pq.ParquetWriter(outfi, parquet_schema, compression='snappy', version='1.0')
-    # Write CSV chunk to the parquet file
-    table = pa.Table.from_pandas(chunk, schema=parquet_schema)
-    parquet_writer.write_table(table)
+parquetify(table, outfi)
 
-parquet_writer.close()
