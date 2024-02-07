@@ -142,8 +142,14 @@ if ".csv" in infi:
     table = pd.read_csv(infi, header=0)
 elif ".xls" in infi:
     table = pd.read_excel(infi, header=0)
+elif "run_info.txt" in infi:
+    table = pd.read_csv(infi, sep="\t", header=0)
+    table['runid'] = run_id
+    table['instrument'] = instrument
+    parquetify(table, outfi)
+    exit()
 elif ".txt" in infi or ".tsv" in infi:
-    table = pd.read_csv(infi, sep="/t", header=0)
+    table = pd.read_csv(infi, sep="\t", header=0)
 
 elif ".fasta" in infi:
     seq_dict = {}
