@@ -20,7 +20,7 @@ try:
     irma_path, samplesheet, platform, virus = argv[1], argv[2], argv[3], argv[4]
 except IndexError:
     exit(
-        f"\n\tUSAGE: python {__file__} <path/to/irma/results/> <samplesheet> <ont|illumina> <flu|sc2|sc2-spike>\n"
+        f"\n\tUSAGE: python {__file__} <path/to/irma/results/> <samplesheet> <ont|illumina> <flu|sc2|sc2-spike|rsv>\n"
         f"\n\t\t*Inside path/to/irma/results should be the individual samples-irma-dir results\n"
         f"\n\tYou entered:\n\t{executable} {' '.join(argv)}\n\n"
     )
@@ -37,6 +37,7 @@ qc_plat_vir = f"{platform}-{virus}"
 proteins = {
     "sc2": "ORF10 S orf1ab ORF6 ORF8 ORF7a ORF7b M N ORF3a E ORF9b",
     "flu": "PB1-F2 HA M1 NP HA1 BM2 NB PB2 NEP PB1 HA-signal PA-X NS1 M2 NA PA",
+    "rsv": "NS1 NS2 N P M SH G F MS-1 M2-2 L"
 }
 ref_proteins = {
     "ORF10": "SARS-CoV-2",
@@ -46,7 +47,7 @@ ref_proteins = {
     "ORF8": "SARS-CoV-2",
     "ORF7a": "SARS-CoV-2",
     "ORF7b": "SARS-CoV-2",
-    "N": "SARS-CoV-2",
+    "N": "SARS-CoV-2 ON",
     "ORF3a": "SARS-CoV-2",
     "E": "SARS-CoV-2",
     "ORF9b": "SARS-CoV-2",
@@ -69,9 +70,18 @@ ref_proteins = {
     "NS1": "A_NS B_NS",
     "NS": "A_NS B_NS",
     "M2": "A_MP B_MP",
-    "M": "A_MP B_MP SARS-CoV-2",
+    "M": "A_MP B_MP SARS-CoV-2 ON",
     "NA": "A_NA_N1 A_NA_N2 A_NA_N3 A_NA_N4 A_NA_N5 A_NA_N6 A_NA_N7 A_NA_N8 A_NA_N9 B_NA",
     "PA": "A_PA B_PA",
+    "NS1": "ON",
+    "NS2": "ON",
+    "P": "ON",
+    "SH": "ON",
+    "G": "ON",
+    "F": "ON",
+    "M2-1": "ON",
+    "M2-2": "ON",
+    "L": "ON",
 }
 
 makedirs(f"{irma_path}/../dash-json", exist_ok=True)
@@ -804,7 +814,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
         df[cov_header] = df[cov_header].apply(lambda x: zerolift(x))
     df2 = df[df["Sample"] == sample]
     fig = go.Figure()
-    if "SARS-CoV-2" in segments:
+    if "SARS-CoV-2" in segments or "rsv" in segments:
         # y positions for gene boxes
         oy = (
             max(df2[cov_header]) / 10
@@ -813,7 +823,8 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
             ya = 0.9
         else:
             ya = 0 - (max(df2[cov_header]) / 20)
-        orf_pos = {
+        if "SARS-CoV-2" in segments:
+            orf_pos = {
             "orf1ab": (266, 21556),
             "S": [21563, 25385],
             "ORF3a": [25393, 26221],
@@ -826,7 +837,21 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
             "N": [28274, 29534],
             "ORF10": [29558, 29675],
             "ORF9b": [28284, 28577],
-        }
+            }
+        else: #just RSV A because I don't know how this should be handled with 2 refs
+            orf_pos = {
+                "NS1": [99,518],
+                "NS2": [628,1002],
+                "N": [1140,2315],
+                "P": [2347,3072],
+                "M": [3255,4025],
+                "SH": [4295, 4489],
+                "G": [4681,5646],
+                "F": [5726,7450],
+                "M2-1": [7669,8253],
+                "M2-2": [8228,8494],
+                "L": [8561,15058]
+            }
         color_index = 0
         print(orf_pos)
         for orf, pos in orf_pos.items():
