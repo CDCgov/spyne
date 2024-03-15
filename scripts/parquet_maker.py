@@ -12,10 +12,10 @@ from os.path import dirname, basename, isfile
 from glob import glob
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-f", "--file")
-parser.add_argument("-o", "--outputname")
-parser.add_argument("-r", "--runid")
-parser.add_argument("-i", "--instrument")
+parser.add_argument("-f", "--file", help="input file for conversion to CDP-compatible parquet. If empty, script creates reads table, coverage table, and all alleles table with filenames inferred from runid")
+parser.add_argument("-o", "--outputname", help="name of parquet output file")
+parser.add_argument("-r", "--runid", help="runid name, if empty: runid is the name of the directory in which the script is run")
+parser.add_argument("-i", "--instrument", help="sequencing instrument name. If empty, testInstrument")
 
 inputarguments = parser.parse_args()
 
