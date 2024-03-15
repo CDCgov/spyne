@@ -11,6 +11,11 @@ configfile: "config.yaml"
 config["samples"] = {str(k): v for k, v in config["samples"].items()}
 config["samples"] = OrderedDict([(key, config["samples"][key]) for key in config["samples"] ])
 
+try:
+    cli = bool(config["cli"])
+except:
+    cli = False
+
 def find_chemistry(fastq, runid):
     global irma_custom
     global subsample
@@ -102,10 +107,12 @@ def passed_irma(wildcards):
     with checkpoints.checkirma.get(sample=wildcards.sample).\
     output[0].open() as f:
         if f.read().strip() == "passed":
-            return rules.prepareIRMAjson.output
+            if not cli:
+                return rules.prepareIRMAjson.output
+            else:
+                return rules.staticHTML.output
         else:
             return rules.pass_negatives.output
-
 
 rule pass_negatives:
     input:
@@ -145,6 +152,18 @@ rule prepareIRMAjson:
         "logs/prepareIRMAjson.log"
     shell:
         "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv illumina flu"
+
+if cli:
+    rule staticHTML:
+        input:
+            rules.prepareIRMAjson.output
+        output:
+            touch('IRMA/staticHTML.fin')
+        message: "Step 9 - Creating static HTML output"
+        log:
+            "logs/staticHTML.log"
+        shell:
+            "python3 {workflow.basedir}/scripts/static_report.py $(pwd)"
 
 
 rule finishup:

@@ -93,7 +93,7 @@ def irmatable2df(irmaFiles):
         else:
             df_prime = pd.read_csv(f, sep="\s+", index_col=False)
         df_prime.insert(loc=0, column="Sample", value=sample)
-        df = df.append(df_prime)
+        df = pd.concat([df, df_prime])
     return df
 
 
@@ -141,7 +141,7 @@ def dash_irma_sequence_df(irma_path, amended=True, pad=True):
         content = open(f).read()
         for s in findall(r">.+", content):
             sample_id, sequence = s[1:], findall(rf"(?s)(?<={s}).+(?=>)*", content)[0].replace('\n','')
-            df = df.append(pd.DataFrame([[sample_id, sequence]], columns=df.columns))
+            df = pd.concat([df, pd.DataFrame([[sample_id, sequence]], columns=df.columns)])
     return df
 
 

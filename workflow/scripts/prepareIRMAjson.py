@@ -85,7 +85,7 @@ def negative_qc_statement(irma_reads_df, negative_list=""):
         sample_list = list(irma_reads_df["Sample"].unique())
         negative_list = [i for i in sample_list if "PCR" in i]
     irma_reads_df = irma_reads_df.pivot(
-        "Sample", columns="Record", values="Reads"
+        index="Sample", columns="Record", values="Reads"
     ).fillna(0)
     if "3-altmatch" in irma_reads_df.columns:
         irma_reads_df["Percent Mapping"] = (
@@ -290,7 +290,7 @@ def irma_summary(
         json.dump(qc_statement, out)
     reads_df = (
         reads_df[reads_df["Record"].str.contains("^1|^2-p|^4")]
-        .pivot("Sample", columns="Record", values="Reads")
+        .pivot(index="Sample", columns="Record", values="Reads")
         .reset_index()
         .melt(id_vars=["Sample", "1-initial", "2-passQC"])
         .rename(
@@ -672,9 +672,9 @@ def createheatmap(irma_path, coverage_medians_df):
         coverage_medians_df.pivot(index="Sample", columns="Segment")
         .fillna(0)
         .reset_index()
-        .melt(id_vars="Sample", value_name=cov_header)
-        .drop([None], axis=1)
-    )
+        .melt(id_vars="Sample")#, value_name=cov_header)
+        .drop([None], axis=1))
+    coverage_medians_df = coverage_medians_df.rename(columns={"value": cov_header})
     cov_max = coverage_medians_df[cov_header].max()
     if cov_max <= 200:
         cov_max = 200

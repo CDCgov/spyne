@@ -105,7 +105,7 @@ def dais2df(results_path, colnames, col_renames, dais_suffix, full=False):
         print(f'the glob "{results_path}/*{dais_suffix}" found no files')
     df = pd.DataFrame()
     for f in files:
-        df = df.append(pd.read_csv(f, sep="\t", names=colnames, keep_default_na=False))
+        df = pd.concat([df, pd.read_csv(f, sep="\t", names=colnames, keep_default_na=False)])
     if full:
         return df
     else:
