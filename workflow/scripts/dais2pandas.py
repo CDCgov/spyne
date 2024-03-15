@@ -171,6 +171,7 @@ def compute_dais_variants(results_path, specific_ref=False):
             ),
             axis=1,
         )
+        seqs["Reference"] = specific_ref
     seqs["AA Variant Count"] = seqs["AA Variants"].map(lambda x: len(x.split(",")) if x != '' else 0)
     seqs = seqs[["Sample", "Reference", "Protein", "AA Variant Count", "AA Variants"]]
     seqs = seqs.sort_values(by=["Protein","Sample","AA Variant Count"]).drop_duplicates(subset=["Sample", "Protein"], keep="first")
