@@ -26,7 +26,8 @@ def find_chemistry(fastq, runid):
         with gzip.open(fastq) as infi:
             contents = infi.readlines()
     if len(contents[1]) > 145:
-        irma_custom = ["",""]
+        config_path = workflow.basedir + "/irma_config/FLU-illumina.sh"
+        irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-illumina.sh"]
         subsample = "100000"
     elif len(contents[1]) > 70:
         config_path = workflow.basedir + "/irma_config/FLU-2x75.sh"
