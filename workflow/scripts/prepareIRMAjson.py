@@ -47,7 +47,7 @@ ref_proteins = {
     "ORF8": "SARS-CoV-2",
     "ORF7a": "SARS-CoV-2",
     "ORF7b": "SARS-CoV-2",
-    "N": "SARS-CoV-2 ON",
+    "N": "SARS-CoV-2 RSVA RSVB ON",
     "ORF3a": "SARS-CoV-2",
     "E": "SARS-CoV-2",
     "ORF9b": "SARS-CoV-2",
@@ -70,18 +70,18 @@ ref_proteins = {
     "NS1": "A_NS B_NS",
     "NS": "A_NS B_NS",
     "M2": "A_MP B_MP",
-    "M": "A_MP B_MP SARS-CoV-2 ON",
+    "M": "A_MP B_MP SARS-CoV-2 RSVA RSVB ON",
     "NA": "A_NA_N1 A_NA_N2 A_NA_N3 A_NA_N4 A_NA_N5 A_NA_N6 A_NA_N7 A_NA_N8 A_NA_N9 B_NA",
     "PA": "A_PA B_PA",
-    "NS1": "ON",
-    "NS2": "ON",
-    "P": "ON",
-    "SH": "ON",
-    "G": "ON",
-    "F": "ON",
-    "M2-1": "ON",
-    "M2-2": "ON",
-    "L": "ON",
+    "NS1": "RSVA RSVB ON",
+    "NS2": "RSVA RSVB ON",
+    "P": "RSVA RSVB ON",
+    "SH": "RSVA RSVB ON",
+    "G": "RSVA RSVB ON",
+    "F": "RSVA RSVB ON",
+    "M2-1": "RSVA RSVB ON",
+    "M2-2": "RSVA RSVB ON",
+    "L": "RSVA RSVB ON",
 }
 
 makedirs(f"{irma_path}/../dash-json", exist_ok=True)
@@ -95,7 +95,7 @@ def negative_qc_statement(irma_reads_df, negative_list=""):
         sample_list = list(irma_reads_df["Sample"].unique())
         negative_list = [i for i in sample_list if "PCR" in i]
     irma_reads_df = irma_reads_df.pivot(
-        "Sample", columns="Record", values="Reads"
+        index="Sample", columns="Record", values="Reads"
     ).fillna(0)
     if "3-altmatch" in irma_reads_df.columns:
         irma_reads_df["Percent Mapping"] = (
@@ -276,7 +276,7 @@ def perc_len(maplen, ref, ref_lens):
 def version_module():
     module = qc_plat_vir
     descript_dict = {}
-    with open("/spyne/DESCRIPTION", 'r') as infi:
+    with open(op.dirname(op.dirname(op.dirname(op.realpath(__file__)))) + "/DESCRIPTION", 'r') as infi:
         for line in infi:
             try:
                 descript_dict[line.split(':')[0]]=line.split(":")[1]
@@ -300,7 +300,7 @@ def irma_summary(
         json.dump(qc_statement, out)
     reads_df = (
         reads_df[reads_df["Record"].str.contains("^1|^2-p|^4")]
-        .pivot("Sample", columns="Record", values="Reads")
+        .pivot(index="Sample", columns="Record", values="Reads")
         .reset_index()
         .melt(id_vars=["Sample", "1-initial", "2-passQC"])
         .rename(
@@ -520,7 +520,7 @@ def generate_dfs(irma_path):
         | (
             (pass_fail_seqs_df["Reasons"].str.contains("Premature stop codon"))
             & (~pass_fail_seqs_df["Reasons"].str.contains(";", na=False))
-            & (~pass_fail_seqs_df["Reference"].str.contains(r"'[H|N]A'|'S'"))
+            & (~pass_fail_seqs_df["Reference"].str.contains(r"'[H|N]A'|'S'|'F'"))
         )
     ]
     else:
@@ -682,9 +682,10 @@ def createheatmap(irma_path, coverage_medians_df):
         coverage_medians_df.pivot(index="Sample", columns="Segment")
         .fillna(0)
         .reset_index()
-        .melt(id_vars="Sample", value_name=cov_header)
+        .melt(id_vars="Sample")#, value_name=cov_header)
         .drop([None], axis=1)
     )
+    coverage_medians_df = coverage_medians_df.rename(columns={"value": cov_header})
     cov_max = coverage_medians_df[cov_header].max()
     if cov_max <= 200:
         cov_max = 200
