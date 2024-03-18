@@ -815,7 +815,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
         df[cov_header] = df[cov_header].apply(lambda x: zerolift(x))
     df2 = df[df["Sample"] == sample]
     fig = go.Figure()
-    if "SARS-CoV-2" in segments or "rsv" in segments:
+    if "SARS-CoV-2" in segments or "ON" in segments:
         # y positions for gene boxes
         oy = (
             max(df2[cov_header]) / 10
