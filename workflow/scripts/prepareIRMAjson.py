@@ -815,7 +815,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
         df[cov_header] = df[cov_header].apply(lambda x: zerolift(x))
     df2 = df[df["Sample"] == sample]
     fig = go.Figure()
-    if "SARS-CoV-2" in segments or "ON" in segments:
+    if "SARS-CoV-2" in segments or "AD" in segments or "BD" in segments:
         # y positions for gene boxes
         oy = (
             max(df2[cov_header]) / 10
@@ -839,7 +839,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
             "ORF10": [29558, 29675],
             "ORF9b": [28284, 28577],
             }
-        else: #just RSV A because I don't know how this should be handled with 2 refs
+        elif "AD" in segments: #just RSV A because I don't know how this should be handled with 2 refs
             orf_pos = {
                 "NS1": [99,518],
                 "NS2": [628,1002],
@@ -852,6 +852,19 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
                 "M2-1": [7669,8253],
                 "M2-2": [8228,8494],
                 "L": [8561,15058]
+            }
+        elif "BD" in segments:
+            orf_pos = {
+                "NS1": [100,519],
+                "NS2": [627,1001],
+                "N": [1140,2315],
+                "P": [2348,3073],
+                "M": [3263,4033],
+                "G": [4689,5621],
+                "F": [5719,7443],
+                "M2-1": [7670,8257],
+                "M2-2": [8223,8495],
+                "L": [8561,15061]
             }
         color_index = 0
         print(orf_pos)
