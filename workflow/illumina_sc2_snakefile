@@ -185,7 +185,7 @@ rule irma:
     threads: 14
     message: "Step 5 - assembling genome with IRMA"
     shell:
-        "{params.command[0]} docker exec irma IRMA CoV /data/{config[runid]}/IRMA/{wildcards.sample}_r1_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_r2_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out}"
+        "{params.command[0]} docker exec irma IRMA CoV /data/{config[runid]}/IRMA/{wildcards.sample}_r1_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_r2_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out} || touch {output}"
 
 checkpoint checkirma:
     input:
