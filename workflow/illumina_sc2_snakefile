@@ -30,13 +30,17 @@ def find_chemistry(fastq, runid):
     except:
         with gzip.open(fastq) as infi:
             contents = infi.readlines()
-    if len(contents[1]) >= 80:
+    try:
+        if len(contents[1]) >= 80:
+            irma_custom = ["",""]
+            subsample = "100000"
+        else:
+            config_path = workflow.basedir + "/irma_config/SC2-2x75.sh"
+            irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/SC2-2x75.sh"]
+            subsample = "200000"
+    except:
         irma_custom = ["",""]
         subsample = "100000"
-    else:
-        config_path = workflow.basedir + "/irma_config/SC2-2x75.sh"
-        irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/SC2-2x75.sh"]
-        subsample = "200000"
     return irma_custom, subsample
 
 rule all:
