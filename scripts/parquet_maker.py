@@ -8,8 +8,11 @@ import argparse
 from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
-from os.path import dirname, basename, isfile
+from os.path import dirname, basename, isfile, getmtime
 from glob import glob
+import time
+from datetime import datetime
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", "--file", help="input file for conversion to CDP-compatible parquet. If empty, script creates reads table, coverage table, and all alleles table with filenames inferred from runid")
@@ -129,7 +132,22 @@ def parquetify(table, outfi):
         print("Chunk", i)
         if i == 0:
         # Guess the schema of the CSV file from the first chunk
-            parquet_schema = pa.Table.from_pandas(df=chunk).schema
+            if "indel" not in infi:
+                parquet_schema = pa.Table.from_pandas(df=chunk).schema
+            else:
+                parquet_schema = pa.schema([
+                    ('Sample', pa.string()),
+                    ('Sample - Upstream Position', pa.int64()),
+                    ('Reference', pa.string()),
+                    ('Context', pa.string()),
+                    ('Length', pa.int64()),
+                    ('Insert', pa.string()),
+                    ('Count', pa.int64()),
+                    ('Upstream Base Coverage', pa.int64()),
+                    ('Frequency', pa.float64()),
+                    ('runid', pa.string()),
+                    ('instrument', pa.string())
+                ])
         # Open a Parquet file for writing
             parquet_writer = pq.ParquetWriter(outfi, parquet_schema, compression='snappy', version='1.0')
     # Write CSV chunk to the parquet file
@@ -142,10 +160,16 @@ if ".csv" in infi:
     table = pd.read_csv(infi, header=0)
 elif ".xls" in infi:
     table = pd.read_excel(infi, header=0)
+    if len(table) < 1:
+        print(f"empty input {infi}!")
+        exit(0)
+
 elif "run_info.txt" in infi:
     table = pd.read_csv(infi, sep="\t", header=0)
     table['runid'] = run_id
     table['instrument'] = instrument
+    timestamp = getmtime(infi)
+    table['timestamp'] = datetime.fromtimestamp(timestamp)
     parquetify(table, outfi)
     exit()
 elif ".txt" in infi or ".tsv" in infi:
