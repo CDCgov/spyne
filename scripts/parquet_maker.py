@@ -132,10 +132,11 @@ def parquetify(table, outfi):
         print("Chunk", i)
         if i == 0:
         # Guess the schema of the CSV file from the first chunk
-            if "indel" not in infi:
-                parquet_schema = pa.Table.from_pandas(df=chunk).schema
-            else:
-                parquet_schema = pa.schema([
+            try:
+                if "indel" not in infi:
+                    parquet_schema = pa.Table.from_pandas(df=chunk).schema
+                else:
+                    parquet_schema = pa.schema([
                     ('Sample', pa.string()),
                     ('Sample - Upstream Position', pa.int64()),
                     ('Reference', pa.string()),
@@ -148,6 +149,8 @@ def parquetify(table, outfi):
                     ('runid', pa.string()),
                     ('instrument', pa.string())
                 ])
+            except:
+                parquet_schema = pa.Table.from_pandas(df=chunk).schema
         # Open a Parquet file for writing
             parquet_writer = pq.ParquetWriter(outfi, parquet_schema, compression='snappy', version='1.0')
     # Write CSV chunk to the parquet file
