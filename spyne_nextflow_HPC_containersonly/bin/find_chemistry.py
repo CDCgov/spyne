@@ -19,9 +19,9 @@ except:
     with gzip.open(fastq) as infi:
             contents = infi.readlines()
 
-#if len(contents[1]) > 80:
-irma_custom = ["",""]
-subsample = "100000"
+if len(contents[1]) > 145:
+    irma_custom = ["",""]
+    subsample = "100000"
 #elif len(contents[1]) > 70:
 #    config_path = "/home/try8/spyne_nextflow/workflow/irma_contif/FLU-2x75.sh"
 #    irma_custom = [f"mkdir -p /home/try8/results/IRMA && cp {config_path} /home/try8/results/IRMA/ &&", f"--external-config /data/{runid}/IRMA/FLU-2x75.sh"]

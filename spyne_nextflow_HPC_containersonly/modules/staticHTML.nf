@@ -6,11 +6,11 @@
 ========================================================================================
 */
 
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
 process staticHTML {
-    tag {"Creating static HTML output"}
-    container "cdcgov/spyne:latest"
+    tag { 'Creating static HTML output' }
+    container 'cdcgov/mira:latest'
 
     publishDir "${params.r}", mode: 'copy'
 
@@ -18,10 +18,11 @@ process staticHTML {
     val x
 
     output:
-    path ("*"), emit: dash_json
+    path("*"), emit: dash_json
 
     script:
     """
-    python3 /spyne/workflow/scripts/static_report.py ${params.r}
+    python3 ${launchDir}/bin/static_report.py ${params.r}
+    echo "${params.r}" > hold_path.txt
     """
 }
