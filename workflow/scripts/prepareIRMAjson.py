@@ -47,7 +47,7 @@ ref_proteins = {
     "ORF8": "SARS-CoV-2",
     "ORF7a": "SARS-CoV-2",
     "ORF7b": "SARS-CoV-2",
-    "N": "SARS-CoV-2 RSVA RSVB ON",
+    "N": "SARS-CoV-2 RSVA RSVB AD",
     "ORF3a": "SARS-CoV-2",
     "E": "SARS-CoV-2",
     "ORF9b": "SARS-CoV-2",
@@ -70,18 +70,18 @@ ref_proteins = {
     "NS1": "A_NS B_NS",
     "NS": "A_NS B_NS",
     "M2": "A_MP B_MP",
-    "M": "A_MP B_MP SARS-CoV-2 RSVA RSVB ON",
+    "M": "A_MP B_MP SARS-CoV-2 RSVA RSVB AD",
     "NA": "A_NA_N1 A_NA_N2 A_NA_N3 A_NA_N4 A_NA_N5 A_NA_N6 A_NA_N7 A_NA_N8 A_NA_N9 B_NA",
     "PA": "A_PA B_PA",
-    "NS1": "RSVA RSVB ON",
-    "NS2": "RSVA RSVB ON",
-    "P": "RSVA RSVB ON",
-    "SH": "RSVA RSVB ON",
-    "G": "RSVA RSVB ON",
-    "F": "RSVA RSVB ON",
-    "M2-1": "RSVA RSVB ON",
-    "M2-2": "RSVA RSVB ON",
-    "L": "RSVA RSVB ON",
+    "NS1": "RSVA RSVB AD",
+    "NS2": "RSVA RSVB AD",
+    "P": "RSVA RSVB AD",
+    "SH": "RSVA RSVB AD",
+    "G": "RSVA RSVB AD",
+    "F": "RSVA RSVB AD",
+    "M2-1": "RSVA RSVB AD",
+    "M2-2": "RSVA RSVB AD",
+    "L": "RSVA RSVB AD",
 }
 
 makedirs(f"{irma_path}/../dash-json", exist_ok=True)
@@ -234,6 +234,8 @@ def pass_fail_qc_df(irma_summary_df, dais_vars_df, nt_seqs_df):
     )
     # Add in found sequences
     combined = combined.merge(nt_seqs_df, how="outer", on=["Sample", "Reference"])
+    if virus == 'rsv':
+        combined = combined.replace("AD", "RSV").replace("BD", "RSV")
     combined["Reasons"] = combined.apply(
         lambda x: pass_qc(x["Reasons"], x["Sequence"]), axis=1
     )
@@ -520,7 +522,7 @@ def generate_dfs(irma_path):
         | (
             (pass_fail_seqs_df["Reasons"].str.contains("Premature stop codon"))
             & (~pass_fail_seqs_df["Reasons"].str.contains(";", na=False))
-            & (~pass_fail_seqs_df["Reference"].str.contains(r"'[H|N]A'|'S'|'F'"))
+            & (~pass_fail_seqs_df["Reference"].str.contains(r"[H|N]A"))
         )
     ]
     else:
@@ -686,6 +688,11 @@ def createheatmap(irma_path, coverage_medians_df):
         .drop([None], axis=1)
     )
     coverage_medians_df = coverage_medians_df.rename(columns={"value": cov_header})
+    if virus == "rsv":
+        coverage_medians_df = coverage_medians_df.replace("AD", "RSV").replace("BD", "RSV")
+        coverage_medians_df = coverage_medians_df.sort_values(
+            by=["Sample", "Segment", "Coverage Depth"], ascending=False
+        ).drop_duplicates(subset=["Sample"], keep="first")
     cov_max = coverage_medians_df[cov_header].max()
     if cov_max <= 200:
         cov_max = 200
@@ -814,6 +821,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
     if not cov_linear_y:
         df[cov_header] = df[cov_header].apply(lambda x: zerolift(x))
     df2 = df[df["Sample"] == sample]
+    print(segments)
     fig = go.Figure()
     if "SARS-CoV-2" in segments or "AD" in segments or "BD" in segments:
         # y positions for gene boxes
@@ -839,7 +847,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
             "ORF10": [29558, 29675],
             "ORF9b": [28284, 28577],
             }
-        elif "AD" in segments: #just RSV A because I don't know how this should be handled with 2 refs
+        elif "AD" in segments:
             orf_pos = {
                 "NS1": [99,518],
                 "NS2": [628,1002],
@@ -874,8 +882,8 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
                     x=[pos[0], pos[1], pos[1], pos[0], pos[0]],
                     y=[oy, oy, 0, 0, oy],
                     fill="toself",
-                    fillcolor=px.colors.qualitative.Set3[color_index],
-                    line=dict(color=px.colors.qualitative.Set3[color_index]),
+                    fillcolor=px.colors.qualitative.Pastel[color_index],
+                    line=dict(color=px.colors.qualitative.Pastel[color_index]),
                     mode="lines",
                     name=orf,
                     opacity=0.8,

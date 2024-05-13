@@ -49,7 +49,7 @@ ont-sc2:
   padded_consensus: True
 illumina-rsv:
   med_cov: 100 # mean coverage depth across reference
-  minor_vars: 10 # maximum allowed minor variants >= 5%
+  minor_vars: 50 # maximum allowed minor variants >= 5%
   allow_stop_codons: False # True = allow premature stop codons; False = do not allow
   perc_ref_covered: 90 # Mimimum % of reference to cover
   negative_control_perc: 1 # fail negative controls if this percent of reads map to reference
