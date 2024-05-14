@@ -23,6 +23,10 @@ process staticHTML {
     script:
     """
     python3 ${launchDir}/bin/static_report.py ${params.r}
+    #Getting file path for next step
     echo "${params.r}" > hold_path.txt
+    #Setting up fasta files for parquet maker in later steps
+    cat ${params.r}/*amended_consensus.fasta > nt.fasta
+    cat ${params.r}/*amino_acid_consensus.fasta > aa.fasta
     """
 }

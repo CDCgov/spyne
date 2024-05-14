@@ -112,8 +112,6 @@ workflow {
 
     //Prepare email output
     prepEmail(renameFiles.out)
-
-    final_report = prepEmail.out.report.toList()
 }
 
 // Workflow Event Handler
@@ -130,5 +128,5 @@ workflow.onComplete {
        """
        .stripIndent()
 
-    sendMail(to: 'xpa3@cdc.gov', subject: 'Nextflow pipeline execution', body:msg, attach: './assembled_samples.txt')
+    sendMail(to: 'xpa3@cdc.gov', subject: 'Nextflow pipeline execution', body:msg, attach: './summary.xlsx')
 }

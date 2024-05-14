@@ -21,8 +21,7 @@ process prepEmail {
 
     script:
     """
-    sed 's/[>,]//g' ${params.r}/assembled_samples.txt
-    cp ${params.r}/assembled_samples.txt ${launchDir}/assembled_samples.txt
+    cp ${params.r}/*_summary.xlsx ${launchDir}/summary.xlsx
     rm ${params.r}/hold_path.txt
     rm ${params.r}/name.txt
     rm ${params.r}/temp.csv
