@@ -31,5 +31,8 @@ process renameFiles {
     cp ./pq_files/samplesheet.parq ./parq_files/${fname}_samplesheet.parq
     cp ./pq_files/summary.parq ./parq_files/${fname}_summary.parq
     cp ./pq_files/variants.parq ./parq_files/${fname}_variants.parq
+    cp ./pq_files/*illumina_coverage.parq ./parq_files
+    cp ./pq_files/*_illumina_alleles.parq ./parq_files
+    cp ./pq_files/*_reads.parq ./parq_files
     '''
 }
