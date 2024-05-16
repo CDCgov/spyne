@@ -21,6 +21,7 @@ process prepEmail {
 
     script:
     """
+    rm ${launchDir}/summary.xlsx
     cp ${params.r}/*_summary.xlsx ${launchDir}/summary.xlsx
     rm ${params.r}/hold_path.txt
     rm ${params.r}/name.txt

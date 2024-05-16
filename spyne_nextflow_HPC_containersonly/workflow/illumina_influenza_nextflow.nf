@@ -7,10 +7,6 @@ params.s = null
 params.r = null
 params.e = null
 
-//Info required for completion email and summary
-def final_report = []
-//def html_file = []
-
 // Import modules
 include { create_nextflow_samplesheet } from "${launchDir}/modules/create_nextflow_samplesheet.nf"
 include { find_chemistry              } from "${launchDir}/modules/find_chemistry.nf"

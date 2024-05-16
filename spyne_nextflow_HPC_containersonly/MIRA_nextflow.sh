@@ -81,7 +81,7 @@ docker --version
 #run_path=$(dirname $(readlink -f $RUNPATH/))
 
 # Archive previous run
-if [ -f "${RUNPATH}/report.html" ] && [ -n "${TAR}" ]; then
+if [ -f "${RUNPATH}/report*.html" ] && [ -n "${TAR}" ]; then
 	tar --remove-files -czf ${RUNPATH}/previous_run_$(date -d @$(stat -c %Y ${RUNPATH}/report.html) "+%Y%b%d-%H%M%S").tar.gz ${RUNPATH}/*html ${RUNPATH}/*fasta ${RUNPATH}/*txt
 fi
 
@@ -97,9 +97,5 @@ nextflow run "$RESOURCE_ROOT"/workflow/illumina_influenza_nextflow.nf \
 	--r "$RUNPATH" \
 	--e "$EXPERIMENT_TYPE" \
 	-c "$RESOURCE_ROOT"/nextflow.config \
-	-with-trace "$RUNPATH"/trace.txt \
-	-with-timeline "$RUNPATH"/timeline.html \
-	-with-report "$RUNPATH"/report.html \
-	-with-dag "$RUNPATH"/dag.html \
 	-profile singularity,rosalind \
 	$CLI $OPTIONALARGS

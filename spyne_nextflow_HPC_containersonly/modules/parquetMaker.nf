@@ -25,8 +25,8 @@ process parquetMaker {
 
     script:
     """
-    python3 ${launchDir}/bin/parquet_maker.py -f nt.fasta -o amended_consensus.parq -r ${run_path}
-    python3 ${launchDir}/bin/parquet_maker.py -f aa.fasta -o amino_acid_consensus.parq -r ${run_path}
+    python3 ${launchDir}/bin/parquet_maker.py -f ${params.r}/nt.fasta -o amended_consensus.parq -r ${run_path}
+    python3 ${launchDir}/bin/parquet_maker.py -f ${params.r}/aa.fasta -o amino_acid_consensus.parq -r ${run_path}
     python3 ${launchDir}/bin/parquet_maker.py -f ${params.r}/samplesheet.csv -o samplesheet.parq -r ${run_path}
     python3 ${launchDir}/bin/parquet_maker.py -f ${params.r}/*minorindels.xlsx -o indels.parq -r ${run_path}
     python3 ${launchDir}/bin/parquet_maker.py -f ${params.r}/*minorvariants.xlsx -o variants.parq -r ${run_path}
