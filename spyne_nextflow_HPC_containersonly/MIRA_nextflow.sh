@@ -1,6 +1,6 @@
 #!/bin/bash
-#$ -o $1/nextflow.out
-#$ -e $1/nextflow.err
+#$ -o nextflow.out
+#$ -e nextflow.err
 #$ -N Illumina_influenza_nextflow
 #$ -pe smp 2
 #$ -l h_rt=72:00:00
@@ -13,19 +13,20 @@
 # Primer Schema options: articv3, articv4, articv4.1, articv5.3.2, qiagen, swift, swift_211206
 
 source /etc/profile
-RUNPATH='/scicomp/scratch/xpa3/FLU_SC2_SEQUENCING_nextflow/tiny_test_run_flu_illumina'
+RUNPATH=$1 #'/scicomp/scratch/xpa3/FLU_SC2_SEQUENCING_nextflow/tiny_test_run_flu_illumina'
+SCRIPTSDIR="."
 TAR=True
 
 # Archive previous run using the summary.xlsx file sent in email
-if [ -f "./summary.xlsx" ] && [ -n "${TAR}" ]; then
-	tar --remove-files -czf ${RUNPATH}/previous_run_$(date -d @$(stat -c %Y ./summary.xlsx) "+%Y%b%d-%H%M%S").tar.gz ${RUNPATH}/*html ${RUNPATH}/*fasta ${RUNPATH}/*txt
+if [ -d "$1/dash-json/" ] && [ -n "${TAR}" ]; then
+	tar --remove-files -czf ${RUNPATH}/previous_run_$(date -d @$(stat -c %Y ${RUNPATH}/dash-json/) "+%Y%b%d-%H%M%S").tar.gz ${RUNPATH}/*html ${RUNPATH}/*fasta ${RUNPATH}/*txt ${RUNPATH}/*xlsx ${RUNPATH}/IRMA ${RUNPATH}/dash-json
 fi
 
 # Run nextflow
 module load nextflow/23.10.0
-nextflow run ./workflow/illumina_influenza_nextflow.nf \
+nextflow run $SCRIPTSDIR/workflow/illumina_influenza_nextflow.nf \
 	--s "$RUNPATH"/samplesheet.csv \
 	--r "$RUNPATH" \
 	--e Flu_Illumina \
-	-c ./nextflow.config \
-	-profile singularity,rosalind
+	-c $SCRIPTSDIR/nextflow.config \
+	-profile singularity,rosalind 

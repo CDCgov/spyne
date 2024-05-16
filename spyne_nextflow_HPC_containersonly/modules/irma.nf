@@ -10,7 +10,7 @@ nextflow.enable.dsl = 2
 
 process irma {
     tag { "assembling genome with IRMA for ${sample }" }
-    container 'cdcgov/irma-latest'
+    container 'cdcgov/irma:v1.1.5'
 
     publishDir "${params.r}/IRMA",  mode: 'copy'
     publishDir "${params.r}/logs", pattern: '*.log', mode: 'copy'
