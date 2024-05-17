@@ -19,7 +19,7 @@ TAR=True
 
 # Archive previous run using the summary.xlsx file sent in email
 if [ -d "$1/dash-json/" ] && [ -n "${TAR}" ]; then
-	tar --remove-files -czf ${RUNPATH}/previous_run_$(date -d @$(stat -c %Y ${RUNPATH}/dash-json/) "+%Y%b%d-%H%M%S").tar.gz ${RUNPATH}/*html ${RUNPATH}/*fasta ${RUNPATH}/*txt ${RUNPATH}/*xlsx ${RUNPATH}/IRMA ${RUNPATH}/dash-json
+	tar --remove-files -czf ${RUNPATH}/previous_run_$(date -d @$(stat -c %Y ${RUNPATH}/dash-json/) "+%Y%b%d-%H%M%S").tar.gz ${RUNPATH}/*html ${RUNPATH}/*fasta ${RUNPATH}/*txt ${RUNPATH}/*xlsx ${RUNPATH}/IRMA ${RUNPATH}/dash-json ${RUNPATH}/parq_files
 fi
 
 # Run nextflow
@@ -29,4 +29,4 @@ nextflow run $SCRIPTSDIR/workflow/illumina_influenza_nextflow.nf \
 	--r "$RUNPATH" \
 	--e Flu_Illumina \
 	-c $SCRIPTSDIR/nextflow.config \
-	-profile singularity,rosalind 
+	-profile singularity,rosalind
