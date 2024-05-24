@@ -6,11 +6,11 @@
 ========================================================================================
 */
 
-nextflow.enable.dsl=2
+nextflow.enable.dsl = 2
 
 process prepareIRMAjson {
-    tag {"Creating Plotly-Dash readable figures and tables for IRMA-SPY"}
-    container "cdcgov/spyne:latest"
+    tag { 'Creating Plotly-Dash readable figures and tables for IRMA-SPY' }
+    container 'cdcgov/spyne:latest'
 
     input:
     val x
@@ -20,6 +20,6 @@ process prepareIRMAjson {
 
     script:
     """
-    python3 /spyne/workflow/scripts/prepareIRMAjson.py ${params.r}/IRMA ${params.s} illumina flu
+    python3 ${launchDir}/bin/prepareIRMAjson.py ${params.r}/IRMA ${params.s} illumina flu
     """
 }
