@@ -26,7 +26,7 @@ process staticHTML {
     #Getting file path for next step
     echo "${params.r}" > hold_path.txt
     #Setting up fasta files for parquet maker in later steps
-    cat ${params.r}/*amended_consensus.fasta > nt.fasta
-    cat ${params.r}/*amino_acid_consensus.fasta > aa.fasta
+    cat ${params.r}/MIRA*amended_consensus.fasta > nt.fasta
+    cat ${params.r}/MIRA*amino_acid_consensus.fasta > aa.fasta
     """
 }
