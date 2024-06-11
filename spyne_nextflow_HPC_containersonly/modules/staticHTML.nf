@@ -32,4 +32,5 @@ process staticHTML {
     #Setting up fasta files for parquet maker in later steps
     cat ${params.outdir}/MIRA_*_amended_consensus.fasta > nt.fasta
     cat ${params.outdir}/MIRA_*_amino_acid_consensus.fasta > aa.fasta
+    """
 }
