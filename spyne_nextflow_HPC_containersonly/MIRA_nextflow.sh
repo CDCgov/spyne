@@ -13,7 +13,7 @@
 # Primer Schema options: articv3, articv4, articv4.1, articv5.3.2, qiagen, swift, swift_211206
 
 source /etc/profile
-RUNPATH=$1 #'/scicomp/scratch/xpa3/FLU_SC2_SEQUENCING_nextflow/tiny_test_run_flu_illumina'
+RUNPATH='/scicomp/scratch/xpa3/FLU_SC2_SEQUENCING_nextflow/tiny_test_run_flu_illumina'
 SCRIPTSDIR="."
 TAR=True
 

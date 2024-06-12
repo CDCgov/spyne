@@ -23,10 +23,5 @@ process prepEmail {
     """
     rm ${launchDir}/summary.xlsx
     cp ${params.r}/*_summary.xlsx ${launchDir}/summary.xlsx
-    rm ${params.r}/hold_path.txt
-    rm ${params.r}/name.txt
-    rm ${params.r}/temp.csv
-    rm ${params.r}/run_info_setup.txt
-    rm -r ${params.r}/pq_files
     """
 }

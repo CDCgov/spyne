@@ -18,9 +18,7 @@ include { catfiles                    } from "${launchDir}/modules/catfiles.nf"
 include { dais_ribosome               } from "${launchDir}/modules/dais_ribosome.nf"
 include { prepareIRMAjson             } from "${launchDir}/modules/prepareIRMAjson.nf"
 include { staticHTML                  } from "${launchDir}/modules/staticHTML.nf"
-include { getRun                      } from "${launchDir}/modules/getRun.nf"
 include { parquetMaker                } from "${launchDir}/modules/parquetMaker.nf"
-include { renameFiles                 } from "${launchDir}/modules/renameFiles.nf"
 include { prepEmail                   } from "${launchDir}/modules/prepEmail.nf"
 
 // Orchestrate the process flow
@@ -97,17 +95,11 @@ workflow {
     // Create static HTML output
     staticHTML(prepareIRMAjson.out)
 
-    //Get run name
-    getRun(staticHTML.out)
-
     //Create parquet files
-    parquetMaker(getRun.out)
-
-    //Create parquet files
-    renameFiles(parquetMaker.out)
+    parquetMaker(staticHTML.out, run_ID_ch)
 
     //Prepare email output
-    prepEmail(renameFiles.out)
+    prepEmail(parquetMaker.out)
 }
 
 // Workflow Event Handler

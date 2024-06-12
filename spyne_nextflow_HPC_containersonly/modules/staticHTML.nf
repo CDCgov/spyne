@@ -23,14 +23,5 @@ process staticHTML {
     script:
     """
     python3 ${launchDir}/bin/static_report.py ${params.r}
-    #Getting file path for next step
-    echo "${params.r}" > hold_path.txt
-    """
-
-    stub:
-    """
-    #Setting up fasta files for parquet maker in later steps
-    cat ${params.outdir}/MIRA_*_amended_consensus.fasta > nt.fasta
-    cat ${params.outdir}/MIRA_*_amino_acid_consensus.fasta > aa.fasta
     """
 }
