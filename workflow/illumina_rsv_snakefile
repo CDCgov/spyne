@@ -93,10 +93,10 @@ rule bbduk_r1:
         'rcomp=t',
         'ref='+primers[config['samples']['{}'.format(wildcards.sample)]['Library']]['fasta'],
         'ordered=t',
-        'Minlength=0',
-        'Kmer=19',
-        'Mink=8'
-        'RW=35']),
+        'minlength=0',
+        'k=19',
+        'mink=8',
+        'restrictleft=35']),
         mem = memory_for_bbduk()
     log:
         out = "logs/{sample}.bbduk.trim_left.stdout.log",
@@ -130,10 +130,10 @@ rule bbduk_r2:
         'mm=f',
         'hdist=1',
         'ref='+primers[config['samples']['{}'.format(wildcards.sample)]['Library']]['fasta'],
-        'Mink=8',
-        'Minlength=0',
-        'Kmer=19',
-        'RW=35']),
+        'mink=8',
+        'minlength=0',
+        'k=19',
+        'restrictright=35']),
         mem = memory_for_bbduk()
     threads: 16
     log:
