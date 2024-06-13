@@ -72,25 +72,10 @@ rule subsample:
         " 1> {log.out}"
         " 2> {log.err}"
 
-#AMEND
-primers =	{'swift':	{'bedpe':'{}/primers/SNAP_v2_amplicon_panel.bedpe'.format(workflow.basedir),
-                          'fasta':'{}/primers/SNAP_v2_amplicon_panel.fasta'.format(workflow.basedir)},
-            'articv3':	{'bedpe':'{}/primers/artic_v3.bedpe'.format(workflow.basedir),
-                        'fasta':'{}/primers/artic_v3.fasta'.format(workflow.basedir)},
-            'sgene_v1':	{'bedpe':'{}/primers/sgene_v1.bedpe'.format(workflow.basedir),
-                        'fasta':'{}/primers/sgene_v1.fasta'.format(workflow.basedir)},
-            'articv4':	 {'bedpe':'{}/primers/artic_v4_IRMAref.bedpe'.format(workflow.basedir),
-                          'fasta':'{}/primers/artic_v4.fasta'.format(workflow.basedir)}, 
-            'articv4.1':	 {'bedpe':'{}/primers/artic_v4.1_NC.bedpe'.format(workflow.basedir),
-                          'fasta':'{}/primers/artic_v4.1.fasta'.format(workflow.basedir)}, 
-            'varskip':	{'bedpe':'{}/primers/neb_vss1a.primer.bedpe'.format(workflow.basedir),
-                            'fasta':'{}/primers/neb_vss1a.primer.fasta'.format(workflow.basedir)},
-            'qiagen': {'bedpe':'{}/primers/QIAseqDIRECTSARSCoV2primersfinal.bedpe'.format(workflow.basedir),
-                        'fasta':'{}/primers/QIAseqDIRECTSARSCoV2primersfinal.fasta'.format(workflow.basedir)},
-            'swift_211206': {'bedpe':'{}/primers/swift_211206.bedpe'.format(workflow.basedir),
-                        'fasta':'{}/primers/swift_211206.fasta'.format(workflow.basedir)},
-            'articv5.3.2' : {'bedpe':'{}/primers/artic_v5.3.2_IRMAref.bedpe'.format(workflow.basedir),
-                          'fasta':'{}/primers/artic_v5.3.2.fasta'.format(workflow.basedir)}
+
+primers =	{'RSV_CDC_8amplicon_230901':	{'bedpe':'{}/primers/RSV_CDC_8amplicon_230901.BED'.format(workflow.basedir),
+                          'fasta':'{}/primers/RSV_CDC_8amplicon_230901.fasta'.format(workflow.basedir)},
+            #more can be added here when ready
             }
 
 rule bbduk_r1:
