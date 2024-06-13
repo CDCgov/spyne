@@ -1,10 +1,53 @@
 import pandas as pd
 from os.path import dirname, realpath, basename, isfile
 from glob import glob
-from re import findall
+from re import findall, sub
 
 repo_path = realpath(dirname(dirname(__file__)))
 
+# https://www.bioinformatics.org/sms/iupac.html
+nt_code = {
+    'A':['A'],
+    'C':['C'],
+    'G':['G'],
+    'T':['T'],
+    'U':['U'],
+    'R':['A', 'G'],
+    'Y':['C', 'T'],
+    'S':['G', 'C'],
+    'W':['A', 'T'],
+    'K':['G', 'T'],
+    'M':['A', 'C'],
+    'B':['C', 'G', 'T'],
+    'D':['A', 'G', 'T'],
+    'H':['A', 'C', 'T'],
+    'V':['A', 'C', 'G'],
+    'N':['A', 'C', 'G', 'T']
+}
+
+codon = {
+    "GCT": "A", "GCC": "A", "GCA": "A", "GCG": "A",
+    "TGT": "C", "TGC": "C",
+    "GAT": "D", "GAC": "D",
+    "GAA": "E", "GAG": "E",
+    "TTT": "F", "TTC": "F",
+    "GGT": "G", "GGC": "G", "GGA": "G", "GGG": "G",
+    "CAT": "H", "CAC": "H",
+    "ATA": "I", "ATT": "I", "ATC": "I",
+    "AAA": "K", "AAG": "K",
+    "TTA": "L", "TTG": "L", "CTT": "L", "CTC": "L", "CTA": "L", "CTG": "L",
+    "ATG": "M",
+    "AAT": "N", "AAC": "N",
+    "CCT": "P", "CCC": "P", "CCA": "P", "CCG": "P",
+    "CAA": "Q", "CAG": "Q",
+    "CGT": "R", "CGC": "R", "CGA": "R", "CGG": "R", "AGA": "R", "AGG": "R",
+    "TCT": "S", "TCC": "S", "TCA": "S", "TCG": "S", "AGT": "S", "AGC": "S",
+    "ACT": "T", "ACC": "T", "ACA": "T", "ACG": "T",
+    "GTT": "V", "GTC": "V", "GTA": "V", "GTG": "V",
+    "TGG": "W",
+    "TAT": "Y", "TAC": "Y",
+    "TAA": "*", "TAG": "*", "TGA": "*"
+}
 
 def fasta2dic(fasta, dais_ref_format=False):
     seq_dic = {}
@@ -19,7 +62,6 @@ def fasta2dic(fasta, dais_ref_format=False):
             else:
                 seq_dic[seq_handle] += line.strip()
     return seq_dic
-
 
 inscols = [
     "ID",
@@ -144,6 +186,10 @@ def AAvars(refseq, sampseq):
         return ", ".join(vars)
     else:
         return ""
+
+def minor_AAvars(refseq, seqs_df, vars_df):
+    # Cut off suffix from influenza samples names
+    seqs_df['Sample'] = seqs_df['Sample'].apply(lambda x: sub(r'_[1-8]$', '', x))
 
 
 def compute_dais_variants(results_path, specific_ref=False):
