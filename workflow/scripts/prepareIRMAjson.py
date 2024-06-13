@@ -234,9 +234,6 @@ def pass_fail_qc_df(irma_summary_df, dais_vars_df, nt_seqs_df):
     )
     # Add in found sequences
     combined = combined.merge(nt_seqs_df, how="outer", on=["Sample", "Reference"])
-    #if virus == 'rsv':
-    #    combined = combined.replace("AD", "RSV").replace("BD", "RSV")
-    #    print(combined)
     combined["Reasons"] = combined.apply(
         lambda x: pass_qc(x["Reasons"], x["Sequence"]), axis=1
     )
@@ -748,7 +745,6 @@ def create_passfail_heatmap(irma_path, pass_fail_df):
             pass_fail_df["Reference"] = pass_fail_df["Reference"].apply(
             lambda x: x.replace("AD", "RSV").replace("BD", "RSV")
             )
-    #    print(combined)
         pass_fail_df = pass_fail_df.sort_values(
             by=["Sample", "Reference", "Reasons"], ascending=True
         ).drop_duplicates(subset=["Sample", "Reference"], keep="first")
@@ -817,8 +813,8 @@ def zerolift(x):
 
 
 def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
-    df=df.dropna()
-    print(df)
+    if virus == "rsv":
+        df=df.dropna()
     if "Coverage_Depth" in df.columns:
         cov_header = "Coverage_Depth"
     else:
@@ -830,7 +826,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
     if not cov_linear_y:
         df[cov_header] = df[cov_header].apply(lambda x: zerolift(x))
     df2 = df[df["Sample"] == sample]
-    print(segments)
+    #print(segments)
     fig = go.Figure()
     if "SARS-CoV-2" in segments or "AD" in segments or "BD" in segments:
         # y positions for gene boxes
@@ -884,7 +880,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
                 "L": [8561,15061]
             }
         color_index = 0
-        print(orf_pos)
+        #print(orf_pos)
         for orf, pos in orf_pos.items():
             fig.add_trace(
                 go.Scatter(
