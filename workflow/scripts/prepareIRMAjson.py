@@ -234,8 +234,9 @@ def pass_fail_qc_df(irma_summary_df, dais_vars_df, nt_seqs_df):
     )
     # Add in found sequences
     combined = combined.merge(nt_seqs_df, how="outer", on=["Sample", "Reference"])
-    if virus == 'rsv':
-        combined = combined.replace("AD", "RSV").replace("BD", "RSV")
+    #if virus == 'rsv':
+    #    combined = combined.replace("AD", "RSV").replace("BD", "RSV")
+    #    print(combined)
     combined["Reasons"] = combined.apply(
         lambda x: pass_qc(x["Reasons"], x["Sequence"]), axis=1
     )
@@ -733,15 +734,21 @@ def assign_number(reason):
 
 def create_passfail_heatmap(irma_path, pass_fail_df):
     print("Building pass_fail_heatmap")
-    if virus == "flu":
+    if virus == "flu" or virus == "rsv":
         pass_fail_df = (
             pass_fail_df.fillna("z")
             .reset_index()
             .melt(id_vars=["Sample"], value_name="Reasons")
         )
-        pass_fail_df["Reference"] = pass_fail_df["Reference"].apply(
+        if virus == "flu":
+            pass_fail_df["Reference"] = pass_fail_df["Reference"].apply(
             lambda x: x.split("_")[1]
-        )
+            )
+        if virus == "rsv":
+            pass_fail_df["Reference"] = pass_fail_df["Reference"].apply(
+            lambda x: x.replace("AD", "RSV").replace("BD", "RSV")
+            )
+    #    print(combined)
         pass_fail_df = pass_fail_df.sort_values(
             by=["Sample", "Reference", "Reasons"], ascending=True
         ).drop_duplicates(subset=["Sample", "Reference"], keep="first")
@@ -810,6 +817,8 @@ def zerolift(x):
 
 
 def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
+    df=df.dropna()
+    print(df)
     if "Coverage_Depth" in df.columns:
         cov_header = "Coverage_Depth"
     else:
