@@ -102,16 +102,16 @@ rule bbduk_r1:
         O2 = 'IRMA/{sample}_r2_trim.fastq'
     params:
         bbdukParams1 = lambda wildcards: ' '.join(['ktrim=l',
-        'minlen=60',
         'trimpolyg=10',
         'mm=f',
         'hdist=1',
         'rcomp=t',
         'ref='+primers[config['samples']['{}'.format(wildcards.sample)]['Library']]['fasta'],
         'ordered=t',
-        'minlength=0',
-        'k=17',
-        'restrictleft=30']),
+        'Minlength=0',
+        'Kmer=19',
+        'Mink=8'
+        'RW=35']),
         mem = memory_for_bbduk()
     log:
         out = "logs/{sample}.bbduk.trim_left.stdout.log",
@@ -141,14 +141,14 @@ rule bbduk_r2:
         bbdukParams1 = lambda wildcards: ' '.join(['ktrim=r',
         'trimpolyg=10',
         'rcomp=t',
-        'qtrim=r',
+        'trimq=0',
         'mm=f',
         'hdist=1',
         'ref='+primers[config['samples']['{}'.format(wildcards.sample)]['Library']]['fasta'],
-        'ordered=t',
-        'minlength=0',
-        'k=17',
-        'restrictright=30']),
+        'Mink=8',
+        'Minlength=0',
+        'Kmer=19',
+        'RW=35']),
         mem = memory_for_bbduk()
     threads: 16
     log:
