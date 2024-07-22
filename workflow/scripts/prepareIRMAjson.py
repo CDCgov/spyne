@@ -515,14 +515,29 @@ def generate_dfs(irma_path):
     # Print nt sequence fastas
     ## Exclude HA/NA/S premature stop sequences for Illumina
     if "ont" not in virus:
-        passed_df = pass_fail_seqs_df.loc[
+        if "flu" in virus:
+            passed_df = pass_fail_seqs_df.loc[
         (pass_fail_seqs_df["Reasons"] == "Pass")
         | (
             (pass_fail_seqs_df["Reasons"].str.contains("Premature stop codon"))
             & (~pass_fail_seqs_df["Reasons"].str.contains(";", na=False))
-            & (~pass_fail_seqs_df["Reference"].str.contains(r"[H|N]A"))
-        )
+            & (~pass_fail_seqs_df["Reference"].str.contains(r"'[H|N]A'"))
+        )]
+        elif "sc2" in virus:
+            passed_df = pass_fail_seqs_df.loc[
+        (pass_fail_seqs_df["Reasons"] == "Pass")
+        | (
+            (pass_fail_seqs_df["Reasons"].str.contains("Premature stop codon"))
+            & (~pass_fail_seqs_df["Reasons"].str.contains(";", na=False))
+            & (~pass_fail_seqs_df["Reference"].str.contains(r"'S'")) )
     ]
+        elif "rsv" in virus:
+            passed_df = pass_fail_seqs_df.loc[
+        (pass_fail_seqs_df["Reasons"] == "Pass")
+        | (
+            (pass_fail_seqs_df["Reasons"].str.contains("Premature stop codon"))
+            & (~pass_fail_seqs_df["Reasons"].str.contains(";", na=False))
+            & (~pass_fail_seqs_df["Reference"].str.contains(r"'[F|G]'")) ) ]
     else:
         passed_df = pass_fail_seqs_df.loc[
         (pass_fail_seqs_df["Reasons"] == "Pass")
