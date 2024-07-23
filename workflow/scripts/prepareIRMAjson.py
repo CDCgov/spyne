@@ -888,6 +888,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
                 "N": [1140,2315],
                 "P": [2348,3073],
                 "M": [3263,4033],
+                "SH": [4302,4499],
                 "G": [4689,5621],
                 "F": [5719,7443],
                 "M2-1": [7670,8257],
