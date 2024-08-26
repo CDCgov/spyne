@@ -702,7 +702,7 @@ def createheatmap(irma_path, coverage_medians_df):
     )
     coverage_medians_df = coverage_medians_df.rename(columns={"value": cov_header})
     if virus == "rsv":
-        coverage_medians_df = coverage_medians_df.replace("AD", "RSV").replace("BD", "RSV")
+        coverage_medians_df = coverage_medians_df.replace("RSV_AD", "RSV").replace("RSV_BD", "RSV").replace("RSV_A","RSV").replace("RSV_B","RSV")
         coverage_medians_df = coverage_medians_df.sort_values(
             by=["Sample", "Segment", "Coverage Depth"], ascending=False
         ).drop_duplicates(subset=["Sample"], keep="first")
@@ -758,7 +758,7 @@ def create_passfail_heatmap(irma_path, pass_fail_df):
             )
         if virus == "rsv":
             pass_fail_df["Reference"] = pass_fail_df["Reference"].apply(
-            lambda x: x.replace("AD", "RSV").replace("BD", "RSV")
+            lambda x: x.replace("_AD", "").replace("_BD", "").replace("_A","").replace("_B","")
             )
         pass_fail_df = pass_fail_df.sort_values(
             by=["Sample", "Reference", "Reasons"], ascending=True
@@ -841,9 +841,8 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
     if not cov_linear_y:
         df[cov_header] = df[cov_header].apply(lambda x: zerolift(x))
     df2 = df[df["Sample"] == sample]
-    #print(segments)
     fig = go.Figure()
-    if "SARS-CoV-2" in segments or "AD" in segments or "BD" in segments:
+    if "SARS-CoV-2" in segments or "RSV_A" in segments or "RSV_B" in segments or "RSV_AD" in segments or "RSV_BD" in segments:
         # y positions for gene boxes
         oy = (
             max(df2[cov_header]) / 10
@@ -867,7 +866,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
             "ORF10": [29558, 29675],
             "ORF9b": [28284, 28577],
             }
-        elif "AD" in segments:
+        elif "RSV_AD" in segments:
             orf_pos = {
                 "NS1": [99,518],
                 "NS2": [628,1002],
@@ -881,7 +880,7 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
                 "M2-2": [8228,8494],
                 "L": [8561,15058]
             }
-        elif "BD" in segments:
+        elif "RSV_BD" in segments:
             orf_pos = {
                 "NS1": [100,519],
                 "NS2": [627,1001],
@@ -895,6 +894,9 @@ def createSampleCoverageFig(sample, df, segments, segcolor, cov_linear_y):
                 "M2-2": [8223,8495],
                 "L": [8561,15061]
             }
+        #add A (nonD)
+            
+        #add B (nonD)
         color_index = 0
         #print(orf_pos)
         for orf, pos in orf_pos.items():
