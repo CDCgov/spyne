@@ -12,6 +12,11 @@ configfile: "config.yaml"
 config["samples"] = {str(k): v for k, v in config["samples"].items()}
 config["samples"] = OrderedDict([(key, config["samples"][key]) for key in config["samples"] ])
 
+try:
+    cli = bool(config["cli"])
+except:
+    cli = False
+
 def memory_for_bbduk():
     # Try to detect how much total memory is available on host (or what was 
     # alloted to Docker) and assign 50% of that to bbduk. Assure that number is

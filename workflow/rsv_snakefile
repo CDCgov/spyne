@@ -9,6 +9,11 @@ configfile: "config.yaml"
 config["barcodes"] = {str(k): v for k, v in config["barcodes"].items()}
 config["barcodes"] = OrderedDict([(key, config["barcodes"][key]) for key in config["barcodes"] ])
 
+try:
+    cli = bool(config["cli"])
+except:
+    cli = False
+
 rule all:
     input:
         expand("IRMA/RSV.{barcode}.fin", barcode=config["barcodes"].keys())
