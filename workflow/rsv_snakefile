@@ -14,6 +14,15 @@ try:
 except:
     cli = False
 
+def memory_for_bbduk():
+    # Try to detect how much total memory is available on host (or what was 
+    # alloted to Docker) and assign 50% of that to bbduk. Assure that number is
+    # not negative and if all this fails, make it a tiny 30 megabytes.
+    try:
+        return abs(int(int(os.popen('free -t -m').readlines()[-1].split()[-1])*0.5))
+    except:
+        return 30
+
 rule all:
     input:
         expand("IRMA/RSV.{barcode}.fin", barcode=config["barcodes"].keys())
@@ -159,7 +168,10 @@ def passed_irma(wildcards):
     with checkpoints.checkirma.get(barcode=wildcards.barcode).\
     output[0].open() as f:
         if f.read().strip() == "passed":
-            return rules.prepareIRMAjson.output
+            if not cli:
+                return rules.prepareIRMAjson.output
+            else:
+                return rules.staticHTML.output
         else:
             return rules.pass_negatives.output
 

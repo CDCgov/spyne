@@ -191,7 +191,10 @@ def passed_irma(wildcards):
     with checkpoints.checkirma.get(sample=wildcards.sample).\
     output[0].open() as f:
         if f.read().strip() == "passed":
-            return rules.prepareIRMAjson.output
+            if not cli:
+                return rules.prepareIRMAjson.output
+            else:
+                return rules.staticHTML.output
         else:
             return rules.pass_negatives.output
 
