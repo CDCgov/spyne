@@ -4,8 +4,9 @@
 usage() { echo -e "Usage in Spyne container: \n docker exec spyne bash $0 -s {path to samplesheet.csv starting with /data/} -r <run_id starting with /data> -e <experiment_type> <OPTIONAL: -p amplicon_library> <optional: -c CLEANUP-FOOTPRINT> \n
 Usage in git cloned CLI: \n bash $0 -s {path to samplesheet.csv } -r <run_id > -e <experiment_type> <OPTIONAL: -p amplicon_library> <optional: -c CLEANUP-FOOTPRINT> <optional: -n > " 1>&2; exit 1;}
 
-# Experiment type options: Flu-ONT, SC2-Spike-Only-ONT, Flu_Illumina, SC2-Whole-Genome-ONT, SC2-Whole-Genome-Illumina
-# Primer Schema options: articv3, articv4, articv4.1, articv5.3.2, qiagen, swift, swift_211206
+# Experiment type options: Flu-ONT, SC2-Spike-Only-ONT, Flu_Illumina, SC2-Whole-Genome-ONT, SC2-Whole-Genome-Illumina, RSV-illumina, RSV-ONT
+# Primer Schema options for SC2: articv3, articv4, articv4.1, articv5.3.2, qiagen, swift, swift_211206
+# Primer Schema options for RSV: RSV_CDC_8amplicon_230901
 
 
 while getopts 's:r:e:p:c:na' OPTION
