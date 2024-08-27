@@ -11,12 +11,18 @@ configfile: "config.yaml"
 config["samples"] = {str(k): v for k, v in config["samples"].items()}
 config["samples"] = OrderedDict([(key, config["samples"][key]) for key in config["samples"] ])
 
+try:
+    cli = bool(config["cli"])
+except:
+    cli = False
+
 def find_chemistry(fastq, runid):
     global irma_custom
     global subsample
     try:
         with open(fastq) as infi:
-            contents = infi.readlines()
+            contents = infi.readline() #first line
+            contents = infi.readline() #second line with sequence
     except:
         with gzip.open(fastq) as infi:
             contents = infi.readlines()
@@ -25,7 +31,7 @@ def find_chemistry(fastq, runid):
             config_path = workflow.basedir + "/irma_config/FLU-illumina.sh"
             irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-illumina.sh"]
             subsample = "100000"
-        elif len(contents[1]) > 70:
+        else:
             config_path = workflow.basedir + "/irma_config/FLU-2x75.sh"
             irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-2x75.sh"]
             subsample = "200000"
@@ -85,7 +91,7 @@ rule irma:
     threads: 14
     message: "Step 5 - assembling genome with IRMA"
     shell:
-        "{params.command[0]} docker exec irma IRMA FLU /data/{config[runid]}/IRMA/{wildcards.sample}_subsampled_R1.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_subsampled_R2.fastq  /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out}"
+        "{params.command[0]} docker exec irma IRMA FLU /data/{config[runid]}/IRMA/{wildcards.sample}_subsampled_R1.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_subsampled_R2.fastq  /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out} || touch {output}"
 # Pipeline waits here for all samples to produce the checkpoint input needed
 #  here and then reevaluates the needed DAG for each sample.
 checkpoint checkirma:
@@ -107,10 +113,12 @@ def passed_irma(wildcards):
     with checkpoints.checkirma.get(sample=wildcards.sample).\
     output[0].open() as f:
         if f.read().strip() == "passed":
-            return rules.prepareIRMAjson.output
+            if not cli:
+                return rules.prepareIRMAjson.output
+            else:
+                return rules.staticHTML.output
         else:
             return rules.pass_negatives.output
-
 
 rule pass_negatives:
     input:
@@ -150,6 +158,18 @@ rule prepareIRMAjson:
         "logs/prepareIRMAjson.log"
     shell:
         "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv illumina flu"
+
+if cli:
+    rule staticHTML:
+        input:
+            rules.prepareIRMAjson.output
+        output:
+            touch('IRMA/staticHTML.fin')
+        message: "Step 9 - Creating static HTML output"
+        log:
+            "logs/staticHTML.log"
+        shell:
+            "python3 {workflow.basedir}/scripts/static_report.py $(pwd)"
 
 
 rule finishup:

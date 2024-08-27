@@ -116,13 +116,13 @@ RUN pip3 install --no-cache-dir -r /spyne/requirements.txt
 ############# Run spyne ##################
 
 # Copy all files to docker images
-COPY snake-kickoff /spyne/snake-kickoff
+COPY MIRA.sh /spyne/MIRA.sh
 
 # Convert spyne from Windows style line endings to Unix-like control characters
-RUN dos2unix /spyne/snake-kickoff
+RUN dos2unix /spyne/MIRA.sh
 
 # Allow permission to excute the bash scripts
-RUN chmod a+x /spyne/snake-kickoff
+RUN chmod a+x /spyne/MIRA.sh
 
 # Allow permission to read and write files to spyne directory
 RUN chmod -R a+rwx /spyne

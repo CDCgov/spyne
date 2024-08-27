@@ -12,6 +12,12 @@ configfile: "config.yaml"
 config["samples"] = {str(k): v for k, v in config["samples"].items()}
 config["samples"] = OrderedDict([(key, config["samples"][key]) for key in config["samples"] ])
 
+try:
+    cli = bool(config["cli"])
+except:
+    cli = False
+
+
 def memory_for_bbduk():
     # Try to detect how much total memory is available on host (or what was 
     # alloted to Docker) and assign 50% of that to bbduk. Assure that number is
@@ -200,7 +206,10 @@ def passed_irma(wildcards):
     with checkpoints.checkirma.get(sample=wildcards.sample).\
     output[0].open() as f:
         if f.read().strip() == "passed":
-            return rules.prepareIRMAjson.output
+            if not cli:
+                return rules.prepareIRMAjson.output
+            else:
+                return rules.staticHTML.output
         else:
             return rules.pass_negatives.output
 
@@ -243,6 +252,17 @@ rule prepareIRMAjson:
     shell:
         "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv illumina sc2"
 
+if cli:
+    rule staticHTML:
+        input:
+            rules.prepareIRMAjson.output
+        output:
+            touch('IRMA/staticHTML.fin')
+        message: "Step 9 - Creating static HTML output"
+        log:
+            "logs/staticHTML.log"
+        shell:
+            "python3 {workflow.basedir}/scripts/static_report.py $(pwd)"
 
 rule finishup:
     input:
