@@ -131,13 +131,17 @@ if "ont" in experiment_type.lower():
         snakefile_path += "influenza_snakefile"
     elif "spike" in experiment_type.lower():
         snakefile_path += "sc2_spike_snakefile"
-    else:
+    elif "sc2" in experiment_type.lower():
         snakefile_path += "sc2_wgs_snakefile"
+    elif "rsv" in experiment_type.lower():
+        snakefile_path += "rsv_snakefile"
 else:
     if "flu" in experiment_type.lower():
         snakefile_path += "illumina_influenza_snakefile"
     elif "sc2" in experiment_type.lower():
         snakefile_path += "illumina_sc2_snakefile"
+    elif "rsv" in experiment_type.lower():
+        snakefile_path += "illumina_rsv_snakefile"
 
 if "TESTDEV-QUICK" in clean_option:
     snake_cmd = (
