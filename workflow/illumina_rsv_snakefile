@@ -35,13 +35,17 @@ def find_chemistry(fastq, runid):
     except:
         with gzip.open(fastq) as infi:
             contents = infi.readlines()
-    if len(contents[1]) >= 80:
+    try:
+        if len(contents[1]) >= 80:
+            irma_custom = ["",""]
+            subsample = "100000"
+        else:
+            config_path = workflow.basedir + "/irma_config/RSV-2x75.sh"
+            irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/RSV-2x75.sh"]
+            subsample = "200000"
+    except:
         irma_custom = ["",""]
         subsample = "100000"
-    else:
-        config_path = workflow.basedir + "/irma_config/RSV-2x75.sh"
-        irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/RSV-2x75.sh"]
-        subsample = "200000"
     return irma_custom, subsample
 
 rule all:
@@ -172,7 +176,7 @@ rule irma:
     threads: 14
     message: "Step 5 - assembling genome with IRMA"
     shell:
-        "{params.command[0]} docker exec irma IRMA RSV /data/{config[runid]}/IRMA/{wildcards.sample}_r1_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_r2_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out}"
+        "{params.command[0]} docker exec irma IRMA RSV /data/{config[runid]}/IRMA/{wildcards.sample}_r1_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_r2_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out} || touch {output}"
 
 checkpoint checkirma:
     input:
