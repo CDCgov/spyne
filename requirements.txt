@@ -7,3 +7,4 @@ plotly==5.11.0
 dash==2.6.2
 pulp==2.7.0
 openpyxl==3.0.10
+pyarrow==11.0.0

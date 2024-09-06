@@ -1,0 +1,66 @@
+version: "3.9"
+
+x-dais-version:
+  &dais-version 
+  cdcgov/dais-ribosome:v1.3.2
+
+x-irma-version:
+  &irma-version 
+  cdcgov/irma:v1.1.4
+
+x-spyne-version:
+  &spyne-version  
+  cdcgov/spyne-dev:v1.2.0
+
+x-data-volumes:
+  &data-volume
+  type: bind
+  source: ~/Github/FLU_SC2_SEQUENCING
+  target: /data
+
+x-docker-volumes:
+  &docker-socket
+  type: bind
+  source: /var/run/docker.sock 
+  target: /var/run/docker.sock 
+
+services:
+  dais: 
+    container_name: dais
+    image: *dais-version
+    restart: always
+    networks:
+      - backend
+    volumes: 
+      - *data-volume
+    command: tail -f /dev/null
+
+  irma: 
+    container_name: irma
+    image: *irma-version
+    restart: always
+    networks:
+      - backend
+    volumes:
+      - *data-volume
+    command: tail -f /dev/null
+    
+  spyne: 
+    container_name: spyne
+    image: *spyne-version
+    depends_on:
+      - dais
+      - irma
+    restart: always
+    networks:
+      - backend
+    volumes:
+      - *data-volume
+      - *docker-socket
+    command: tail -f /dev/null
+
+networks:
+  backend:
+    name: backend
+  frontend:
+    name: frontend
