@@ -17,7 +17,6 @@ try:
 except:
     cli = False
 
-
 def memory_for_bbduk():
     # Try to detect how much total memory is available on host (or what was 
     # alloted to Docker) and assign 50% of that to bbduk. Assure that number is
@@ -36,18 +35,22 @@ def find_chemistry(fastq, runid):
     except:
         with gzip.open(fastq) as infi:
             contents = infi.readlines()
-    if len(contents[1]) >= 80:
+    try:
+        if len(contents[1]) >= 80:
+            irma_custom = ["",""]
+            subsample = "100000"
+        else:
+            config_path = workflow.basedir + "/irma_config/RSV-2x75.sh"
+            irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/RSV-2x75.sh"]
+            subsample = "200000"
+    except:
         irma_custom = ["",""]
         subsample = "100000"
-    else:
-        config_path = workflow.basedir + "/irma_config/SC2-2x75.sh"
-        irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/SC2-2x75.sh"]
-        subsample = "200000"
     return irma_custom, subsample
 
 rule all:
     input:
-        expand("IRMA/SC2_{sample}.fin", sample=config["samples"].keys())
+        expand("IRMA/RSV_{sample}.fin", sample=config["samples"].keys())
     shell:
         "touch IRMA/spyne.fin"
 
@@ -78,24 +81,11 @@ rule subsample:
         " 1> {log.out}"
         " 2> {log.err}"
 
-primers =	{'swift':	{'bedpe':'{}/primers/SNAP_v2_amplicon_panel.bedpe'.format(workflow.basedir),
-                          'fasta':'{}/primers/SNAP_v2_amplicon_panel.fasta'.format(workflow.basedir)},
-            'articv3':	{'bedpe':'{}/primers/artic_v3.bedpe'.format(workflow.basedir),
-                        'fasta':'{}/primers/artic_v3.fasta'.format(workflow.basedir)},
-            'sgene_v1':	{'bedpe':'{}/primers/sgene_v1.bedpe'.format(workflow.basedir),
-                        'fasta':'{}/primers/sgene_v1.fasta'.format(workflow.basedir)},
-            'articv4':	 {'bedpe':'{}/primers/artic_v4_IRMAref.bedpe'.format(workflow.basedir),
-                          'fasta':'{}/primers/artic_v4.fasta'.format(workflow.basedir)}, 
-            'articv4.1':	 {'bedpe':'{}/primers/artic_v4.1_NC.bedpe'.format(workflow.basedir),
-                          'fasta':'{}/primers/artic_v4.1.fasta'.format(workflow.basedir)}, 
-            'varskip':	{'bedpe':'{}/primers/neb_vss1a.primer.bedpe'.format(workflow.basedir),
-                            'fasta':'{}/primers/neb_vss1a.primer.fasta'.format(workflow.basedir)},
-            'qiagen': {'bedpe':'{}/primers/QIAseqDIRECTSARSCoV2primersfinal.bedpe'.format(workflow.basedir),
-                        'fasta':'{}/primers/QIAseqDIRECTSARSCoV2primersfinal.fasta'.format(workflow.basedir)},
-            'swift_211206': {'bedpe':'{}/primers/swift_211206.bedpe'.format(workflow.basedir),
-                        'fasta':'{}/primers/swift_211206.fasta'.format(workflow.basedir)},
-            'articv5.3.2' : {'bedpe':'{}/primers/artic_v5.3.2_IRMAref.bedpe'.format(workflow.basedir),
-                          'fasta':'{}/primers/artic_v5.3.2.fasta'.format(workflow.basedir)}
+
+primers =	{'RSV_CDC_8amplicon_230901':	{'bedpe':'{}/primers/RSV_CDC_8amplicon_230901.BED'.format(workflow.basedir),
+                          'fasta':'{}/primers/RSV_CDC_8amplicon_230901.fasta'.format(workflow.basedir)},
+                'dong_et_al': {'fasta':'{}/primers/RSV_CDC_8amplicon_230901.fasta'.format(workflow.basedir)},
+            #more can be added here when ready
             }
 
 rule bbduk_r1:
@@ -107,7 +97,6 @@ rule bbduk_r1:
         O2 = 'IRMA/{sample}_r2_trim.fastq'
     params:
         bbdukParams1 = lambda wildcards: ' '.join(['ktrim=l',
-        'minlen=60',
         'trimpolyg=10',
         'mm=f',
         'hdist=1',
@@ -115,8 +104,9 @@ rule bbduk_r1:
         'ref='+primers[config['samples']['{}'.format(wildcards.sample)]['Library']]['fasta'],
         'ordered=t',
         'minlength=0',
-        'k=17',
-        'restrictleft=30']),
+        'k=19',
+        'mink=8',
+        'restrictleft=35']),
         mem = memory_for_bbduk()
     log:
         out = "logs/{sample}.bbduk.trim_left.stdout.log",
@@ -146,14 +136,14 @@ rule bbduk_r2:
         bbdukParams1 = lambda wildcards: ' '.join(['ktrim=r',
         'trimpolyg=10',
         'rcomp=t',
-        'qtrim=r',
+        'trimq=0',
         'mm=f',
         'hdist=1',
         'ref='+primers[config['samples']['{}'.format(wildcards.sample)]['Library']]['fasta'],
-        'ordered=t',
+        'mink=8',
         'minlength=0',
-        'k=17',
-        'restrictright=30']),
+        'k=19',
+        'restrictright=35']),
         mem = memory_for_bbduk()
     threads: 16
     log:
@@ -187,7 +177,7 @@ rule irma:
     threads: 14
     message: "Step 5 - assembling genome with IRMA"
     shell:
-        "{params.command[0]} IRMA CoV /data/{config[runid]}/IRMA/{wildcards.sample}_r1_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_r2_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out}"
+        "{params.command[0]} IRMA RSV /data/{config[runid]}/IRMA/{wildcards.sample}_r1_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_r2_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out} || touch {output}"
 
 checkpoint checkirma:
     input:
@@ -239,7 +229,7 @@ rule dais_ribosome:
     log:
         "logs/dais_ribosome/dais.ribosome.log"
     shell:
-        "{workflow.basedir}/scripts/daiswrapper.sh -i {input} -m BETACORONAVIRUS"
+        "{workflow.basedir}/scripts/daiswrapper.sh -i {config[runid]}/{input} -m RSV"
 
 rule prepareIRMAjson:
     input:
@@ -250,7 +240,7 @@ rule prepareIRMAjson:
     log:
         "logs/prepareIRMAjson.log"
     shell:
-        "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv illumina sc2"
+        "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv illumina rsv"
 
 if cli:
     rule staticHTML:
@@ -268,4 +258,4 @@ rule finishup:
     input:
         passed_irma
     output:
-        touch("IRMA/SC2_{sample}.fin")
+        touch("IRMA/RSV_{sample}.fin")

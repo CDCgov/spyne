@@ -25,7 +25,7 @@ def memory_for_bbduk():
 
 rule all:
     input:
-        expand("IRMA/SC2.{barcode}.fin", barcode=config["barcodes"].keys())
+        expand("IRMA/RSV.{barcode}.fin", barcode=config["barcodes"].keys())
     shell:
         'touch IRMA/spyne.fin'
 
@@ -38,7 +38,7 @@ rule gather_fastqs:
     params:
         barcode_number = lambda wildcards: config["barcodes"][wildcards.barcode]["barcode_number"]
     shell:
-        "cat fastq_pass/{params.barcode_number}/*fastq* > {output.fq} || touch IRMA/SC2.{wildcards.barcode}.fin"
+        "cat fastq_pass/{params.barcode_number}/*fastq* > {output.fq} || touch IRMA/RSV.{wildcards.barcode}.fin"
 
 rule subsample:
     input:
@@ -50,12 +50,12 @@ rule subsample:
         err = "logs/{barcode}.reformat.stderr.log"
     group:
         "trim-map"
-    message: "Step 4b - subsampling cleaned up reads if excess > 5K exist"
+    message: "Step 4b - subsampling cleaned up reads if excess > 100K exist"
     shell:
         "reformat.sh"
         " in={input}"
         " out={output}"
-        " samplereadstarget=5000"
+        " samplereadstarget=100000"
         " qin=33"
         " tossbrokenreads"
         " 1> {log.out}"
@@ -71,16 +71,13 @@ rule barcode_trim_left:
         out = "logs/{barcode}.bbduk.trim_left.stdout.log",
         err = "logs/{barcode}.bbduk.trim_left.stderr.log"
     params:
-        barcode_sequence = lambda wildcards: config["barcodes"][wildcards.barcode]["barcode_sequence"],
-        mem = memory_for_bbduk()
+        barcode_sequence = lambda wildcards: config["barcodes"][wildcards.barcode]["barcode_sequence"]
     group:
         "trim-map"
     threads: 16
     message: "Step 2 - trimming left barcode"
     shell:
-        "bbduk.sh"
-        " -Xmx{params.mem}m"
-        " -Xms{params.mem}m"
+        "bbduk.sh" 
         " in={input}"
         " out={output}"
         " hdist=3"
@@ -102,16 +99,13 @@ rule barcode_trim_right:
         out = "logs/{barcode}.bbduk.trim_right.stdout.log",
         err = "logs/{barcode}.bbduk.trim_right.stderr.log"
     params:
-        barcode_sequence = lambda wildcards: config["barcodes"][wildcards.barcode]["barcode_sequence_rc"],
-        mem = memory_for_bbduk()
+        barcode_sequence = lambda wildcards: config["barcodes"][wildcards.barcode]["barcode_sequence_rc"]
     group:
         "trim-map"
     threads: 16
     message: "Step 3 - trimming right barcode"
     shell:
         "bbduk.sh"
-        " -Xmx{params.mem}m"
-        " -Xms{params.mem}m"
         " in={input}"
         " out={output}"
         " hdist=3"
@@ -153,13 +147,13 @@ rule irma:
     threads: 14
     message: "Step 5 - assembling genome with IRMA"
     shell:
-        "IRMA CoV-s-gene /data/{config[runid]}/{input} /data/{config[runid]}/IRMA/{wildcards.barcode} 2> {log.err} |tee -a {log.out} || touch {output} "
+        "cp {workflow.basedir}/irma_config/RSV-Nanopore.sh /data/{config[runid]}/IRMA/ && IRMA RSV-minion /data/{config[runid]}/{input} /data/{config[runid]}/IRMA/{wildcards.barcode} --external-config /data/{config[runid]}/IRMA/RSV-Nanopore.sh 2> {log.err} |tee -a {log.out} || touch {output} "
 
 # Pipeline waits here for all samples to produce the checkpoint input needed
 #  here and then reevaluates the needed DAG for each sample.
 checkpoint checkirma:
     input:
-        ancient(rules.irma.output)
+        rules.irma.output
     output:
         'IRMA/{barcode}.irma.decision'
     log:
@@ -196,7 +190,7 @@ rule catfiles:
         "DAIS_ribosome_input.fasta"
     message: "Step 6 - Collecting consensus genomes"
     shell:
-        "for file in $(ls IRMA/*/amended_consensus/*.fa | grep -v pad); do cat $file >> {output}; done" 
+        "for file in $(ls IRMA/*/amended_consensus/*.fa | grep pad); do cat $file >> {output}; done" 
 
 rule dais_ribosome:
     input: 
@@ -207,7 +201,7 @@ rule dais_ribosome:
     log:
         "logs/dais_ribosome/dais_ribosome.log"
     shell:
-        "{workflow.basedir}/scripts/daiswrapper.sh -i {input} -m BETACORONAVIRUS" 
+        "{workflow.basedir}/scripts/daiswrapper.sh -i /data/{config[runid]}/{input} -m RSV" 
 
 rule prepareIRMAjson:
     input:
@@ -218,7 +212,7 @@ rule prepareIRMAjson:
     log:
         "logs/prepareIRMAjson.log"
     shell:
-        "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv ont sc2-spike"
+        "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv ont rsv"
 
 if cli:
     rule staticHTML:
@@ -236,4 +230,4 @@ rule finishup:
     input:
         passed_irma
     output:
-        touch("IRMA/SC2.{barcode}.fin")
+        touch("IRMA/RSV.{barcode}.fin")

@@ -1,10 +1,18 @@
 version: "3.9"
 
-x-spyne-git-version: 
+x-spyne-git-version:
   &spyne-git-version 
- https://github.com/CDCgov/spyne.git#single_spyne_container
+  https://github.com/CDCgov/spyne.git#single_spyne_container
 
-x-data-volumes:
+x-irma-docker-version:
+  &irma-docker-version
+  cdcgov/irma:v1.1.2
+
+x-dais-docker-version:
+  &dais-docker-version
+  cdcgov/dais-ribosome:v1.3.2
+
+x-data-volume:
   &data-volume
   type: bind
   source: /home/snu3/Github/FLU_SC2_SEQUENCING
@@ -16,9 +24,10 @@ services:
     image: spyne:latest
     build:
       context: *spyne-git-version
+      dockerfile: Dockerfile
       args:
-        - irma_image=cdcgov/irma:v1.1.2
-        - dais_image=cdcgov/dais-ribosome:v1.3.2
+        - irma_image: *irma-docker-version
+        - dais_image: *dais-docker-version
     restart: always
     volumes:
       - *data-volume

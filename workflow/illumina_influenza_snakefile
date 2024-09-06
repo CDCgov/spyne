@@ -11,22 +11,34 @@ configfile: "config.yaml"
 config["samples"] = {str(k): v for k, v in config["samples"].items()}
 config["samples"] = OrderedDict([(key, config["samples"][key]) for key in config["samples"] ])
 
+try:
+    cli = bool(config["cli"])
+except:
+    cli = False
+
 def find_chemistry(fastq, runid):
     global irma_custom
     global subsample
     try:
         with open(fastq) as infi:
-            contents = infi.readlines()
+            contents = infi.readline() #first line
+            contents = infi.readline() #second line with sequence
     except:
         with gzip.open(fastq) as infi:
             contents = infi.readlines()
-    if len(contents[1]) > 145:
-        irma_custom = ["",""]
+    try:
+        if len(contents[1]) > 145:
+            config_path = workflow.basedir + "/irma_config/FLU-illumina.sh"
+            irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-illumina.sh"]
+            subsample = "100000"
+        else:
+            config_path = workflow.basedir + "/irma_config/FLU-2x75.sh"
+            irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-2x75.sh"]
+            subsample = "200000"
+    except: #empty fastq handling
+        config_path = workflow.basedir + "/irma_config/FLU-illumina.sh"
+        irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-illumina.sh"]
         subsample = "100000"
-    elif len(contents[1]) > 70:
-        config_path = workflow.basedir + "/irma_config/FLU-2x75.sh"
-        irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-2x75.sh"]
-        subsample = "200000"
     return irma_custom, subsample
 
 rule all:
@@ -101,10 +113,12 @@ def passed_irma(wildcards):
     with checkpoints.checkirma.get(sample=wildcards.sample).\
     output[0].open() as f:
         if f.read().strip() == "passed":
-            return rules.prepareIRMAjson.output
+            if not cli:
+                return rules.prepareIRMAjson.output
+            else:
+                return rules.staticHTML.output
         else:
             return rules.pass_negatives.output
-
 
 rule pass_negatives:
     input:
@@ -144,6 +158,18 @@ rule prepareIRMAjson:
         "logs/prepareIRMAjson.log"
     shell:
         "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv illumina flu"
+
+if cli:
+    rule staticHTML:
+        input:
+            rules.prepareIRMAjson.output
+        output:
+            touch('IRMA/staticHTML.fin')
+        message: "Step 9 - Creating static HTML output"
+        log:
+            "logs/staticHTML.log"
+        shell:
+            "python3 {workflow.basedir}/scripts/static_report.py $(pwd)"
 
 
 rule finishup:

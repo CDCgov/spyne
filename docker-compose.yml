@@ -1,10 +1,14 @@
 version: "3.9"
 
-x-spyne-version: 
-  &spyne-version
-  cdcgov/spyne-dev:latest
+x-irma-docker-version:
+  &irma-docker-version
+  cdcgov/irma:v1.1.2
 
-x-data-volumes:
+x-dais-docker-version:
+  &dais-docker-version
+  cdcgov/dais-ribosome:v1.3.2
+
+x-data-volume:
   &data-volume
   type: bind
   source: /home/snu3/Github/FLU_SC2_SEQUENCING
@@ -13,7 +17,13 @@ x-data-volumes:
 services:
   spyne: 
     container_name: spyne
-    image: *spyne-version
+    image: spyne:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - irma_image: *irma-docker-version
+        - dais_image: *dais-docker-version
     restart: always
     volumes:
       - *data-volume

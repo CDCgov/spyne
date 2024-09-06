@@ -25,6 +25,6 @@
 change_log.txt
 install_docker.sh
 docker-compose.yml
-docker-compose_*.yml
+docker-compose-*.yml
 _pkgdown.yml
 

@@ -5,42 +5,61 @@ import pandas as pd
 from glob import glob
 import subprocess
 import os
+import argparse
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-s","--samplesheet", help="Samplesheet with sample names")
+parser.add_argument("-r", "--runid", help="Full path to data directory containing either a fastq_pass subdirectory for ONT data or fastq subdirectory for Illumina")
+parser.add_argument("-e", "--experiment_type", help="Experiment type options: Flu-ONT, SC2-Spike-Only-ONT, Flu_Illumina, SC2-Whole-Genome-ONT, SC2-Whole-Genome-Illumina" )
+parser.add_argument("-p", "--primer_schema", required=False, help="For whole-genome SARS-CoV-2 Illumina data, which primer schema was used?")
+parser.add_argument("-c", "--cleanup", required=False, help="option for data cleanup, CLEANUP-FOOTPRINT, other options for development and testing")
+parser.add_argument("-m", "--mira", action='store_true', required=False, help="Command-line MIRA called from MIRA.sh bash script")
+
+inputarguments = parser.parse_args()
 
 root = "/".join(abspath(__file__).split("/")[:-2])
 if len(argv) < 2:
     exit(
-        "\n\tUSAGE: {} <samplesheet.csv> <runpath> <experiment_type> <optional: primer_schema> <clean_option> \n".format(__file__)
+        "\n\tUSAGE: {} -s <samplesheet.csv> -r <runpath> -e <experiment_type> <optional: -p primer_schema> <optional: -c clean_option> \n".format(__file__)
     )
-    
-#try:
-#    runpath = argv[2]
-#    experiment_type = argv[3]
-#except (IndexError, ValueError):
-#    runid = "testRunID"
 print(f"argv[1:]= {argv[1:]}")
 try:
-    samplesheet, runpath, experiment_type, primer_schema, clean_option = argv[1:]
-    amplicon = True
+    samplesheet = inputarguments.samplesheet
+    runpath = inputarguments.runid
+    if runpath[-1] == '/':
+        runpath = runpath[:-1]
+    experiment_type = inputarguments.experiment_type
+    if inputarguments.primer_schema:
+        amplicon = True
+        primer_schema = inputarguments.primer_schema
+    else:
+        amplicon = False
+    if inputarguments.cleanup:
+        clean_option = inputarguments.cleanup
+    else:
+        clean_option = ''
+    if inputarguments.mira:
+        cli = True
+    else:
+        cli = False
 except:
-    samplesheet, runpath, experiment_type, clean_option = argv[1:]
-    amplicon = False
-#    print(argv[4])
-#    if "CLEANUP" not in argv[4]:
-#        primer_schema = argv[4]
-#        amplicon = True
-#    else:
-#        amplicon = False
-#except:
-#    amplicon = False
-df = pd.read_csv(samplesheet)#argv[1])
+    parser.print_help()
+    exit(0) 
+   
+df = pd.read_csv(samplesheet)
 dfd = df.to_dict("index")
 
 if 'ont' in experiment_type.lower():
     if 'fastq_pass' in runpath:
-        data = {'runid':runpath.split('/')[runpath.split('/').index('fastq_pass') -1], 'barcodes':{}}
+        if not cli:
+            data = {'runid':runpath.split('/')[runpath.split('/').index('fastq_pass') -1], 'barcodes':{}}
+        else:
+            data = {'runid':runpath.split('/')[runpath.split('/').index('fastq_pass') -1], 'cli': True, 'barcodes':{}}
     else:
-        data = {'runid':runpath.split('/')[-1], 'barcodes':{}}
+        if not cli:
+            data = {'runid':runpath.split('/')[-1], 'barcodes':{}}
+        else:
+            data = {'runid':runpath.split('/')[-1], 'cli': True, 'barcodes':{}}
     def reverse_complement(seq):
         rev = {"A": "T", "T": "A", "C": "G", "G": "C", ",": ","}
         seq = seq[::-1]
@@ -76,7 +95,10 @@ if 'ont' in experiment_type.lower():
     if len(failures) > 1:
         print("failed samples detected: Barcodes\n", failures.strip())
 else:
-    data = {'runid':runpath.split('/')[-1], 'samples':{}}
+    if not cli:
+        data = {'runid':runpath.split('/')[-1], 'samples':{}}
+    else:
+        data = {'runid':runpath.split('/')[-1], 'cli': True, 'samples':{}}
     for d in dfd.values():
         id = d['Sample ID']
         print(f"runpath = {runpath}\nid = {id}")
@@ -108,13 +130,17 @@ if "ont" in experiment_type.lower():
         snakefile_path += "influenza_snakefile"
     elif "spike" in experiment_type.lower():
         snakefile_path += "sc2_spike_snakefile"
-    else:
+    elif "sc2" in experiment_type.lower():
         snakefile_path += "sc2_wgs_snakefile"
+    elif "rsv" in experiment_type.lower():
+        snakefile_path += "rsv_snakefile"
 else:
     if "flu" in experiment_type.lower():
         snakefile_path += "illumina_influenza_snakefile"
     elif "sc2" in experiment_type.lower():
         snakefile_path += "illumina_sc2_snakefile"
+    elif "rsv" in experiment_type.lower():
+        snakefile_path += "illumina_rsv_snakefile"
 
 if "TESTDEV-QUICK" in clean_option:
     snake_cmd = (

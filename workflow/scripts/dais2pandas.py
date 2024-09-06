@@ -105,7 +105,7 @@ def dais2df(results_path, colnames, col_renames, dais_suffix, full=False):
         print(f'the glob "{results_path}/*{dais_suffix}" found no files')
     df = pd.DataFrame()
     for f in files:
-        df = df.append(pd.read_csv(f, sep="\t", names=colnames, keep_default_na=False))
+        df = pd.concat([df, pd.read_csv(f, sep="\t", names=colnames, keep_default_na=False)])
     if full:
         return df
     else:
@@ -146,7 +146,7 @@ def AAvars(refseq, sampseq):
         return ""
 
 
-def compute_dais_variants(results_path):
+def compute_dais_variants(results_path, specific_ref=False):
     refs = ref_seqs()
     ref_dic = (
         refs.groupby(["Sample", "Protein"]).agg(lambda x: x.tolist()).to_dict("index")
@@ -155,13 +155,23 @@ def compute_dais_variants(results_path):
     seq_dic = (
         seqs.groupby(["Sample", "Protein"]).agg(lambda x: x.tolist()).to_dict("index")
     )
-    seqs["AA Variants"] = seqs.apply(
-        lambda x: AAvars(
-            ref_dic[(x["Reference"], x["Protein"])]["Aligned AA Sequence"][0],
-            seq_dic[(x["Sample"], x["Protein"])]["Aligned AA Sequence"][0],
-        ),
-        axis=1,
-    )
+    if not specific_ref:
+        seqs["AA Variants"] = seqs.apply(
+            lambda x: AAvars(
+                ref_dic[(x["Reference"], x["Protein"])]["Aligned AA Sequence"][0],
+                seq_dic[(x["Sample"], x["Protein"])]["Aligned AA Sequence"][0],
+            ),
+            axis=1,
+        )
+    else:
+        seqs["AA Variants"] = seqs.apply(
+            lambda x: AAvars(
+                ref_dic[(specific_ref, x["Protein"])]["Aligned AA Sequence"][0],
+                seq_dic[(x["Sample"], x["Protein"])]["Aligned AA Sequence"][0],
+            ),
+            axis=1,
+        )
+        seqs["Reference"] = specific_ref
     seqs["AA Variant Count"] = seqs["AA Variants"].map(lambda x: len(x.split(",")) if x != '' else 0)
     seqs = seqs[["Sample", "Reference", "Protein", "AA Variant Count", "AA Variants"]]
     seqs = seqs.sort_values(by=["Protein","Sample","AA Variant Count"]).drop_duplicates(subset=["Sample", "Protein"], keep="first")
