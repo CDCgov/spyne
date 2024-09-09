@@ -34,13 +34,13 @@ VOLUME ${WORKDIR}
 WORKDIR ${WORKDIR}
 
 # set a project directory
-ENV PROJECT_DIR=/spyne
+ENV SPYNE_PROGRAM_DIR=/spyne
 
 # Set up volume directory in docker
-VOLUME ${PROJECT_DIR}
+VOLUME ${SPYNE_PROGRAM_DIR}
 
 # Copy all scripts to docker images
-COPY . ${PROJECT_DIR}
+COPY . ${SPYNE_PROGRAM_DIR}
 
 # Define a system argument
 ARG DEBIAN_FRONTEND=noninteractive
@@ -60,47 +60,47 @@ RUN apt-get update --allow-releaseinfo-change --fix-missing \
 ############# Install bbtools ##################
 
 # Copy all files to docker images
-COPY bbtools ${PROJECT_DIR}/bbtools
+COPY bbtools ${SPYNE_PROGRAM_DIR}/bbtools
 
 # Copy all files to docker images
-COPY bbtools/install_bbtools.sh ${PROJECT_DIR}/bbtools/install_bbtools.sh
+COPY bbtools/install_bbtools.sh ${SPYNE_PROGRAM_DIR}/bbtools/install_bbtools.sh
 
 # Convert bash script from Windows style line endings to Unix-like control characters
-RUN dos2unix ${PROJECT_DIR}/bbtools/install_bbtools.sh
+RUN dos2unix ${SPYNE_PROGRAM_DIR}/bbtools/install_bbtools.sh
 
 # Allow permission to excute the bash script
-RUN chmod a+x ${PROJECT_DIR}/bbtools/install_bbtools.sh
+RUN chmod a+x ${SPYNE_PROGRAM_DIR}/bbtools/install_bbtools.sh
 
 # Execute bash script to wget the file and tar the package
-RUN bash ${PROJECT_DIR}/bbtools/install_bbtools.sh
+RUN bash ${SPYNE_PROGRAM_DIR}/bbtools/install_bbtools.sh
 
 # Remove bbtools folder from final image
-RUN rm -rf ${PROJECT_DIR}/bbtools
+RUN rm -rf ${SPYNE_PROGRAM_DIR}/bbtools
 
 ############# Install python packages ##################
 
 # Copy all files to docker images
-COPY requirements.txt ${PROJECT_DIR}/requirements.txt
+COPY requirements.txt ${SPYNE_PROGRAM_DIR}/requirements.txt
 
 # Install python requirements
-RUN pip3 install --no-cache-dir -r ${PROJECT_DIR}/requirements.txt
+RUN pip3 install --no-cache-dir -r ${SPYNE_PROGRAM_DIR}/requirements.txt
 
 # Remove requirements.txt from final image
-RUN rm -rf ${PROJECT_DIR}/requirements.txt
+RUN rm -rf ${SPYNE_PROGRAM_DIR}/requirements.txt
 
 ############# Run spyne ##################
 
 # Copy all files to docker images
-COPY MIRA.sh ${PROJECT_DIR}/MIRA.sh
+COPY MIRA.sh ${SPYNE_PROGRAM_DIR}/MIRA.sh
 
 # Convert spyne from Windows style line endings to Unix-like control characters
-RUN dos2unix ${PROJECT_DIR}/MIRA.sh
+RUN dos2unix ${SPYNE_PROGRAM_DIR}/MIRA.sh
 
 # Allow permission to excute the bash scripts
-RUN chmod a+rx ${PROJECT_DIR}/MIRA.sh
+RUN chmod a+rx ${SPYNE_PROGRAM_DIR}/MIRA.sh
 
 # Allow permission to read and write files to spyne directory
-RUN chmod -R a+rwx ${PROJECT_DIR}
+RUN chmod -R a+rwx ${SPYNE_PROGRAM_DIR}
 
 # Clean up and remove unwanted files
 RUN apt-get autoremove -y \
@@ -114,4 +114,4 @@ ENV PATH "$PATH:/dais-ribosome"
 ENV PATH "$PATH:/flu-amd"
 
 # Export MIRA.sh script to path
-ENV PATH "$PATH:${PROJECT_DIR}"
+ENV PATH "$PATH:${SPYNE_PROGRAM_DIR}"

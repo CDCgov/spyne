@@ -44,11 +44,11 @@ fi
 if [[ $NOCONTAINER ]]; then
 	SCRIPT=$(realpath -s "$0")
 	echo "${SCRIPT}"
-	RESOURCE_ROOT=$(dirname "$SCRIPT")
-	echo "${RESOURCE_ROOT}"
+	SPYNE_PROGRAM_DIR=$(dirname "$SCRIPT")
+	echo "${SPYNE_PROGRAM_DIR}"
 	BBTOOLS_ROOT=$(which bbmap)
 else #set paths in container
-	RESOURCE_ROOT=/spyne
+	SPYNE_PROGRAM_DIR=${SPYNE_PROGRAM_DIR:/spyne}
 	BBTOOLS_ROOT=/opt/bbtools
 fi
 
@@ -75,4 +75,4 @@ if [[ $APPLICATION ]]; then
 	CLI="-m"
 fi
 
-python3 "$RESOURCE_ROOT"/scripts/config_create.py $CLI -s "$SAMPLESHEET" -r "$RUNPATH" -e "$EXPERIMENT_TYPE" $OPTIONALARGS
+python3 ${SPYNE_PROGRAM_DIR}/scripts/config_create.py $CLI -s "$SAMPLESHEET" -r "$RUNPATH" -e "$EXPERIMENT_TYPE" $OPTIONALARGS
