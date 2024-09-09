@@ -1,97 +1,98 @@
 
----
-output:
-  html_document:
-      keep_md: yes
----
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+# SPYNE
 
+Command line interface (CLI) for running `MIRA` (an interactive dashboard for Influenza and SARS-COV-2 Spike-Gene Genome Assembly and Curation) using a `Snakemake` workflow.
 
+### 1. Run `spyne` locally
+
+#### (i) Clone this respitory
+
+```
+git clone https://github.com/CDCgov/spyne.git
+```
+
+#### (ii) Navigate to `spyne` folder 
+
+```
+cd spyne
+```
+
+#### (iii) Check out `single_spyne_container` branch
+
+```
+git checkout single_spyne_container 
+```
+
+#### (iv) Run the `spyne` workflows
+
+__NOTE:__ In the `spyne` directory, there is a `MIRA.sh` file that would execute the `spyne` workflows.
+
+```bash
+bash MIRA.sh -s {path to samplesheet.csv} -r <run_id> -e <experiment_type> <OPTIONAL: -p amplicon_library> <OPTIONAL: -c CLEANUP-FOOTPRINT> <OPTIONAL: -n> 
+```
+
+`Experiment type options`: Flu-ONT, SC2-Spike-Only-ONT, Flu_Illumina, SC2-Whole-Genome-ONT, SC2-Whole-Genome-Illumina, RSV-illumina, RSV-ONT <br>
+`Primer Schema options for SC2`: articv3, articv4, articv4.1, articv5.3.2, qiagen, swift, swift_211206 <br>
+`Primer Schema options for RSV`: RSV_CDC_8amplicon_230901, dong_et_al <br>
+
+### 2. Run `spyne` with Docker
 
 ### Requirements
 
-- Docker version >= 18
 - Git version >= 2.21.0
+- Docker version >= 18
 
-### Steps to run spyne container
-
-#### (1) Clone this respitory
-
-```
-git clone https://github.com/cdcgov/spyne/tree/container_init
-``` 
-
-#### (2) CD to `spyne` folder 
-
-#### (3) Check out `container_init` branch
+#### (i) Clone this respitory
 
 ```
-git checkout container_init 
+git clone https://github.com/CDCgov/spyne.git
 ```
 
-#### (4) Pull down irma and dais-ribosome images
-
-- From a docker registry
-
-&emsp; **IRMA**: `docker pull public.ecr.aws/n3z8t4o2/irma:1.0.2p3` <br>
-&emsp; **Dias-Ribosome**: `docker pull public.ecr.aws/n3z8t4o2/dais-ribosome:1.2.1`
-
-#### (5) Run **irma** and **dais-ribosome** containers
-
-&emsp; **IRMA**: `docker run -v /path/to/data:/data --name irma:1.0.2p3 -t -d public.ecr.aws/n3z8t4o2/irma:1.0.2p3` <br>
-&emsp; **Dais-Ribosome**: `docker run -v /path/to/data:/data --name dais-ribosome:1.2.1 -t -d public.ecr.aws/n3z8t4o2/dais-ribosome:1.2.1`
-
-**NOTE:** <br>
-- Change __/path/to/data__ to your local directory where it contains all data files needed to feed into the `IRMA` and `Dais-ribosome` workflow. This directory is mounted to `/data` directory inside the container. <br>
-
-#### (6) Build **spyne** image and run its container
-
-__NOTE:__ In the `SC2-seq-spike` directory, there is a `Dockerfile` that contains a list of instructions and steps of how to build and run the `spyne` workflow.
-
-**A. Build the development version**
-
-- Using a build-arg
+#### (ii) Navigate to `spyne` folder 
 
 ```
-docker build -t spyne-dev:v1.0.0 --build-arg BUILD_STAGE=dev .
+cd spyne
 ```
 
-- Using a specific dockerfile for development stage (e.g. `Dockerfile.dev`)
+#### (iii) Check out `single_spyne_container` branch
 
 ```
-docker build -t spyne-dev:v1.0.0 -f Dockerfile.dev .
+git checkout single_spyne_container 
 ```
 
-**-t**: add a tag to an image such as the version of the application, e.g. *spyne-dev:v1.0.0* or *spyne-dev:latest* <br>
-**`--`file, -f**: name of the Dockerfile <br>
-**`--`build-arg**: set the build time variable for docker image. In this case, we want to build the **development** stage by setting build variable `BUILD_STAGE=dev`. <br>
+#### (iv) Build the `spyne` image
 
-_The image took approximately < 10 mins to build_
+__NOTE:__ In the `spyne` directory, there is a `Dockerfile` that contains a list of instructions on how to build and run the `spyne` container.
+
+```
+docker build -t spyne:latest .
+```
+
+**`-t`**: add a tag to an image such as the version of the application, e.g. *spyne:v1.0.0* or *spyne:latest* <br>
+**`.`**: current working directory of where the Dockerfile is stored <br>
 
 After the build is completed, you can check if the image is built successfully
 
 ```
 docker images
 
-REPOSITORY             TAG        IMAGE ID        CREATED        SIZE
-spyne-dev      v1.0.0     2c22887402d3    2 hours ago    1.58GB
+REPOSITORY      TAG        IMAGE ID        CREATED        SIZE
+spyne           latest     2c22887402d3    2 hours ago    1.98GB
 ```
 
-To run the `spyne-dev` container
+#### (v) Run the `spyne` container
 
 ```    
-docker run -v /path/to/data:/data -v /path/to/spyne:/spyne -v /var/run/docker.sock:/var/run/docker.sock --name spyne-dev-1.0.0 -t -d spyne-dev:v1.0.0 
+docker run -v /path/to/data:/data --name spyne -t -d spyne:latest
 ```
 
 **NOTE:** <br>
-- Change __/path/to/data__ to your local directory where it contains all data files needed to feed into the `spyne` workflow. This directory is mounted to `/data` directory inside the container. <br>
-- Change __/path/to/spyne__ to your local `spyne` directory. This directory must contain all of the code base needed to build the `spyne` workflow. <br>
-- **/var/run/docker.sock:/var/run/docker.sock** is used to connect the host's docker.socket to container's docker.socket where you can run a container inside of another container. <br>
+- Change __/path/to/data__ to your local directory where it contains all data files needed to feed into the `spyne` workflows. This directory is mounted to `/data` directory inside the container. <br>
 
-**-t**: allocate a pseudo-tty <br>
-**-d**: run the container in detached mode <br>
-**-v**: mount code base and data files from host directory to container directory **[host_div]:[container_dir]**. By exposing the host directory to docker container, docker will be able to access data files within that mounted directory and use it to fire up the `spyne` workflow.  <br>
+**`-t`**: allocate a pseudo-tty <br>
+**`-d`**: run the container in detached mode <br>
+**`-v`**: mount code base and data files from host directory to container directory **[host_div]:[container_dir]**. By exposing the host directory to docker container, docker will be able to access data files within that mounted directory and use it to fire up the `spyne` workflows.  <br>
 **`--`name**: give an identity to the container <br>
 
 For more information about the Docker syntax, see [Docker run reference](https://docs.docker.com/engine/reference/run/)
@@ -101,87 +102,140 @@ To check if the container is built successfully
 ```
 docker container ps
 
-
-CONTAINER ID   IMAGE                        COMMAND        CREATED         STATUS        PORTS      NAMES
-b37b6b19c4e8   spyne-dev:v1.0.0     "bash"         5 hours ago     Up 5 hours               spyne-dev-1.0.0
+CONTAINER ID    IMAGE           COMMAND        CREATED         STATUS        PORTS      NAMES
+b37b6b19c4e8    spyne:latest    "bash"         5 hours ago     Up 5 hours               spyne
 ```
 
-**B. Build the production version**
-
-- By default
+#### (vi) Execute the `spyne` workflows inside the container
 
 ```
-docker build -t spyne-prod:v1.0.0 .
+docker exec -w /data spyne bash MIRA.sh -s {path to samplesheet.csv} -r <run_id> -e <experiment_type> <OPTIONAL: -p amplicon_library> <OPTIONAL: -c CLEANUP-FOOTPRINT>
 ```
 
-- Using a specific dockerfile for production stage (e.g. `Dockerfile.prod`)
+**`-w`**: working directory inside the container. DEFAULT: /data.<br>
+`Experiment type options`: Flu-ONT, SC2-Spike-Only-ONT, Flu_Illumina, SC2-Whole-Genome-ONT, SC2-Whole-Genome-Illumina, RSV-illumina, RSV-ONT <br> 
+`Primer Schema options for SC2`: articv3, articv4, articv4.1, articv5.3.2, qiagen, swift, swift_211206 <br>
+`Primer Schema options for RSV`: RSV_CDC_8amplicon_230901, dong_et_al <br>
+
+### 3. Run `spyne` with Compose
+
+### Requirements
+
+- Git version >= 2.21.0
+- Docker version >= 18
+- Docker Compose Version >= 1.29
+
+#### (i) Clone `spyne` repo
+
+```bash
+git clone https://github.com/CDCgov/spyne.git
+```
+
+#### (ii) Navigate to `spyne` folder 
+
+```bash
+cd spyne
+```
+
+#### (iii) Check out `single_spyne_container` branch
 
 ```
-docker build -t spyne-prod:v1.0.0 -f Dockerfile.prod .
+git checkout single_spyne_container 
 ```
 
-**-t**: add a tag to an image such as the version of the application, e.g. *spyne-prod:v1.0.0* or *spyne-prod:latest* <br>
-**`--`file, -f**: name of the Dockerfile
+#### (iv) Edit `docker-compose.yml` file in the `spyne` folder to link the data inputs, irma, and dais-ribosome images to run the `spyne` container
 
-_The image took approximately < 10 mins to build_
+```bash
+version: "3.9"
 
-After the build is completed, you can check if the image is built successfully
+x-irma-image:
+  &irma-image
+  irma_image: cdcgov/irma-dev:rsv-support
 
+x-dais-image:
+  &dais-image
+  dais_image: cdcgov/dais-ribosome:v1.5.4
+
+x-data-volume:
+  &data-volume
+  type: bind
+  source: /home/snu3/irma-testings/rsv-support/FLU_SC2_SEQUENCING
+  target: /data
+
+services:
+  spyne: 
+    container_name: spyne
+    image: spyne:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        << : [*irma-image, *dais-image]
+    restart: always
+    volumes:
+      - *data-volume
+    command: tail -f /dev/null
 ```
+
+#### (v) Start up the `spyne` container
+
+```bash
+docker compose up -d 
+```
+
+**`-d`**: run the container in detached mode <br>
+  
+For more information about the docker compose syntax, see <a href="https://docs.docker.com/engine/reference/commandline/compose_up/" target="_blank">docker-compose up reference</a>
+
+#### (vi) How to run the `spyne` container
+
+```bash
+docker exec -w /data spyne bash MIRA.sh -s {path to samplesheet.csv} -r <run_id> -e <experiment_type> <OPTIONAL: -p amplicon_library> <OPTIONAL: -c CLEANUP-FOOTPRINT> 
+```
+
+`Experiment type options`: Flu-ONT, SC2-Spike-Only-ONT, Flu_Illumina, SC2-Whole-Genome-ONT, SC2-Whole-Genome-Illumina, RSV-illumina, RSV-ONT <br> 
+`Primer Schema options for SC2`: articv3, articv4, articv4.1, articv5.3.2, qiagen, swift, swift_211206 <br>
+`Primer Schema options for RSV`: RSV_CDC_8amplicon_230901, dong_et_al <br>
+
+### 4. Push Docker Images to a Registry
+
+You can push docker images to a public registry of choices (e.g. DockerHub, Quay, AWS ECR, etc.). Here, we will authenticate and push `spyne` image to `cdcgov` DockerHub account. 
+
+#### (i) Authenticate and log into your DockerHub account
+
+```bash
+docker login --username <your_username> --password-stdin
+```
+
+**`--password-stdin`**: provide a password through STDIN. Using STDIN prevents the password from ending up in the shell's history, or log-files.
+
+#### (ii) Create another tag for your image. Make sure the tag has your or your organization's account associated with it (e.g., `cdcgov`). This is useful if you want to tag your image with a `latest` tag and then another with a specific `version` of the image.
+
+```bash
+docker tag spyne:latest cdcgov/spyne:latest
+```
+
+Here, `spyne:latest` is the local image that you just built, and `cdcgov/spyne:latest` is an alias image of `spyne:latest` but with `cdcgov` account attached.
+
+#### (iii) See a new list of available images
+
+```bash
 docker images
 
-REPOSITORY             TAG        IMAGE ID        CREATED        SIZE
-spyne-prod     v1.0.0     c436f88dcd2f    2 hours ago    1.58GB
+REPOSITORY      TAG         IMAGE ID        CREATED        SIZE
+spyne           latest      d9e2578d2211    2 weeks ago    1.98GB
+cdcgov/spyne    latest      d9e2578d2211    2 weeks ago    1.98GB
 ```
 
-To run the `spyne-prod` container
-
-```    
-docker run -v /path/to/data:/data -v /var/run/docker.sock:/var/run/docker.sock --name spyne-prod-1.0.0 -t -d spyne-prod:v1.0.0 
-```
-
-**NOTE:** <br>
-- Change __/path/to/data__ to your local directory where it contains all data files needed to feed into the `spyne` workflow. This directory is mounted to `/data` directory inside the container. <br>
-- **/var/run/docker.sock:/var/run/docker.sock** is used to connect the host's docker.socket to container's docker.socket where you can run a container inside of another container. <br>
-
-**-t**: allocate a pseudo-tty <br>
-**-d**: run the container in detached mode <br>
-**-v**: mount code base and data files from host directory to container directory **[host_div]:[container_dir]**. By exposing the host directory to docker container, docker will be able to access data files within that mounted directory and use it to fire up the `spyne` workflow.  <br>
-**`--`name**: give an identity to the container <br>
-
-For more information about the Docker syntax, see [Docker run reference]()
-
-To check if the container is built successfully
+#### (iv) Finally, push `cdcgov/spyne:latest` image to `cdcgov` DockerHub
 
 ```
-docker container ps
-
-
-CONTAINER ID   IMAGE                        COMMAND     CREATED        STATUS        PORTS      NAMES
-475741fd9bc7   spyne-prod:v1.0.0    "bash"      5 hours ago    Up 5 hours               spyne-prod-1.0.0
-```
-
-#### (7) To execute snakemake pipeline inside **spyne-prod-1.0.0** container
-
-```
-docker exec -w /data spyne-prod-1.0.0 bash snake-kickoff <path/to/samplesheet.csv> <runpath> <experiment_type>
-```
-
-#### (8) To execute irma pipeline inside **irma-1.0.2p3** container
-
-- FOR PAIRED-END
-
-```
-docker exec -w /data irma-1.0.2p3 IRMA <MODULE|MODULE-CONFIG> <R1.fastq.gz|R1.fastq> <R2.fastq.gz|R2.fastq> [path/to/]<sample_name>
-```
-
-- For SINGLE-END
-
-```
-docker exec -w /data irma-1.0.2p3 IRMA <MODULE|MODULE-CONFIG> <fastq|fastq.gz> [path/to/]<sample_name>
+docker image push cdcgov/spyne:latest
 ```
 
 <br>
+
+[Click Here](https://hub.docker.com/r/cdcgov/spyne/tags) to see a list of available images of `spyne` on the `cdcgov` Dockerhub account.
 
 Any questions or issues? Please report them on our [github issues](https://github.com/cdcgov/spyne/issues)
 
