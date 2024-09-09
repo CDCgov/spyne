@@ -48,7 +48,7 @@ if [[ $NOCONTAINER ]]; then
 	echo "${SPYNE_PROGRAM_DIR}"
 	BBTOOLS_ROOT=$(which bbmap)
 else #set paths in container
-	SPYNE_PROGRAM_DIR=${SPYNE_PROGRAM_DIR:/spyne}
+	SPYNE_PROGRAM_DIR=${SPYNE_PROGRAM_DIR:-/spyne}
 	BBTOOLS_ROOT=/opt/bbtools
 fi
 
