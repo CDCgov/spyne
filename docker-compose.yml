@@ -1,17 +1,17 @@
 version: "3.9"
 
-x-irma-docker-version:
-  &irma-docker-version
-  cdcgov/irma:v1.1.2
+x-irma-image:
+  &irma-image
+  irma_image: cdcgov/irma-dev:rsv-support
 
-x-dais-docker-version:
-  &dais-docker-version
-  cdcgov/dais-ribosome:v1.3.2
+x-dais-image:
+  &dais-image
+  dais_image: cdcgov/dais-ribosome:v1.5.4
 
 x-data-volume:
   &data-volume
   type: bind
-  source: /home/snu3/Github/FLU_SC2_SEQUENCING
+  source: /home/snu3/irma-testings/rsv-support/FLU_SC2_SEQUENCING
   target: /data
 
 services:
@@ -22,8 +22,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - irma_image: *irma-docker-version
-        - dais_image: *dais-docker-version
+        << : [*irma-image, *dais-image]
     restart: always
     volumes:
       - *data-volume

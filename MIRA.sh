@@ -11,7 +11,6 @@ Primer Schema options for RSV: RSV_CDC_8amplicon_230901, dong_et_al" 1>&2; exit 
 # Primer Schema options for SC2: articv3, articv4, articv4.1, articv5.3.2, qiagen, swift, swift_211206
 # Primer Schema options for RSV: RSV_CDC_8amplicon_230901
 
-
 while getopts 's:r:e:p:c:na' OPTION
 do
 	case "$OPTION" in
@@ -48,10 +47,9 @@ if [[ $NOCONTAINER ]]; then
 	RESOURCE_ROOT=$(dirname "$SCRIPT")
 	echo "${RESOURCE_ROOT}"
 	BBTOOLS_ROOT=$(which bbmap)
-	JAVA_ROOT=$(which java); else #set paths in container
+else #set paths in container
 	RESOURCE_ROOT=/spyne
 	BBTOOLS_ROOT=/opt/bbtools
-	JAVA_ROOT=/opt/java
 fi
 
 # Export bbtools to system path
@@ -62,21 +60,8 @@ do
 	export PATH=$PATH:${BBTOOLS_ROOT}/${eachdir}
 done
 
-# Export java to system path
-java_path=$(ls ${JAVA_ROOT})
-
-for eachdir in ${java_path}
-do
-	export PATH=$PATH:${JAVA_ROOT}/${eachdir}/bin
-done
-
 # Check the java version
-if [[ -z "${NOCONTAINER}" ]]; then
-	java --version
-fi
-# Check the docker version
-docker --version
-
+java --version
 
 #run_path=$(dirname $(readlink -f $RUNPATH/))
 

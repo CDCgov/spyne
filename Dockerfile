@@ -7,15 +7,6 @@ ARG irma_image=${irma_image:-cdcgov/irma:latest}
 ARG dais_image
 ARG dais_image=${dais_image:-cdcgov/dais-ribosome:latest}
 
-############# base image ##################
-FROM --platform=$BUILDPLATFORM ubuntu:focal AS base
-
-# local apt mirror support
-# start every stage with updated apt sources
-ARG APT_MIRROR_NAME=
-RUN if [ -n "$APT_MIRROR_NAME" ]; then sed -i.bak -E '/security/! s^https?://.+?/(debian|ubuntu)^http://'"$APT_MIRROR_NAME"'/\1^' /etc/apt/sources.list && grep '^deb' /etc/apt/sources.list; fi
-RUN apt-get update --allow-releaseinfo-change --fix-missing
-
 ############# irma image ##################
 FROM ${irma_image} as irma
 RUN echo "Getting irma image"
@@ -24,8 +15,8 @@ RUN echo "Getting irma image"
 FROM ${dais_image} as dais
 RUN echo "Getting dias image"
 
-############# final image ##################
-FROM base as final
+############# spyne image ##################
+FROM ubuntu:focal AS base
 
 # copy irma build to final image
 COPY --from=irma / /
@@ -49,7 +40,7 @@ ENV PROJECT_DIR=/spyne
 VOLUME ${PROJECT_DIR}
 
 # Copy all scripts to docker images
-COPY . /spyne
+COPY . ${PROJECT_DIR}
 
 # Define a system argument
 ARG DEBIAN_FRONTEND=noninteractive
@@ -100,13 +91,13 @@ RUN rm -rf ${PROJECT_DIR}/requirements.txt
 ############# Run spyne ##################
 
 # Copy all files to docker images
-COPY snake-kickoff ${PROJECT_DIR}/snake-kickoff
+COPY MIRA.sh ${PROJECT_DIR}/MIRA.sh
 
 # Convert spyne from Windows style line endings to Unix-like control characters
-RUN dos2unix ${PROJECT_DIR}/snake-kickoff
+RUN dos2unix ${PROJECT_DIR}/MIRA.sh
 
 # Allow permission to excute the bash scripts
-RUN chmod a+x ${PROJECT_DIR}/snake-kickoff
+RUN chmod a+rx ${PROJECT_DIR}/MIRA.sh
 
 # Allow permission to read and write files to spyne directory
 RUN chmod -R a+rwx ${PROJECT_DIR}
@@ -122,5 +113,5 @@ ENV PATH "$PATH:/dais-ribosome"
 # Export irma script to path
 ENV PATH "$PATH:/flu-amd"
 
-# Export snake-kickoff script to path
+# Export MIRA.sh script to path
 ENV PATH "$PATH:${PROJECT_DIR}"

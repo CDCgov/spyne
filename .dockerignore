@@ -27,4 +27,6 @@ install_docker.sh
 docker-compose.yml
 docker-compose-*.yml
 _pkgdown.yml
+MIRA_map.svg
+
 
