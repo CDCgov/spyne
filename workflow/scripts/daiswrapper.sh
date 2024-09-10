@@ -7,8 +7,6 @@ do
 	esac
 done
 
-echo $PWD
-
 dais_out=$(echo $input|cut -d '.' -f 1)
 dais_out=${dais_out%"_input"} 
 
