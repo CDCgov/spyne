@@ -67,13 +67,12 @@ ref_proteins = {
     "HA-signal": "A_HA_H10 A_HA_H11 A_HA_H12 A_HA_H13 A_HA_H14 A_HA_H15 A_HA_H16 A_HA_H1 \
         A_HA_H2 A_HA_H3 A_HA_H4 A_HA_H5 A_HA_H6 A_HA_H7 A_HA_H8 A_HA_H9 B_HA",
     "PA-X": "A_PA B_PA",
-    "NS1": "A_NS B_NS",
+    "NS1": "A_NS B_NS RSV_AD RSV_BD RSV_A RSV_B",
     "NS": "A_NS B_NS",
     "M2": "A_MP B_MP",
     "M": "A_MP B_MP SARS-CoV-2 RSV_AD RSV_BD",
     "NA": "A_NA_N1 A_NA_N2 A_NA_N3 A_NA_N4 A_NA_N5 A_NA_N6 A_NA_N7 A_NA_N8 A_NA_N9 B_NA",
     "PA": "A_PA B_PA",
-    "NS1": "RSV_AD RSV_BD RSV_A RSV_B",
     "NS2": "RSV_AD RSV_BD RSV_A RSV_B",
     "P": "RSV_AD RSV_BD RSV_A RSV_B",
     "SH": "RSV_AD RSV_BD RSV_A RSV_B",
@@ -512,6 +511,7 @@ def generate_dfs(irma_path):
         .merge(nt_seqs_df, how="left", on=["Sample", "Reference"])
         .rename(columns={"value": "Reasons"})
     )
+
     # Print nt sequence fastas
     ## Exclude HA/NA/S premature stop sequences for Illumina
     if "ont" not in virus:
@@ -522,7 +522,7 @@ def generate_dfs(irma_path):
             (pass_fail_seqs_df["Reasons"].str.contains("Premature stop codon"))
             & (~pass_fail_seqs_df["Reasons"].str.contains(";", na=False))
             & (~pass_fail_seqs_df["Reference"].str.contains(r"'[H|N]A'"))
-        )]
+        )] 
         elif "sc2" in virus:
             passed_df = pass_fail_seqs_df.loc[
         (pass_fail_seqs_df["Reasons"] == "Pass")
