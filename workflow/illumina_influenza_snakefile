@@ -35,7 +35,11 @@ def find_chemistry(fastq, runid):
             config_path = workflow.basedir + "/irma_config/FLU-2x75.sh"
             irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-2x75.sh"]
             subsample = "200000"
+<<<<<<< HEAD
     except: #empty fastq handling
+=======
+    except:
+>>>>>>> prod
         config_path = workflow.basedir + "/irma_config/FLU-illumina.sh"
         irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-illumina.sh"]
         subsample = "100000"
