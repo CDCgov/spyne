@@ -55,6 +55,7 @@ RUN apt-get update --allow-releaseinfo-change --fix-missing \
   python3-setuptools \
   default-jre \
   default-jdk \
+  vim \
   dos2unix 
 
 ############# Install bbtools ##################
