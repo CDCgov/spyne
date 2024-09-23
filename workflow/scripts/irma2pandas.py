@@ -6,8 +6,7 @@ from re import findall
 import plotly.graph_objects as go
 
 def seg(s):
-    return findall(r"HA|NA|MP|NP|NS|PA|PB1|PB2|SARS-CoV-2", s)
-
+    return findall(r"HA|NA|MP|NP|NS|PA|PB1|PB2|SARS-CoV-2|AD|BD|A|B", s) 
 
 def returnStageColors(df):
     df = df[df["Stage"].isin([4, 5])]
@@ -54,7 +53,7 @@ def dash_reads_to_sankey(df, virus):
             source.append(labels.index("1-initial"))
             target.append(labels.index(row["Record"]))
             value.append(row["Reads"])
-    if 'sc2' in virus:
+    if 'sc2' in virus or 'rsv' in virus:
         arrangement = "freeform"
     else:
         arrangement = "snap"
@@ -93,7 +92,7 @@ def irmatable2df(irmaFiles):
         else:
             df_prime = pd.read_csv(f, sep="\s+", index_col=False)
         df_prime.insert(loc=0, column="Sample", value=sample)
-        df = df.append(df_prime)
+        df = pd.concat([df, df_prime])
     return df
 
 
@@ -141,7 +140,7 @@ def dash_irma_sequence_df(irma_path, amended=True, pad=True):
         content = open(f).read()
         for s in findall(r">.+", content):
             sample_id, sequence = s[1:], findall(rf"(?s)(?<={s}).+(?=>)*", content)[0].replace('\n','')
-            df = df.append(pd.DataFrame([[sample_id, sequence]], columns=df.columns))
+            df = pd.concat([df, pd.DataFrame([[sample_id, sequence]], columns=df.columns)])
     return df
 
 

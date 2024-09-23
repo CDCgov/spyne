@@ -1,145 +1,118 @@
 
-# Create a build argument
-ARG BUILD_STAGE
-ARG BUILD_STAGE=${BUILD_STAGE:-prod}
+# Create an argument to pull a particular version of irma image
+ARG irma_image
+ARG irma_image=${irma_image:-cdcgov/irma:latest}
 
-############# Build Stage: Dependencies ##################
+# Create an argument to pull a particular version of dias image
+ARG dais_image
+ARG dais_image=${dais_image:-cdcgov/dais-ribosome:latest}
 
-# Start from a base image
-FROM --platform=linux/amd64 ubuntu:focal as base
+############# irma image ##################
+FROM ${irma_image} as irma
+RUN echo "Getting irma image"
+
+############# dias image ##################
+FROM ${dais_image} as dais
+RUN echo "Getting dias image"
+
+############# spyne image ##################
+FROM ubuntu:focal AS base
+
+# copy irma build to final image
+COPY --from=irma / /
+
+# copy dias build to final image
+COPY --from=dais / /
+
+# Create a working directory variable
+ENV WORKDIR=/data
+
+# Set up volume directory 
+VOLUME ${WORKDIR}
+
+# Set up working directory 
+WORKDIR ${WORKDIR}
+
+# set a project directory
+ENV SPYNE_PROGRAM_DIR=/spyne
+
+# Set up volume directory in docker
+VOLUME ${SPYNE_PROGRAM_DIR}
+
+# Copy all scripts to docker images
+COPY . ${SPYNE_PROGRAM_DIR}
 
 # Define a system argument
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Install system libraries of general use
-RUN apt-get update --allow-releaseinfo-change && apt-get install --no-install-recommends -y \
-    build-essential \ 
-    iptables \
-    libdevmapper1.02.1 \
-    python3.7\
-    python3-pip \
-    python3-setuptools \
-    python3-dev \
-    dpkg \
-    sudo \
-    wget \
-    curl \
-    dos2unix
-
-############# Build Stage: Development ##################
-
-# Build from the base image for dev
-FROM base as dev
-
-# Create working directory variable
-ENV WORKDIR=/data
-
-# Create a stage enviroment
-ENV STAGE=dev
-
-############# Build Stage: Production ##################
-
-# Build from the base image for prod
-FROM base as prod
-
-# Create working directory variable
-ENV WORKDIR=/data
-
-# Create a stage enviroment
-ENV STAGE=prod
-
-# Copy all scripts to docker images
-COPY . /spyne
-
-############# Build Stage: Final ##################
-
-# Build the final image 
-FROM ${BUILD_STAGE} as final
-
-# Set up volume directory in docker
-VOLUME ${WORKDIR}
-
-# Set up working directory in docker
-WORKDIR ${WORKDIR}
-
-# Allow permission to read and write files to current working directory
-RUN chmod -R a+rwx ${WORKDIR}
-
-############# Install java ##################
-
-# Copy all files to docker images
-COPY java /spyne/java
-
-# Copy all files to docker images
-COPY install_java.sh /spyne/install_java.sh
-
-# Convert bash script from Windows style line endings to Unix-like control characters
-RUN dos2unix /spyne/install_java.sh
-
-# Allow permission to excute the bash script
-RUN chmod a+x /spyne/install_java.sh
-
-# Execute bash script to wget the file and tar the package
-RUN bash /spyne/install_java.sh
+############# Install Java ##################
+RUN apt-get update --allow-releaseinfo-change --fix-missing \
+  && apt-get install --no-install-recommends -y \
+  build-essential \ 
+  iptables \
+  python3.7\
+  python3-pip \
+  python3-setuptools \
+  default-jre \
+  default-jdk \
+  vim \
+  dos2unix 
 
 ############# Install bbtools ##################
 
 # Copy all files to docker images
-COPY bbtools /spyne/bbtools
+COPY bbtools ${SPYNE_PROGRAM_DIR}/bbtools
 
 # Copy all files to docker images
-COPY install_bbtools.sh /spyne/install_bbtools.sh
+COPY bbtools/install_bbtools.sh ${SPYNE_PROGRAM_DIR}/bbtools/install_bbtools.sh
 
 # Convert bash script from Windows style line endings to Unix-like control characters
-RUN dos2unix /spyne/install_bbtools.sh
+RUN dos2unix ${SPYNE_PROGRAM_DIR}/bbtools/install_bbtools.sh
 
 # Allow permission to excute the bash script
-RUN chmod a+x /spyne/install_bbtools.sh
+RUN chmod a+x ${SPYNE_PROGRAM_DIR}/bbtools/install_bbtools.sh
 
 # Execute bash script to wget the file and tar the package
-RUN bash /spyne/install_bbtools.sh
+RUN bash ${SPYNE_PROGRAM_DIR}/bbtools/install_bbtools.sh
 
-############# Install Docker ##################
-
-# Copy all files to docker images
-COPY docker /spyne/docker
-
-# Copy all files to docker images
-COPY install_docker.sh /spyne/install_docker.sh
-
-# Convert bash script from Windows style line endings to Unix-like control characters
-RUN dos2unix /spyne/install_docker.sh
-
-# Allow permission to excute the bash script
-RUN chmod a+x /spyne/install_docker.sh
-
-# Execute bash script to wget the file and tar the package
-RUN bash /spyne/install_docker.sh
+# Remove bbtools folder from final image
+RUN rm -rf ${SPYNE_PROGRAM_DIR}/bbtools
 
 ############# Install python packages ##################
 
 # Copy all files to docker images
-COPY requirements.txt /spyne/requirements.txt
+COPY requirements.txt ${SPYNE_PROGRAM_DIR}/requirements.txt
 
 # Install python requirements
-RUN pip3 install --no-cache-dir -r /spyne/requirements.txt
+RUN pip3 install --no-cache-dir -r ${SPYNE_PROGRAM_DIR}/requirements.txt
+
+# Remove requirements.txt from final image
+RUN rm -rf ${SPYNE_PROGRAM_DIR}/requirements.txt
 
 ############# Run spyne ##################
 
 # Copy all files to docker images
-COPY snake-kickoff /spyne/snake-kickoff
+COPY MIRA.sh ${SPYNE_PROGRAM_DIR}/MIRA.sh
 
 # Convert spyne from Windows style line endings to Unix-like control characters
-RUN dos2unix /spyne/snake-kickoff
+RUN dos2unix ${SPYNE_PROGRAM_DIR}/MIRA.sh
 
 # Allow permission to excute the bash scripts
-RUN chmod a+x /spyne/snake-kickoff
+RUN chmod a+rx ${SPYNE_PROGRAM_DIR}/MIRA.sh
 
 # Allow permission to read and write files to spyne directory
-RUN chmod -R a+rwx /spyne
+RUN chmod -R a+rwx ${SPYNE_PROGRAM_DIR}
 
-# Clean up
-RUN apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+# Clean up and remove unwanted files
+RUN apt-get autoremove -y \
+  && apt-get clean -y \
+  && rm -rf /var/lib/{apt,dpkg,cache,log}/
 
-# Export bash script to path
-ENV PATH "$PATH:/spyne"
+# Export dais-ribosome script to path
+ENV PATH "$PATH:/dais-ribosome"
+
+# Export irma script to path
+ENV PATH "$PATH:/flu-amd"
+
+# Export MIRA.sh script to path
+ENV PATH "$PATH:${SPYNE_PROGRAM_DIR}"

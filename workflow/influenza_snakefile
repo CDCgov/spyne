@@ -9,6 +9,11 @@ configfile: "config.yaml"
 config["barcodes"] = {str(k): v for k, v in config["barcodes"].items()}
 config["barcodes"] = OrderedDict([(key, config["barcodes"][key]) for key in config["barcodes"] ])
 
+try:
+    cli = bool(config["cli"])
+except:
+    cli = False
+
 def memory_for_bbduk():
     # Try to detect how much total memory is available on host (or what was 
     # alloted to Docker) and assign 50% of that to bbduk. Assure that number is
@@ -148,7 +153,7 @@ rule irma:
     threads: 14
     message: "Step 5 - assembling genome with IRMA"
     shell:
-        "docker exec irma IRMA FLU-minion /data/{config[runid]}/{input} /data/{config[runid]}/IRMA/{wildcards.barcode} 2> {log.err} |tee -a {log.out} || touch {output}"
+        "IRMA FLU-minion /data/{config[runid]}/{input} /data/{config[runid]}/IRMA/{wildcards.barcode} 2> {log.err} |tee -a {log.out} || touch {output}"
 
 # Pipeline waits here for all samples to produce the checkpoint input needed
 #  here and then reevaluates the needed DAG for each sample.
@@ -169,7 +174,10 @@ def passed_irma(wildcards):
     with checkpoints.checkirma.get(barcode=wildcards.barcode).\
     output[0].open() as f:
         if f.read().strip() == "passed":
-            return rules.prepareIRMAjson.output
+            if not cli:
+                return rules.prepareIRMAjson.output
+            else:
+                return rules.staticHTML.output
         else:
             return rules.pass_negatives.output
 
@@ -199,18 +207,30 @@ rule dais_ribosome:
     log:
         "logs/dais_ribosome/dais.ribosome.log"
     shell:
-        "{workflow.basedir}/scripts/daiswrapper.sh -i {config[runid]}/{input} -m INFLUENZA"
+        "{workflow.basedir}/scripts/daiswrapper.sh -i {input} -m INFLUENZA"
 
 rule prepareIRMAjson:
     input:
         rules.dais_ribosome.output
     output:
         touch('IRMA/prepareIRMAjson.fin')
-    message: "Step 8 - Creating Plotly-Dash readable figures and tables for IRMA-SPY"
+    message: "Step 8 - Creating Plotly-Dash readable figures and tables for MIRA"
     log:
         "logs/prepareIRMAjson.log"
     shell:
         "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv ont flu"
+
+if cli:
+    rule staticHTML:
+        input:
+            rules.prepareIRMAjson.output
+        output:
+            touch('IRMA/staticHTML.fin')
+        message: "Step 9 - Creating static HTML output"
+        log:
+            "logs/staticHTML.log"
+        shell:
+            "python3 {workflow.basedir}/scripts/static_report.py $(pwd)"
 
 rule finishup:
     input:

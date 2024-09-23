@@ -12,6 +12,12 @@ configfile: "config.yaml"
 config["samples"] = {str(k): v for k, v in config["samples"].items()}
 config["samples"] = OrderedDict([(key, config["samples"][key]) for key in config["samples"] ])
 
+try:
+    cli = bool(config["cli"])
+except:
+    cli = False
+
+
 def memory_for_bbduk():
     # Try to detect how much total memory is available on host (or what was 
     # alloted to Docker) and assign 50% of that to bbduk. Assure that number is
@@ -185,7 +191,7 @@ rule irma:
     threads: 14
     message: "Step 5 - assembling genome with IRMA"
     shell:
-        "{params.command[0]} docker exec irma IRMA CoV /data/{config[runid]}/IRMA/{wildcards.sample}_r1_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_r2_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out} || touch {output}"
+        "{params.command[0]} IRMA CoV /data/{config[runid]}/IRMA/{wildcards.sample}_r1_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_r2_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out}"
 
 checkpoint checkirma:
     input:
@@ -204,7 +210,10 @@ def passed_irma(wildcards):
     with checkpoints.checkirma.get(sample=wildcards.sample).\
     output[0].open() as f:
         if f.read().strip() == "passed":
-            return rules.prepareIRMAjson.output
+            if not cli:
+                return rules.prepareIRMAjson.output
+            else:
+                return rules.staticHTML.output
         else:
             return rules.pass_negatives.output
 
@@ -234,7 +243,7 @@ rule dais_ribosome:
     log:
         "logs/dais_ribosome/dais.ribosome.log"
     shell:
-        "{workflow.basedir}/scripts/daiswrapper.sh -i {config[runid]}/{input} -m BETACORONAVIRUS"
+        "{workflow.basedir}/scripts/daiswrapper.sh -i {input} -m BETACORONAVIRUS"
 
 rule prepareIRMAjson:
     input:
@@ -247,6 +256,17 @@ rule prepareIRMAjson:
     shell:
         "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv illumina sc2"
 
+if cli:
+    rule staticHTML:
+        input:
+            rules.prepareIRMAjson.output
+        output:
+            touch('IRMA/staticHTML.fin')
+        message: "Step 9 - Creating static HTML output"
+        log:
+            "logs/staticHTML.log"
+        shell:
+            "python3 {workflow.basedir}/scripts/static_report.py $(pwd)"
 
 rule finishup:
     input:
