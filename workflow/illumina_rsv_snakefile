@@ -85,6 +85,7 @@ rule subsample:
 primers =	{'RSV_CDC_8amplicon_230901':	{'bedpe':'{}/primers/RSV_CDC_8amplicon_230901.BED'.format(workflow.basedir),
                           'fasta':'{}/primers/RSV_CDC_8amplicon_230901.fasta'.format(workflow.basedir)},
                 'dong_et_al': {'fasta':'{}/primers/RSV_CDC_8amplicon_230901.fasta'.format(workflow.basedir)},
+                'davina_nunez_wgs': {'fasta': '{}/primers/davina_nunez_wgs.fasta'.format(workflow.basedir)}
             #more can be added here when ready
             }
 
