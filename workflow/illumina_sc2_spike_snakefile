@@ -116,7 +116,7 @@ rule bbduk_r1:
         'mm=f',
         'hdist=1',
         'rcomp=t',
-        'ref={}/primers/sgene.fasta'.format(workflow.basedir)',
+        'ref={}/primers/sgene.fasta'.format(workflow.basedir),
         'ordered=t',
         'k=19',
         'restrictleft=45']), #revisit
@@ -150,7 +150,7 @@ rule bbduk_r2:
         'rcomp=t',
         'mm=f',
         'hdist=1',
-        'ref=ref={}/primers/sgene.fasta'.format(workflow.basedir)',
+        'ref={}/primers/sgene.fasta'.format(workflow.basedir),
         'ordered=t',
         'k=19',
         'restrictright=45']), #revisit
