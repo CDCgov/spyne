@@ -101,7 +101,9 @@ primers =	{'swift':	{'bedpe':'{}/primers/SNAP_v2_amplicon_panel.bedpe'.format(wo
             'swift_211206': {'bedpe':'{}/primers/swift_211206.bedpe'.format(workflow.basedir),
                         'fasta':'{}/primers/swift_211206.fasta'.format(workflow.basedir)},
             'articv5.3.2' : {'bedpe':'{}/primers/artic_v5.3.2_IRMAref.bedpe'.format(workflow.basedir),
-                          'fasta':'{}/primers/artic_v5.3.2.fasta'.format(workflow.basedir)}
+                          'fasta':'{}/primers/artic_v5.3.2.fasta'.format(workflow.basedir)},
+            's_gene' : {'bedpe':'',
+                            'fasta':'{}/primers/sgene.fasta'.format(workflow.basedir)}
             }
 
 rule bbduk_r1:
@@ -116,10 +118,10 @@ rule bbduk_r1:
         'mm=f',
         'hdist=1',
         'rcomp=t',
-        'ref={}/primers/sgene.fasta'.format(workflow.basedir),
         'ordered=t',
         'k=19',
-        'restrictleft=45']), #revisit
+        'restrictleft=45']),
+        ref = primers[s_gene[fasta]], #revisit
         mem = memory_for_bbduk()
     log:
         out = "logs/{sample}.bbduk.trim_left.stdout.log",
@@ -150,10 +152,10 @@ rule bbduk_r2:
         'rcomp=t',
         'mm=f',
         'hdist=1',
-        'ref={}/primers/sgene.fasta'.format(workflow.basedir),
         'ordered=t',
         'k=19',
         'restrictright=45']), #revisit
+        ref = primers[s_gene[fasta]],
         mem = memory_for_bbduk()
     threads: 16
     log:
