@@ -106,8 +106,6 @@ primers =	{'swift':	{'bedpe':'{}/primers/SNAP_v2_amplicon_panel.bedpe'.format(wo
                             'fasta':'{}/primers/sgene.fasta'.format(workflow.basedir)}
             }
 
-print(primers)
-
 rule bbduk_r1:
     input:
         r1 = rules.subsample.output.O1,
@@ -121,7 +119,7 @@ rule bbduk_r1:
         'hdist=1',
         'rcomp=t',
         'ordered=t',
-        'ref='+primers["s_gene"["fasta"]],
+        'ref='+primers["s_gene"]["fasta"],
         'k=19',
         'restrictleft=45']),
         #ref = primers[s_gene[fasta]], #revisit
@@ -156,10 +154,9 @@ rule bbduk_r2:
         'mm=f',
         'hdist=1',
         'ordered=t',
-        'ref='+primers["s_gene"["fasta"]],
+        'ref='+primers['s_gene']["fasta"],
         'k=19',
         'restrictright=45']), #revisit
-        #ref = primers[s_gene[fasta]],
         mem = memory_for_bbduk()
     threads: 16
     log:
