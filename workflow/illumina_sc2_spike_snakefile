@@ -1,0 +1,271 @@
+from os.path import basename, realpath, dirname, abspath
+import sys
+import glob
+import os
+import gzip
+
+shell.executable("bash")
+
+workdir: "."
+configfile: "config.yaml"
+
+config["samples"] = {str(k): v for k, v in config["samples"].items()}
+config["samples"] = OrderedDict([(key, config["samples"][key]) for key in config["samples"] ])
+
+try:
+    cli = bool(config["cli"])
+except:
+    cli = False
+
+
+def memory_for_bbduk():
+    # Try to detect how much total memory is available on host (or what was 
+    # alloted to Docker) and assign 50% of that to bbduk. Assure that number is
+    # not negative and if all this fails, make it a tiny 30 megabytes.
+    try:
+        return abs(int(int(os.popen('free -t -m').readlines()[-1].split()[-1])*0.5))
+    except:
+        return 30
+
+def find_chemistry(fastq, runid):
+    global irma_custom
+    global subsample
+    try:
+        with open(fastq) as infi:
+            contents = infi.readlines()
+    except:
+        with gzip.open(fastq) as infi:
+            contents = infi.readlines()
+    try:
+        if len(contents[1]) >= 80:
+            config_path = workflow.basedir + "/irma_config/SC2-spike-illumina.sh"
+            irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/SC2-spike-illumina.sh"]
+            subsample = "50000"
+        else:
+            config_path = workflow.basedir + "/irma_config/SC2-spike-illumina-2x75.sh"
+            irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/SC2-spike-illumina-2x75.sh"]
+            subsample = "100000"
+    except:
+        config_path = workflow.basedir + "/irma_config/SC2-spike-illumina.sh"
+        irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/SC2-spike-illumina.sh"]
+        subsample = "50000"
+    return irma_custom, subsample
+
+rule all:
+    input:
+        expand("IRMA/SC2_{sample}.fin", sample=config["samples"].keys())
+    shell:
+        "touch IRMA/spyne.fin"
+
+
+rule subsample:
+    input:
+        R1_fastq = lambda wildcards: config["samples"][wildcards.sample]["R1_fastq"],
+        R2_fastq = lambda wildcards: config["samples"][wildcards.sample]["R2_fastq"]
+    output:
+        O1 = "IRMA/{sample}_subsampled_R1.fastq",
+        O2 = "IRMA/{sample}_subsampled_R2.fastq"
+    log:
+        out = "logs/{sample}.reformat.stdout.log",
+        err = "logs/{sample}.reformat.stderr.log"
+    group:
+        "trim-map"
+    params:
+        target = lambda wildcards: find_chemistry(config["samples"][wildcards.sample]["R1_fastq"], config["runid"])[1]
+    message: "Step 1 - subsampling cleaned up reads if excess > {params.target} exist"
+    shell:
+        "reformat.sh"
+        " in1={input.R1_fastq}"
+        " in2={input.R2_fastq}"
+        " out1={output.O1}"
+        " out2={output.O2}"
+        " samplereadstarget={params.target}"
+        " tossbrokenreads"
+        " 1> {log.out}"
+        " 2> {log.err}"
+
+primers =	{'swift':	{'bedpe':'{}/primers/SNAP_v2_amplicon_panel.bedpe'.format(workflow.basedir),
+                          'fasta':'{}/primers/SNAP_v2_amplicon_panel.fasta'.format(workflow.basedir)},
+            'articv3':	{'bedpe':'{}/primers/artic_v3.bedpe'.format(workflow.basedir),
+                        'fasta':'{}/primers/artic_v3.fasta'.format(workflow.basedir)},
+            'sgene_v1':	{'bedpe':'{}/primers/sgene_v1.bedpe'.format(workflow.basedir),
+                        'fasta':'{}/primers/sgene_v1.fasta'.format(workflow.basedir)},
+            'articv4':	 {'bedpe':'{}/primers/artic_v4_IRMAref.bedpe'.format(workflow.basedir),
+                          'fasta':'{}/primers/artic_v4.fasta'.format(workflow.basedir)}, 
+            'articv4.1':	 {'bedpe':'{}/primers/artic_v4.1_NC.bedpe'.format(workflow.basedir),
+                          'fasta':'{}/primers/artic_v4.1.fasta'.format(workflow.basedir)}, 
+            'varskip':	{'bedpe':'{}/primers/neb_vss1a.primer.bedpe'.format(workflow.basedir),
+                            'fasta':'{}/primers/neb_vss1a.primer.fasta'.format(workflow.basedir)},
+            'qiagen': {'bedpe':'{}/primers/QIAseqDIRECTSARSCoV2primersfinal.bedpe'.format(workflow.basedir),
+                        'fasta':'{}/primers/QIAseqDIRECTSARSCoV2primersfinal.fasta'.format(workflow.basedir)},
+            'swift_211206': {'bedpe':'{}/primers/swift_211206.bedpe'.format(workflow.basedir),
+                        'fasta':'{}/primers/swift_211206.fasta'.format(workflow.basedir)},
+            'articv5.3.2' : {'bedpe':'{}/primers/artic_v5.3.2_IRMAref.bedpe'.format(workflow.basedir),
+                          'fasta':'{}/primers/artic_v5.3.2.fasta'.format(workflow.basedir)}
+            }
+
+rule bbduk_r1:
+    input:
+        r1 = rules.subsample.output.O1,
+        r2 = rules.subsample.output.O2
+    output:
+        O1 = 'IRMA/{sample}_r1_trim.fastq',
+        O2 = 'IRMA/{sample}_r2_trim.fastq'
+    params:
+        bbdukParams1 = lambda wildcards: ' '.join(['ktrim=l',
+        'mm=f',
+        'hdist=1',
+        'rcomp=t',
+        'ref={}/primers/sgene.fasta'.format(workflow.basedir)',
+        'ordered=t',
+        'k=19',
+        'restrictleft=45']), #revisit
+        mem = memory_for_bbduk()
+    log:
+        out = "logs/{sample}.bbduk.trim_left.stdout.log",
+        err = "logs/{sample}.bbduk.trim_left.stderr.log"
+    threads: 16
+    benchmark:
+        "logs/benchmarks/bbduk_r1_{sample}.log"
+    shell:
+        "bbduk.sh"
+        " -Xmx{params.mem}m"
+        " -Xms{params.mem}m"
+        " in1={input.r1} in2={input.r2}"
+        " out1={output.O1} out2={output.O2}"
+        " {params.bbdukParams1} " 
+        " threads={threads}"
+        " 1> {log.out}"
+        " 2> {log.err}"
+
+rule bbduk_r2:
+    input:
+        r1 = ancient('IRMA/{sample}_r1_trim.fastq'),
+        r2 = ancient('IRMA/{sample}_r2_trim.fastq')
+    output:
+        o1 = 'IRMA/{sample}_r1_primertrimmed.fastq',
+        o2 = 'IRMA/{sample}_r2_primertrimmed.fastq'
+    params:	
+        bbdukParams1 = lambda wildcards: ' '.join(['ktrim=r',
+        'rcomp=t',
+        'mm=f',
+        'hdist=1',
+        'ref=ref={}/primers/sgene.fasta'.format(workflow.basedir)',
+        'ordered=t',
+        'k=19',
+        'restrictright=45']), #revisit
+        mem = memory_for_bbduk()
+    threads: 16
+    log:
+        out = "logs/{sample}.bbduk.trim_right.stdout.log",
+        err = "logs/{sample}.bbduk.trim_right.stderr.log"
+    benchmark:
+        "logs/benchmarks/bbduk_r2_{sample}.log"
+    shell:
+        "bbduk.sh"
+        " -Xmx{params.mem}m"
+        " -Xms{params.mem}m"
+        " in1={input.r1} in2={input.r2}"
+        " out1={output.o1} out2={output.o2}"
+        " {params.bbdukParams1} " 
+        " threads={threads}"
+        " 1> {log.out}"
+        " 2> {log.err}"
+
+rule irma:
+    input:
+        rules.bbduk_r2.output 
+    output:
+        touch("IRMA/{sample}.irma.fin")
+    log:
+        out = "logs/{sample}.irma.stdout.log",
+        err = "logs/{sample}.irma.stderr.log"
+    params:
+        command = lambda wildcards: find_chemistry(config["samples"][wildcards.sample]["R1_fastq"], config["runid"])[0]    
+    benchmark:
+        "logs/benchmarks/irma_{sample}.log"
+    threads: 14
+    message: "Step 5 - assembling genome with IRMA"
+    shell:
+        "{params.command[0]} IRMA CoV-s-gene /data/{config[runid]}/IRMA/{wildcards.sample}_r1_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample}_r2_primertrimmed.fastq /data/{config[runid]}/IRMA/{wildcards.sample} {params.command[1]} 2> {log.err} |tee -a {log.out}"
+
+checkpoint checkirma:
+    input:
+        rules.irma.output
+    output:
+        'IRMA/{sample}.irma.decision'
+    log:
+        "logs/irma/checkirma_{sample}.log"
+    shell:
+        "[ -d IRMA/{wildcards.sample}/amended_consensus ] &&"
+        "[ \"$(ls -A IRMA/{wildcards.sample}/amended_consensus)\" ] &&"
+        " echo passed > {output} ||"
+        " echo failed > {output}"
+
+def passed_irma(wildcards):
+    with checkpoints.checkirma.get(sample=wildcards.sample).\
+    output[0].open() as f:
+        if f.read().strip() == "passed":
+            if not cli:
+                return rules.prepareIRMAjson.output
+            else:
+                return rules.staticHTML.output
+        else:
+            return rules.pass_negatives.output
+
+rule pass_negatives:
+    input:
+        ancient(rules.checkirma.output)
+    output:
+        "IRMA_negative/{sample}"
+    shell:
+        "touch {output}"
+
+rule catfiles:
+    input:
+        expand('IRMA/{sample}.irma.decision', sample=config["samples"].keys())
+    output:
+        "DAIS_ribosome_input.fasta"
+    message: "Step 6 - Collecting consensus genomes"
+    shell:
+        "cat IRMA/*/amended_consensus/*pad.fa > {output} || touch {output}"
+
+rule dais_ribosome:
+    input: 
+        rules.catfiles.output
+    output:
+        touch('DAIS_ribosome_output.fin')
+    message: "Step 7 - Translating sequences into open reading frames (ORFs) with DAIS-Ribosome"
+    log:
+        "logs/dais_ribosome/dais.ribosome.log"
+    shell:
+        "{workflow.basedir}/scripts/daiswrapper.sh -i {input} -m BETACORONAVIRUS"
+
+rule prepareIRMAjson:
+    input:
+        rules.dais_ribosome.output
+    output:
+        touch('IRMA/prepareIRMAjson.fin')
+    message: "Step 8 - Creating Plotly-Dash readable figures and tables for IRMA-SPY"
+    log:
+        "logs/prepareIRMAjson.log"
+    shell:
+        "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv illumina sc2-spike"
+
+if cli:
+    rule staticHTML:
+        input:
+            rules.prepareIRMAjson.output
+        output:
+            touch('IRMA/staticHTML.fin')
+        message: "Step 9 - Creating static HTML output"
+        log:
+            "logs/staticHTML.log"
+        shell:
+            "python3 {workflow.basedir}/scripts/static_report.py $(pwd)"
+
+rule finishup:
+    input:
+        passed_irma
+    output:
+        touch("IRMA/SC2_{sample}.fin")

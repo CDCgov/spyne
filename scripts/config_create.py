@@ -10,7 +10,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-s","--samplesheet", help="Samplesheet with sample names")
 parser.add_argument("-r", "--runid", help="Full path to data directory containing either a fastq_pass subdirectory for ONT data or fastq subdirectory for Illumina")
-parser.add_argument("-e", "--experiment_type", help="Experiment type options: Flu-ONT, SC2-Spike-Only-ONT, Flu_Illumina, SC2-Whole-Genome-ONT, SC2-Whole-Genome-Illumina" )
+parser.add_argument("-e", "--experiment_type", help="Experiment type options: Flu-ONT, SC2-Spike-Only-ONT, Flu_Illumina, SC2-Whole-Genome-ONT, SC2-Whole-Genome-Illumina, SC2-Spike-Only-Illumina" )
 parser.add_argument("-p", "--primer_schema", required=False, help="For whole-genome SARS-CoV-2 Illumina data, which primer schema was used?")
 parser.add_argument("-c", "--cleanup", required=False, help="option for data cleanup, CLEANUP-FOOTPRINT, other options for development and testing")
 parser.add_argument("-m", "--mira", action='store_true', required=False, help="Command-line MIRA called from MIRA.sh bash script")
@@ -137,6 +137,8 @@ if "ont" in experiment_type.lower():
 else:
     if "flu" in experiment_type.lower():
         snakefile_path += "illumina_influenza_snakefile"
+    elif "spike" in experiment_type.lower():
+        snakefile_path += "illumina_sc2_spike_snakefile"
     elif "sc2" in experiment_type.lower():
         snakefile_path += "illumina_sc2_snakefile"
     elif "rsv" in experiment_type.lower():
