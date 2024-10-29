@@ -13,6 +13,7 @@ parser.add_argument("-r", "--runid", help="Full path to data directory containin
 parser.add_argument("-e", "--experiment_type", help="Experiment type options: Flu-ONT, SC2-Spike-Only-ONT, Flu_Illumina, SC2-Whole-Genome-ONT, SC2-Whole-Genome-Illumina" )
 parser.add_argument("-p", "--primer_schema", required=False, help="For whole-genome SARS-CoV-2 Illumina data, which primer schema was used?")
 parser.add_argument("-c", "--cleanup", required=False, help="option for data cleanup, CLEANUP-FOOTPRINT, other options for development and testing")
+parser.add_argument("-i", "--irma_flu_sensitive", required=False, help="option for using IRMA's flu-sensitive module for Flu Illumina data")
 parser.add_argument("-m", "--mira", action='store_true', required=False, help="Command-line MIRA called from MIRA.sh bash script")
 
 inputarguments = parser.parse_args()
@@ -20,7 +21,7 @@ inputarguments = parser.parse_args()
 root = "/".join(abspath(__file__).split("/")[:-2])
 if len(argv) < 2:
     exit(
-        "\n\tUSAGE: {} -s <samplesheet.csv> -r <runpath> -e <experiment_type> <optional: -p primer_schema> <optional: -c clean_option> \n".format(__file__)
+        "\n\tUSAGE: {} -s <samplesheet.csv> -r <runpath> -e <experiment_type> <optional: -p primer_schema> <optional: -i irma_flu_sensitive> <optional: -c clean_option> \n".format(__file__)
     )
 print(f"argv[1:]= {argv[1:]}")
 try:
@@ -38,6 +39,10 @@ try:
         clean_option = inputarguments.cleanup
     else:
         clean_option = ''
+    if inputarguments.irma_flu_sensitive:
+        flu_sensitive = True
+    else:
+        flu_sensitive = False
     if inputarguments.mira:
         cli = True
     else:

@@ -16,6 +16,11 @@ try:
 except:
     cli = False
 
+try:
+    flu_sensitive = bool(config["flu_sensitive"])
+except:
+    flu_sensitive = False
+
 def find_chemistry(fastq, runid):
     global irma_custom
     global subsample
@@ -27,7 +32,11 @@ def find_chemistry(fastq, runid):
         with gzip.open(fastq) as infi:
             contents = infi.readlines()
     try:
-        if len(contents[1]) > 145:
+        if flu_sensitive
+            config_path = workflow.basedir + "/irma_config/FLU-sensitive.sh"
+            irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-sensitive.sh"]
+            subsample = "200000"
+        else len(contents[1]) > 145:
             config_path = workflow.basedir + "/irma_config/FLU-illumina.sh"
             irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-illumina.sh"]
             subsample = "100000"
