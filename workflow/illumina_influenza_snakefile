@@ -32,7 +32,7 @@ def find_chemistry(fastq, runid):
         with gzip.open(fastq) as infi:
             contents = infi.readlines()
     try:
-        if flu_sensitive
+        if flu_sensitive == true
             config_path = workflow.basedir + "/irma_config/FLU-sensitive.sh"
             irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-sensitive.sh"]
             subsample = "200000"
