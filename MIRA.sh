@@ -38,16 +38,16 @@ else
 	OPTIONALARGS="-p $PRIMER_SCHEMA"
 fi
 
+if [[ -z "${IRMA_FLU_SENSITIVE}" ]]; then
+	OPTIONALARGS=""
+else
+	OPTIONALARGS="${OPTIONALARGS} -i $IRMA_FLU_SENSITIVE"
+fi
+
 if [[ -z "${CLEANUP}" ]]; then
 	OPTIONALARGS="${OPTIONALARGS}"
 else
 	OPTIONALARGS="${OPTIONALARGS} -c ${CLEANUP}"
-fi
-
-if [[ -z "${IRMA_FLU_SENSITIVE}" ]]; then
-	IRMA_CONFIG=""
-else
-	IRMA_CONFIG="-i"
 fi
 
 # Run whatever Bash commands here
@@ -86,4 +86,4 @@ else
 	CLI="-m"
 fi
 
-python3 ${SPYNE_PROGRAM_DIR}/scripts/config_create.py $CLI -s "$SAMPLESHEET" -r "$RUNPATH" -e "$EXPERIMENT_TYPE" $OPTIONALARGS $IRMA_CONFIG
+python3 ${SPYNE_PROGRAM_DIR}/scripts/config_create.py $CLI -s "$SAMPLESHEET" -r "$RUNPATH" -e "$EXPERIMENT_TYPE" $OPTIONALARGS
