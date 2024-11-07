@@ -32,18 +32,19 @@ def find_chemistry(fastq, runid):
         with gzip.open(fastq) as infi:
             contents = infi.readlines()
     try:
-        if flu_sensitive == true
+        if flu_sensitive
             config_path = workflow.basedir + "/irma_config/FLU-sensitive.sh"
             irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-sensitive.sh"]
             subsample = "200000"
-        else len(contents[1]) > 145:
-            config_path = workflow.basedir + "/irma_config/FLU-illumina.sh"
-            irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-illumina.sh"]
-            subsample = "100000"
         else:
-            config_path = workflow.basedir + "/irma_config/FLU-2x75.sh"
-            irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-2x75.sh"]
-            subsample = "200000"
+            if len(contents[1]) > 145:
+                config_path = workflow.basedir + "/irma_config/FLU-illumina.sh"
+                irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-illumina.sh"]
+                subsample = "100000"
+            else:
+                config_path = workflow.basedir + "/irma_config/FLU-2x75.sh"
+                irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-2x75.sh"]
+                subsample = "200000"
     except: #empty fastq handling
         config_path = workflow.basedir + "/irma_config/FLU-illumina.sh"
         irma_custom = [f"cp {config_path} IRMA/ &&",f"--external-config /data/{runid}/IRMA/FLU-illumina.sh"]
