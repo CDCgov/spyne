@@ -101,9 +101,15 @@ if 'ont' in experiment_type.lower():
         print("failed samples detected: Barcodes\n", failures.strip())
 else:
     if not cli:
-        data = {'runid':runpath.split('/')[-1], 'samples':{}}
+        if not flu_sensitive:
+            data = {'runid':runpath.split('/')[-1], 'samples':{}}
+        else:
+            data = {'runid':runpath.split('/')[-1], 'flu_sensitive': True, 'samples':{}}
     else:
-        data = {'runid':runpath.split('/')[-1], 'cli': True, 'samples':{}}
+        if not flu_sensitive:
+            data = {'runid':runpath.split('/')[-1], 'cli': True, 'samples':{}}
+        else:
+            data = {'runid':runpath.split('/')[-1], 'cli': True, 'flu_sensitive': True, 'samples':{}}
     for d in dfd.values():
         id = d['Sample ID']
         print(f"runpath = {runpath}\nid = {id}")
