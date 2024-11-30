@@ -1,0 +1,129 @@
+import os
+import sys
+import glob
+
+shell.executable("bash")
+
+workdir: "."
+configfile: "config.yaml"
+
+config["samples"] = {str(k): v for k, v in config["samples"].items()}
+config["samples"] = OrderedDict([(key, config["samples"][key]) for key in config["samples"] ])
+
+
+rule all:
+    input:
+        expand("IRMA/FLU_{sample}.fin", sample=config["samples"].keys())
+    shell:
+        "touch IRMA/spyne.fin"
+
+
+rule subsample:
+    input:
+        lambda wildcards: config["samples"][wildcards.sample]["R1_fastq"]
+    output:
+        "IRMA/{sample}_subsampled.fastq"
+    log:
+        out = "logs/{sample}.reformat.stdout.log",
+        err = "logs/{sample}.reformat.stderr.log"
+    group:
+        "trim-map"
+    message: "Step 1 - subsampling cleaned up reads if excess > 100K exist"
+    shell:
+        "reformat.sh"
+        " in={input}"
+        " out={output.O1}"
+        #??? "qin=33"
+        " samplereadstarget=100000"
+        " tossbrokenreads"
+        " 1> {log.out}"
+        " 2> {log.err}"
+
+rule irma:
+    input:
+        rules.subsample.output
+    output:
+        touch("IRMA/{sample}.irma.fin")
+    log:
+        out = "logs/{sample}.irma.stdout.log",
+        err = "logs/{sample}.irma.stderr.log"
+    benchmark:
+        "logs/benchmarks/irma_{sample}.log"
+    group:
+        "trim-map"
+    threads: 14
+    message: "Step 5 - assembling genome with IRMA"
+    shell:
+        "docker exec irma IRMA FLU-roche /data/{config[runid]}/IRMA/{wildcards.sample}_subsampled.fastq /data/{config[runid]}/IRMA/{wildcards.sample} 2> {log.err} |tee -a {log.out}"
+
+# Pipeline waits here for all samples to produce the checkpoint input needed
+#  here and then reevaluates the needed DAG for each sample.
+checkpoint checkirma:
+    input:
+        ancient('IRMA/{sample}.irma.fin')
+    output:
+        'IRMA/{sample}.irma.decision'
+    log:
+        "logs/irma/checkirma_{sample}.log"
+    shell:
+        "[ -d IRMA/{wildcards.sample}/amended_consensus ] &&"
+        "[ \"$(ls -A IRMA/{wildcards.sample}/amended_consensus)\" ] &&"
+        " echo passed > {output} ||"
+        " echo failed > {output}"
+
+
+
+def passed_irma(wildcards):
+    with checkpoints.checkirma.get(sample=wildcards.sample).\
+    output[0].open() as f:
+        if f.read().strip() == "passed":
+            return rules.prepareIRMAjson.output
+        else:
+            return rules.pass_negatives.output
+
+
+rule pass_negatives:
+    input:
+        ancient(rules.checkirma.output)
+    output:
+        "IRMA_negative/{sample}"
+    shell:
+        "touch {output}"
+
+rule catfiles:
+    input:
+        expand('IRMA/{sample}.irma.decision', sample=config["samples"].keys())
+    output:
+        "DAIS_ribosome_input.fasta"
+    message: "Step 6 - Collecting consensus genomes"
+    shell:
+        "cat IRMA/*/amended_consensus/*.fa > {output} || touch {output}"
+
+rule dais_ribosome:
+    input: 
+        rules.catfiles.output
+    output:
+        touch('DAIS_ribosome_output.fin')
+    message: "Step 7 - Translating sequences into open reading frames (ORFs) with DAIS-Ribosome"
+    log:
+        "logs/dais_ribosome/dais.ribosome.log"
+    shell:
+        "{workflow.basedir}/scripts/daiswrapper.sh -i {config[runid]}/{input} -m INFLUENZA"
+
+rule prepareIRMAjson:
+    input:
+        rules.dais_ribosome.output
+    output:
+        touch('IRMA/prepareIRMAjson.fin')
+    message: "Step 8 - Creating Plotly-Dash readable figures and tables for IRMA-SPY"
+    log:
+        "logs/prepareIRMAjson.log"
+    shell:
+        "python3 {workflow.basedir}/scripts/prepareIRMAjson.py IRMA samplesheet.csv illumina flu"
+
+
+rule finishup:
+    input:
+        passed_irma
+    output:
+        touch("IRMA/FLU_{sample}.fin")
