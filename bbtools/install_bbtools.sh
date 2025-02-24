@@ -3,9 +3,9 @@
 # Wrapper to install downloaded packages 
 
 PACKAGE_ROOT=/opt/bbtools
-PROJECT_DIR=${PROJECT_DIR:-/spyne}
-bbtools_orig=${PROJECT_DIR}/bbtools/bbtools_file.txt
-bbtools_clean=${PROJECT_DIR}/bbtools/bbtools_file_clean.txt
+BBTOOLS_PROGRAM_DIR=${BBTOOLS_PROGRAM_DIR:-/bbtools}
+bbtools_orig=${BBTOOLS_PROGRAM_DIR}/bbtools_file.txt
+bbtools_clean=${BBTOOLS_PROGRAM_DIR}/bbtools_file_clean.txt
 
 # Make the bbtools directory exits, if not, create it
 if [[ ! -d ${PACKAGE_ROOT} ]]
@@ -26,13 +26,18 @@ then
 	n=`wc -l < ${bbtools_clean}`
 	i=1
 
-	# Wget the file and install the package
+	# Get the file and install the package
 	while [[ i -le $n ]];
 	do
 		echo $i
 		file=$(head -${i} ${bbtools_clean} | tail -1 | sed 's,\r,,g')
 		echo $file
-		tar -zxf ${PROJECT_DIR}/bbtools/${file} -C ${PACKAGE_ROOT}
+		# Check if file exists
+		if [[ -f ${BBTOOLS_PROGRAM_DIR}/${file} ]]
+		then
+			echo "Extract bbmap"
+			tar -zxf ${BBTOOLS_PROGRAM_DIR}/${file} -C ${PACKAGE_ROOT}
+		fi
 		i=$(($i+1))
 	done
 	
