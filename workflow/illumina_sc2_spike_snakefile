@@ -119,7 +119,7 @@ rule bbduk_r1:
         'hdist=1',
         'rcomp=t',
         'ordered=t',
-        'ref='+primers["s_gene"]["fasta"],
+        'ref='+primers[config['samples']['{}'.format(wildcards.sample)]['Library']]['fasta'],
         'k=19',
         'restrictleft=45']),
         #ref = primers[s_gene[fasta]], #revisit
