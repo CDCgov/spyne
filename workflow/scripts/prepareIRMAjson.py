@@ -518,7 +518,10 @@ def generate_dfs(irma_path):
         if len(glob(f"{irma_path}/dais_results/*seq")) == 0:
             time.sleep(1)
         c += 1
-    dais_vars_df = dais2pandas.compute_dais_variants(f"{irma_path}/dais_results")
+    if virus != "flu":
+        dais_vars_df = dais2pandas.compute_dais_variants(f"{irma_path}/dais_results")
+    else:
+        dais_vars_df = dais2pandas.compute_cvv_dais_variants(f"{irma_path}/dais_results")
     with open(f"{irma_path}/../dash-json/dais_vars.json", "w") as out:
         dais_vars_df.to_json(out, orient="split", double_precision=3)
         print(f"  -> dais_vars_df saved to {out.name}")
