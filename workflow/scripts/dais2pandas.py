@@ -230,4 +230,5 @@ def compute_cvv_dais_variants(results_path, specific_ref=False):
     seqs["AA Variant Count"] = seqs["AA Variants"].map(lambda x: len(x.split(",")) if x != '' else 0)
     seqs = seqs[["Sample", "CVV", "Protein", "AA Variant Count", "AA Variants"]]
     seqs = seqs.sort_values(by=["Protein","Sample","AA Variant Count"]).drop_duplicates(subset=["Sample", "Protein"], keep="first")
+    seqs = seqs.rename(columns={"CVV":"Reference"})
     return seqs
