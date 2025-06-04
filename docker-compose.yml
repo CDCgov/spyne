@@ -1,12 +1,19 @@
-version: "3.9"
+
+x-base-image:
+  &base-image
+  base_image: python:3.10-slim-bookworm
+
+x-python-version:
+  &python-version
+  python_version: python3.10
 
 x-irma-image:
   &irma-image
-  irma_image: cdcgov/irma:v1.2.0
+  irma_image: cdcgov/irma:v1.2.1
 
 x-dais-image:
   &dais-image
-  dais_image: cdcgov/dais-ribosome:v1.5.4
+  dais_image: cdcgov/dais-ribosome:v1.5.5
 
 x-data-volume:
   &data-volume
@@ -22,7 +29,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        << : [*irma-image, *dais-image]
+        << : [*base-image, *python-version, *irma-image, *dais-image]
     restart: always
     volumes:
       - *data-volume

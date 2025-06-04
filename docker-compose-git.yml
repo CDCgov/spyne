@@ -1,8 +1,15 @@
-version: "3.9"
 
 x-spyne-git-repo:
   &spyne-git-repo 
-  https://github.com/CDCgov/spyne.git#single_spyne_container
+  https://github.com/CDCgov/spyne.git#v2.1.0
+
+x-base-image:
+  &base-image
+  base_image: debian:bookworm
+
+x-python-version:
+  &python-version
+  python_version: python3.10
 
 x-irma-image:
   &irma-image
@@ -26,7 +33,7 @@ services:
       context: *spyne-git-repo
       dockerfile: Dockerfile
       args:
-        << : [*irma-image, *dais-image]
+        << : [*base-image, *python-version, *irma-image, *dais-image]
     restart: always
     volumes:
       - *data-volume
